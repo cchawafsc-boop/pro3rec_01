@@ -1,0 +1,394 @@
+/* CSS Document */
+
+body{        
+	padding-top: 36px;
+	left:0;
+	background-color: aliceblue;
+}
+table, th, td {
+	border: 1px solid black;
+}
+th{  
+	background-color: lightgrey;
+}
+label{
+	padding: 0px 4px;
+}
+.topbar1{
+	width: 100%;
+	position: fixed;
+	display: flex;
+	background: darkblue;/* #222;*/
+	color:#FFF;
+	top: 0;
+	left:0;
+	height: 33px;
+	line-height:2px;
+	align-items: center;
+	overflow:auto;
+}
+.topbar1 img{
+	height: 30px;
+	padding: 0px 5px;
+}
+.topbar2{
+	width: 100%;
+	position: fixed;        
+	background: mediumblue; /* #444;*/
+	color:#FFF;
+	top: 33px;
+	left:0;
+	height: 33px;
+	overflow:auto;
+	display: inline;
+}
+.topbar2::after {
+	content: "";
+	clear: both;
+	display: table;
+}
+/*==========================================================*/
+
+.form-lgin {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+	text-align:center;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.form-lgin input[type="number"],
+.form-lgin input[type="password"],
+.form-lgin input[type="text"],
+.form-lgin select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-lgin button {
+	padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-lgin button#cancelBtn {
+    background-color: #f44336;
+    color: white;
+}
+.form-lgin button#okBtn {
+    background-color: #4CAF50;
+    color: white;
+}
+.form-lgin button#regCancelBtn {
+    background-color: #f44336;
+    color: white;
+}
+.form-lgin button#regOkBtn {
+    background-color: #4CAF50;
+    color: white;
+}
+/*==========================================================*/
+
+.main-menu{
+	justify-items: center;
+	text-align: center;
+}
+.main-menu button {
+	padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+	width: 20em;
+	border-color:#aaa;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.main-menu button#pro1LcardHisBtn {
+	font-weight: bold;
+	color: white;
+	background-color: mediumblue;
+	width: 10em;
+}
+.main-menu button#pro1LcardBackBtn{
+	font-weight: bold;
+	color: white;
+	background-color: red;
+	width: 10em;
+}
+/*==========================================================*/
+
+.pro1LcardHis{
+	justify-items: center;
+	text-align: center;
+}
+.pro1LcardHis input[type='date']{
+	height: 20px;
+	margin: 5px 15px;
+}
+.pro1LcardHis select{
+	height: 25px;
+	margin: 5px 15px;
+}
+.pro1LcardHis button#okBtn{
+	color:white;
+	margin: 5px 15px;
+	background-color: blue;	
+}
+.pro1LcardHis button#cancelBtn{
+	color:white;
+	margin: 5px 15px;
+	background-color: red;	
+}
+.pro1LcardHis table{
+	margin: 5px 5px;
+}
+.pro1LcardHis th,td{
+	padding: 0px 5px;
+}
+.pro1LcardHis th{
+	background-color: lightskyblue ;
+} 
+/*=========================================================*/
+
+.form-pro1newLcard{
+    justify-items: center;
+    text-align: center;
+}
+.form-pro1newLcard button{
+	padding: 8px 5px;
+	margin: 3px 5px;
+	width: 100px;
+	border-style: none;
+	border-radius: 4px;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.form-pro1newLcard button#cancelBtn{
+	color:white;
+	background-color: red;	
+}
+.form-pro1newLcard button#okBtn{
+	color:white;
+	background-color: green;	
+}
+.form-pro1newLcard-g {
+    display: grid;
+    grid-template-columns: 130px 150px;  /* Defines 2 columns with equal width */
+    gap: 0px;                            /* Sets a gap between grid items */
+    /*border: 1px solid #ccc;*/
+    padding: 3px;
+    border-radius: 8px;
+	justify-content: center;             /* Center the grid horizontally */
+}
+.pro1newLcard-g-it {
+    display: flex;                       /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro1newLcard-g-it input:-webkit-autofill {
+	/* This prevents client's browser change background-color automatically */
+	-webkit-box-shadow: 0 0 0 30px white inset !important;
+	box-shadow: 0 0 0 30px white inset !important;
+    background-color: white !important;
+}
+.pro1newLcard-g-it select{
+	width: 130px;
+}
+.pro1newLcard-g-it input[type="text"]{
+	width: 130px;
+}
+.pro1newLcard-g-it textarea{
+	height: 320px;
+}
+/*==========================================================*/
+
+.pro1incoming {
+	justify-items: center;
+    text-align: center;
+}
+.pro1incoming-g1 {
+    display: grid;
+    grid-template-columns: 140px 180px;  /* Defines 2 columns with equal width */
+    gap: 0px;                                  /* Sets a gap between grid items */
+    /*border: 1px solid #ccc;*/
+    padding: 3px;
+    border-radius: 8px;
+	justify-content: center;                   /* Center the grid horizontally */
+	text-align: center;
+}
+.pro1incoming-g1-it {
+    display: flex;                             /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro1incoming-g1-bot {
+	grid-column: 1 / span 2;
+	display: flex;                            /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+	justify-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro1incoming-g1-bot button{
+	padding: 2px;
+	margin: 5px 5px;
+	border-radius: 4px;
+	border-style: none;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.pro1incoming-g1-bot button#okBtn{
+	width: 120px;
+	background-color: blue;
+	color: white;
+}
+.pro1incoming-g1-bot button#cancelBtn{
+    width: 200px;
+	background-color: red;
+	color: white;
+
+}
+.pro1incoming-tb th{
+	padding: 0px 4px;
+	background-color: lightskyblue;
+}
+.pro1incoming button{
+    margin:2px;
+}
+.pro1incoming-g2 {
+    display: grid;
+    grid-template-columns: 150px 200px;  /* Defines 2 columns with equal width */
+    gap: 0px;                                  /* Sets a gap between grid items */
+    /*border: 1px solid #ccc;*/
+    padding: 3px;
+    border-radius: 8px;
+	justify-content: center;                   /* Center the grid horizontally */
+	text-align: center;
+}
+.pro1incoming-g2-hd{
+	grid-column: 1 / span 2;
+	background-color: lightskyblue;
+	margin-top:10px;
+	padding: 3px;
+	font-weight: bold;
+}
+
+.pro1incoming-g2 input[type="text"]{
+	width: 80px;
+}
+.pro1incoming-g2-it {
+    display: flex;                             /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro1incoming-g3 {
+  display: grid;
+  grid-template-columns: 150px 190px 80px;
+  gap: 0px;
+  padding: 3px;
+  border-radius: 8px;
+  justify-content: center;
+  text-align: center;
+}
+.pro1incoming-g3-hd {
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  padding: 3px;
+}
+.pro1incoming-g3-it {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+.pro1incoming-g3-it input[type="text"] {
+  width: 50px;
+}
+.pro1incoming-g3-it1 {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+.pro1incoming-g3-it1 input[type="text"] {
+  width: 180px;
+}
+.pro1incoming-g3-sum {
+  display: flex;
+  background-color: lightyellow;
+  align-items: center;
+  padding: 5px;
+}
+.pro1incoming-g3-sum input[type="text"] {
+  width: 50px;
+}
+.pro1incoming-g3-bot {
+  grid-column: 1 / span 2;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  padding: 5px;
+  border-radius: 4px;
+}
+.pro1incoming-g3-ft {
+  grid-column: 1 / span 3;
+  display: flex;
+  justify-content: center;
+}
+.pro1incoming-g3-ft button {
+  background-color: blue;
+  color: white;
+  border-style: none;
+  border-radius: 4px;
+  padding: 3px 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+/*==========================================================*/
+
+.makeButton{
+	background:#555;
+	padding: 0px 8px;
+	margin: 1px 5px;
+	font-size:24px;
+	color:#FFF;
+}
+.makeButton:visited{
+	color:#FFF;
+}
+.makeButton:hover{
+	background:#aaa;
+}
+
+
+.cautionMsg{
+	text-align: center;
+	vertical-align: middle;
+}
+@media only screen and (min-width: 768px) {
+	body{
+		padding-top: 28px;
+	}
+	.topbar1{
+		height: 24px;
+	}
+	.topbar1 img{
+		height: 24px;
+	}
+	.topbar2{
+		top: 24px;
+		height: 24px;
+	}
+	.makeButton{
+		font-size:14px;
+	}
+
+}
