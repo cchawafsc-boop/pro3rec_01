@@ -1,5 +1,5 @@
 <div class="topbar1">  
-  <a href="index.php"><img src="/img/logo1.png"></a> 
+  <a href="/index.php"><img src="/img/logo1.png"></a> 
 
   <?php 
   if(empty($_SESSION['us_name'])){
