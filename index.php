@@ -9,7 +9,7 @@
 
   <?php
     session_start();
-    require('connect.php');
+    //require('connect.php');
     require('init_session.php');
     require('topbar.php');
   ?>
