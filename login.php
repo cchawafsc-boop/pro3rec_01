@@ -19,6 +19,7 @@ if($n_row == 1){
   //echo "Password from login page: ".$Pw."<br>";
   //echo "Passwork from Database:   ".$record['PW']."<br>";
   if(($lg_id == $record['ID']) and ($lg_pw == $record['PW']) ){
+    // Login successfully
     $_SESSION['us_name'] = $record['US'];
     $_SESSION['us_id']   = $record['ID'];
     $_SESSION['us_dep']  = $record['DEP'];
@@ -27,10 +28,7 @@ if($n_row == 1){
     // AUT = 1 : 2nd authorized; able to read, write & delete
     // AUT = 2 : 3rd authorized; able to read & write
     // AUT = 3 : lowest authorized; able to read only
-    echo "สวัสดี ".$_SESSION['us_name']." login successfully.</br>";
     if(isset($pv_page)){
-      //echo "previous page is: ".$pv_page;
-      //header("Location: /prodrec/pro1_lotcard/pro1_lotcard.php");
       header("Location:".$pv_page);
     }else{
       header("Location: index.php");
