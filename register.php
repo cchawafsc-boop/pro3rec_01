@@ -48,7 +48,6 @@ if($n_row>0){
         echo "<script> alert(\"ลงทะเบียน ไม่ สำเร็จ, กรุณากรอกข้อมูลใหม่\") </script>";
         echo "<script> location='index.php'</script>";
     }
-    //exit;*/
 }
 
 mysqli_close($conn);   // ปิดฐานข้อมูล
