@@ -4,10 +4,10 @@ session_start();
 require('connect.php');
 
 // get the inputs from the form
-$Us    = $_POST['regis_us'];
-$Pw    = hash('sha256', $_POST['regis_pw']);
-$Id = $_POST['regis_id'];
-$Dep   = strtoupper($_POST['regis_Dep']);
+$Us   = $_POST['regis_us'];
+$Pw   = hash('sha256', $_POST['regis_pw']);
+$Id   = $_POST['regis_id'];
+$Dep  = strtoupper($_POST['regis_Dep']);
     
 /*echo "Username: ".$Us."<br>";
 echo "Password: ".$Pw."<br>";
