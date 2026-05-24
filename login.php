@@ -9,10 +9,12 @@ $lg_pw = hash('sha256', $_POST['lg_pw']);
 if(isset($_REQUEST['pv_page'])){$pv_page = $_REQUEST['pv_page'];}
 
 // Check the redundant user
-$sql = "SELECT * FROM `tb_user` WHERE `ID` LIKE \"".strval($lg_id)."\"";
-$result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+//$sql = "SELECT * FROM `tb_user` WHERE `ID` LIKE \"".strval($lg_id)."\"";
+//$result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+mysqli_stmt_bind_param($stmt, "s", $lg_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 $n_row = mysqli_num_rows($result);
-
 
 if($n_row == 1){
   $record = mysqli_fetch_array($result);
