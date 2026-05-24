@@ -1,6 +1,4 @@
 <?php
-echo "This is logout.php.";
-
 // start the session
 session_start();
 
