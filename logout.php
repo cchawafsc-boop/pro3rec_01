@@ -5,6 +5,8 @@ session_start();
 // get previous page
 if(isset($_REQUEST['pv_page'])){
     $pv_page = $_REQUEST['pv_page'];
+}else{
+    $pv_page = 'index.php';
 }
 
 // remove the session variable
