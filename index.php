@@ -9,15 +9,11 @@
   <?php
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
-  ?>
-  
-  <?php
     session_start();
     require('connect.php');
     require('init_session.php');
     require('topbar.php');
   ?>
-
   
   <!-- Main menu -->
   <div class="main-menu">
