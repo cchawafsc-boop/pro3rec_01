@@ -11,6 +11,7 @@ if(isset($_REQUEST['pv_page'])){$pv_page = $_REQUEST['pv_page'];}
 // Check the redundant user
 //$sql = "SELECT * FROM `tb_user` WHERE `ID` LIKE \"".strval($lg_id)."\"";
 //$result = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+$stmt = mysqli_prepare($conn, "SELECT * FROM `tb_user` WHERE `ID` = ?");
 mysqli_stmt_bind_param($stmt, "s", $lg_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
