@@ -73,6 +73,6 @@
   }
 
   function goLogout(){
-    window.location.href = "/pro3rec/logout.php?pv_page=" + <?php echo json_encode($_SERVER['PHP_SELF']); ?>;
+    window.location.href = "/logout.php?pv_page=" + <?php echo json_encode($_SERVER['PHP_SELF']); ?>;
   }
 </script>
