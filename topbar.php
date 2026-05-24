@@ -14,7 +14,7 @@
 
 <!-- Log-in pop-up window -->
 <div class="form-lgin" id="loginForm">
-  <form action="/pro3rec/login.php?<?php echo "pv_page=".$_SERVER['PHP_SELF']; ?>" method="post">
+  <form action="/login.php?<?php echo "pv_page=".$_SERVER['PHP_SELF']; ?>" method="post">
     <h2>โปรด Login</h2>
     <input  type="number"   id="lg_id" name="lg_id" placeholder="รหัสพนักงาน"  required max="9999" maxlength="4">
     <input  type="password" id="lg_pw" name="lg_pw" placeholder="พาสเวิร์ด" required>
@@ -26,7 +26,7 @@
 
 <!-- Register pop-up window -->
 <div class="form-lgin" id="registerForm">
-  <form action="/pro3rec/register.php" method="post">
+  <form action="/register.php" method="post">
     <h2>ฟอร์มลงทะเบียน</h2>
     <input type="text"     id="reg_us"  name="regis_us"  placeholder="ชื่อพนักงาน"  required minlength="3" maxlength="12">
     <input type="password" id="reg_pw"  name="regis_pw"  placeholder="พาสเวิร์ด"    required minlength="4" maxlength="12">
