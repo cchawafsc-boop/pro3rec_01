@@ -6,7 +6,7 @@
 </head>
 <body>
   <?php
-    require('topbar.php');
+    require('../topbar.php');
   ?>
   
   <!-- Main menu -->
