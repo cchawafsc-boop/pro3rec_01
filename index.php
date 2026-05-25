@@ -19,7 +19,7 @@
   
   <!-- Main menu -->
   <div class="main-menu">
-    h2> ระบบการผลิต Production 3 </h2>
+    <h2> ระบบการผลิต Production 3 </h2>
     <p><button type="button"   id="M1_btn"     >M1-Line</button></p>
     <p><button type="button"   id="Nie1_btn"   >Ni-e Line 1 (Semi-Auto)</button></p>
     <p><button type="button"   id="Nie2_btn"   onclick="goNieLine2()">Ni-e Line 2 (Full-Auto)</button></p>
