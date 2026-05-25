@@ -30,7 +30,7 @@
 
   <script>
     function goNieLine2() {
-      window.location.href = "./line_nie2/nie2_index.php";
+      window.location.href = "/line_nie2/nie2_index.php";
     }
   </script>
   
