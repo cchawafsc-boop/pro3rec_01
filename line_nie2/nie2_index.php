@@ -1,3 +1,9 @@
+<?php
+    session_start();
+    require('../connect.php');
+    require('../init_session.php');
+?>
+
 <!doctype html>
 <head>
   <meta http-equiv="Content-Type" name="viewport" content="text/html; charset=utf-8; width=device-width; initial-scale=1.0" >
@@ -6,9 +12,6 @@
 </head>
 <body>
   <?php
-    session_start();
-    require('../connect.php');
-    require('../init_session.php');
     require('../topbar.php');
   ?>
   
