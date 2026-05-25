@@ -17,10 +17,5 @@
   <?php mysqli_close($conn);   // ปิดฐานข้อมูล
   ?>
   
-  <script>
-    function goPro1Lotcard() {
-      window.location.href = "./line_nie2/nie2_index.php";
-    }
-  </script>
 </body>
 </html>
