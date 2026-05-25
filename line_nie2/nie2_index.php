@@ -18,7 +18,7 @@
   <!-- Main menu -->
   <div class="main-menu">
     <h2> ระบบการผลิต Ni-e line 2 (Full-Auto) </h2>
-    <p> <button type="button"   id="Nie2_HomeBtn"   onclick="goHome()">กลับหน้าหลัก</button>
+    <p> <button type="button"   id="Nie2_HomeBtn"   onclick="goHome()">กลับหน้า Main menu</button>
         <button type="button"   id="Nie2_HistBtn"   onclick="goHist()">ดูประวัติ Lot Card </button> </p>
     <p> <button type="button"   id="์Nie2_Proc01_Btn"   >1 Receiving  </button> </p>
     <p> <button type="button"   id="์Nie2_Proc02_Btn"   >2 Incoming   </button> </p>
