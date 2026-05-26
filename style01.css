@@ -159,11 +159,11 @@ label{
 } 
 /*=========================================================*/
 
-.form-pro1newLcard{
+.form-pro3-proc1{
     justify-items: center;
     text-align: center;
 }
-.form-pro1newLcard button{
+.form-pro3-proc1 button{
 	padding: 8px 5px;
 	margin: 3px 5px;
 	width: 100px;
@@ -171,15 +171,15 @@ label{
 	border-radius: 4px;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.form-pro1newLcard button#cancelBtn{
+.form-pro3-proc1 button#Nie2_homeBtn{
 	color:white;
 	background-color: red;	
 }
-.form-pro1newLcard button#okBtn{
+.form-pro3-proc1 button#okBtn{
 	color:white;
 	background-color: green;	
 }
-.form-pro1newLcard-g {
+.form-pro3-proc1-g {
     display: grid;
     grid-template-columns: 130px 150px;  /* Defines 2 columns with equal width */
     gap: 0px;                            /* Sets a gap between grid items */
@@ -188,26 +188,26 @@ label{
     border-radius: 8px;
 	justify-content: center;             /* Center the grid horizontally */
 }
-.pro1newLcard-g-it {
+.pro3-proc1-g-it {
     display: flex;                       /* Using flexbox for vertical alignment within each cell */
     align-items: center;
     padding: 5px;
     border-radius: 4px;
 }
-.pro1newLcard-g-it input:-webkit-autofill {
+.pro3-proc1-g-it input:-webkit-autofill {
 	/* This prevents client's browser change background-color automatically */
 	-webkit-box-shadow: 0 0 0 30px white inset !important;
 	box-shadow: 0 0 0 30px white inset !important;
     background-color: white !important;
 }
-.pro1newLcard-g-it select{
+.pro3-proc1-g-it select{
 	width: 130px;
 }
-.pro1newLcard-g-it input[type="text"]{
+.pro3-proc1-g-it input[type="text"]{
 	width: 130px;
 }
-.pro1newLcard-g-it textarea{
-	height: 320px;
+.pro3-proc1-g-it input[type="number"]{
+	width: 130px;
 }
 /*==========================================================*/
 
