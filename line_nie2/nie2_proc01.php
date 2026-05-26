@@ -39,9 +39,6 @@
 
   <div class="form-pro3-proc1">
     <h2>1 Receiving — Ni-e Line 2</h2>
-    <p>
-      <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า Ni-e line 2</button>
-    </p>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="form-pro3-proc1-g">
@@ -106,6 +103,7 @@
       </div>
 
       <p>
+        <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
         <button type="submit" id="okBtn">Submit</button>
       </p>
     </form>
