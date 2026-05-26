@@ -83,7 +83,11 @@
 
         <div class="pro1newLcard-g-it"><label>App check</label></div>
         <div class="pro1newLcard-g-it">
-          <input type="text" name="AppCheck">
+          <!--input type="text" name="AppCheck"-->
+          <select name="AppCheck">
+            <option value="OK">OK</option>
+            <option value="FAIL">FAIL</option>
+          </select>
         </div>
 
         <div class="pro1newLcard-g-it"><label>Box quantity</label></div>
@@ -93,7 +97,12 @@
 
         <div class="pro1newLcard-g-it"><label>Box judge</label></div>
         <div class="pro1newLcard-g-it">
-          <input type="text" name="BoxJudge">
+          <!--input type="text" name="BoxJudge"-->
+          <select name="BoxJudge">
+            <option value="OK">OK</option>
+            <option value="FAIL">FAIL</option>
+          </select>
+        </div>
         </div>
 
       </div>
