@@ -104,7 +104,7 @@
 
       <p>
         <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
-        <button type="submit" id="okBtn">Submit</button>
+        <button type="submit" id="okBtn">บันทึกค่า<br>เข้าระบบ</button>
       </p>
     </form>
   </div>
