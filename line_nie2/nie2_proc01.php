@@ -103,8 +103,6 @@
             <option value="FAIL">FAIL</option>
           </select>
         </div>
-        </div>
-
       </div>
 
       <p>
