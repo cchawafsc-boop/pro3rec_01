@@ -1,0 +1,109 @@
+<?php
+    session_start();
+    require('../connect.php');
+    require('../init_session.php');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $prodName = $_POST['ProdName'];
+        $invNo    = $_POST['InvNo'];
+        $wo       = $_POST['WO'];
+        $subLot   = $_POST['SubLot'];
+        $date     = $_POST['Date'];
+        $time     = $_POST['Time'];
+        $opr      = $_POST['Opr'];
+        $appCheck = $_POST['AppCheck'];
+        $boxQty   = (int)$_POST['BoxQty'];
+        $boxJudge = $_POST['BoxJudge'];
+
+        $stmt = mysqli_prepare($conn,
+            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`) VALUES (?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "ssssssssis", $prodName, $invNo, $wo, $subLot, $date, $time, $opr, $appCheck, $boxQty, $boxJudge);
+        $req = mysqli_stmt_execute($stmt);
+        if ($req) {
+            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
+        } else {
+            echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
+        }
+        mysqli_close($conn);
+    }
+?>
+
+<!doctype html>
+<head>
+  <meta http-equiv="Content-Type" name="viewport" content="text/html; charset=utf-8; width=device-width; initial-scale=1.0">
+  <title>production record</title>
+  <link rel="stylesheet" type='text/css' href="../style01.css">
+</head>
+<body>
+  <?php require('../topbar.php'); ?>
+
+  <div class="form-pro1newLcard">
+    <h2>1 Receiving — Ni-e Line 2</h2>
+    <p>
+      <button type="button" id="Nie2_HomeBtn" onclick="window.location.href='./nie2_index.php'">กลับ</button>
+    </p>
+
+    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+      <div class="form-pro1newLcard-g">
+
+        <div class="pro1newLcard-g-it"><label>Product name</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="text" name="ProdName" required>
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>Invoice no</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="text" name="InvNo" required>
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>WO</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="text" name="WO" required>
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>Sub lot no</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="text" name="SubLot" required>
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>Date</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>Time</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="time" name="Time" value="<?php echo date('H:i'); ?>" required>
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>Operator</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" readonly required>
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>App check</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="text" name="AppCheck">
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>Box quantity</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="number" name="BoxQty" min="0" required>
+        </div>
+
+        <div class="pro1newLcard-g-it"><label>Box judge</label></div>
+        <div class="pro1newLcard-g-it">
+          <input type="text" name="BoxJudge">
+        </div>
+
+      </div>
+
+      <p>
+        <button type="submit" id="okBtn">Submit</button>
+      </p>
+    </form>
+  </div>
+
+  <?php if (!isset($req)) { mysqli_close($conn); } ?>
+</body>
+</html>
