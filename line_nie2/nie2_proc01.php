@@ -37,68 +37,68 @@
 <body>
   <?php require('../topbar.php'); ?>
 
-  <div class="form-pro1newLcard">
+  <div class="form-pro3-proc1">
     <h2>1 Receiving — Ni-e Line 2</h2>
     <p>
-      <button type="button" id="Nie2_HomeBtn" onclick="window.location.href='./nie2_index.php'">กลับ</button>
+      <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า Ni-e line 2</button>
     </p>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="form-pro1newLcard-g">
+      <div class="form-pro3-proc1-g">
 
-        <div class="pro1newLcard-g-it"><label>Product name</label></div>
-        <div class="pro1newLcard-g-it">
+        <div class="pro3-proc1-g-it"><label>Product name</label></div>
+        <div class="pro3-proc1-g-it">
           <input type="text" name="ProdName" required>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>Invoice no</label></div>
-        <div class="pro1newLcard-g-it">
+        <div class="pro3-proc1-g-it"><label>Invoice no</label></div>
+        <div class="pro3-proc1-g-it">
           <input type="text" name="InvNo" required>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>WO</label></div>
-        <div class="pro1newLcard-g-it">
+        <div class="pro3-proc1-g-it"><label>WO</label></div>
+        <div class="pro3-proc1-g-it">
           <input type="text" name="WO" required>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>Sub lot no</label></div>
-        <div class="pro1newLcard-g-it">
+        <div class="pro3-proc1-g-it"><label>Sub lot no</label></div>
+        <div class="pro3-proc1-g-it">
           <input type="text" name="SubLot" required>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>Date</label></div>
-        <div class="pro1newLcard-g-it">
+        <div class="pro3-proc1-g-it"><label>Date</label></div>
+        <div class="pro3-proc1-g-it">
           <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>Time</label></div>
-        <div class="pro1newLcard-g-it">
+        <div class="pro3-proc1-g-it"><label>Time</label></div>
+        <div class="pro3-proc1-g-it">
           <input type="time" name="Time" value="<?php echo date('H:i'); ?>" required>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>Operator</label></div>
-        <div class="pro1newLcard-g-it">
+        <div class="pro3-proc1-g-it"><label>Operator</label></div>
+        <div class="pro3-proc1-g-it">
           <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" readonly required>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>App check</label></div>
-        <div class="pro1newLcard-g-it">
-          <!--input type="text" name="AppCheck"-->
-          <select name="AppCheck">
+        <div class="pro3-proc1-g-it"><label>App check</label></div>
+        <div class="pro3-proc1-g-it">
+          <select name="AppCheck" required>
+            <option value="" selected disabled>โปรดระบุ</option>
             <option value="OK">OK</option>
             <option value="FAIL">FAIL</option>
           </select>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>Box quantity</label></div>
-        <div class="pro1newLcard-g-it">
+        <div class="pro3-proc1-g-it"><label>Box quantity</label></div>
+        <div class="pro3-proc1-g-it">
           <input type="number" name="BoxQty" min="0" required>
         </div>
 
-        <div class="pro1newLcard-g-it"><label>Box judge</label></div>
-        <div class="pro1newLcard-g-it">
-          <!--input type="text" name="BoxJudge"-->
-          <select name="BoxJudge">
+        <div class="pro3-proc1-g-it"><label>Box judge</label></div>
+        <div class="pro3-proc1-g-it">
+          <select name="BoxJudge" required>
+            <option value="" selected disabled>โปรดระบุ</option>
             <option value="OK">OK</option>
             <option value="FAIL">FAIL</option>
           </select>
