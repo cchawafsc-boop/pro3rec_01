@@ -45,7 +45,7 @@
 
         <div class="pro3-proc1-g-it"><label>Product name</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="text" name="ProdName" required>
+          <input type="text" name="ProdName" autofocus required>
         </div>
 
         <div class="pro3-proc1-g-it"><label>Invoice no</label></div>
