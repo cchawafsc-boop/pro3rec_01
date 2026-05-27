@@ -105,7 +105,11 @@
 
         <div class="pro3-proc1-g-it"><label>Box check</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="text" name="BoxCondition" required>
+          <select name="BoxCondition" required>
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="OK">OK</option>
+            <option value="FAIL">FAIL</option>
+          </select>
         </div>
 
         <div class="pro3-proc1-g-it"><label>Q'ty invoice</label></div>
