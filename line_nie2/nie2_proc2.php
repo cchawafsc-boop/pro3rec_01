@@ -112,12 +112,12 @@
           </select>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Q'ty invoice</label></div>
+        <div class="pro3-proc1-g-it"><label>จำนวนตาม Inv (pcs)</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="AmountInv" min="0" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Sampling size</label></div>
+        <div class="pro3-proc1-g-it"><label>จำนวนสุ่ม (pcs)</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="SamplingSize" min="0" required>
         </div>
@@ -127,74 +127,74 @@
           Defect
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Break</label></div>
+        <div class="pro3-proc1-g-it"><label>แตกหัก</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Break" id="f_Break" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Bumps</label></div>
+        <div class="pro3-proc1-g-it"><label>รอยกระแทก</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Bumps" id="f_Bumps" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Burrs</label></div>
+        <div class="pro3-proc1-g-it"><label>เศษเสี้ยน</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Burrs" id="f_Burrs" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Chip</label></div>
+        <div class="pro3-proc1-g-it"><label>เศษกระเทาะ</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Chip" id="f_Chip" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Crack</label></div>
+        <div class="pro3-proc1-g-it"><label>รอยร้าว</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Crack" id="f_Crack" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Contam</label></div>
+        <div class="pro3-proc1-g-it"><label>สิ่งแปลกปลอม</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Contam" id="f_Contam" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Dent</label></div>
+        <div class="pro3-proc1-g-it"><label>รอยยุบ</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Dent" id="f_Dent" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Scratch</label></div>
+        <div class="pro3-proc1-g-it"><label>รอยขีดข่วน</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Scratch" id="f_Scratch" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Scuff</label></div>
+        <div class="pro3-proc1-g-it"><label>รอยขูด</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Scuff" id="f_Scuff" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Stain</label></div>
+        <div class="pro3-proc1-g-it"><label>คราบน้ำ</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Stain" id="f_Stain" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Deform</label></div>
+        <div class="pro3-proc1-g-it"><label>เสียรูป</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Deform" id="f_Deform" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Finger</label></div>
+        <div class="pro3-proc1-g-it"><label>รอยนิ้วมือ</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="Finger" id="f_Finger" min="0" value="0" oninput="calcNG()" required>
         </div>
 
-        <div class="pro3-proc1-g-it" style="background-color:lightyellow; font-weight:bold;"><label>NG total</label></div>
+        <div class="pro3-proc1-g-it" style="background-color:lightyellow; font-weight:bold;"><label>NG รวม</label></div>
         <div class="pro3-proc1-g-it" style="background-color:lightyellow;">
           <input type="number" name="NGtotal" id="f_NGtotal" min="0" value="0" readonly required>
         </div>
 
         <!-- Remark -->
         <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center; margin-top:6px;">
-          <label>Remark</label>
+          <label>หมายเหตุ</label>
         </div>
         <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center;">
           <textarea name="Remark" rows="3" style="width:270px;"></textarea>
