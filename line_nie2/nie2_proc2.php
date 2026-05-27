@@ -112,7 +112,7 @@
           </select>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>จำนวนตาม Inv (pcs)</label></div>
+        <div class="pro3-proc1-g-it"><label>จำนวนใน Inv (pcs)</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="AmountInv" min="0" required>
         </div>
