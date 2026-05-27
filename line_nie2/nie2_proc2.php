@@ -112,12 +112,12 @@
           </select>
         </div>
 
-        <div class="pro3-proc1-g-it" style="justify-content:flex-start;"><label>จำนวนใน Inv (pcs)</label></div>
+        <div class="pro3-proc1-g-it" style="font-size:75em;"><label>จำนวนใน Inv (pcs)</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="AmountInv" min="0" required>
         </div>
 
-        <div class="pro3-proc1-g-it" style="justify-content:flex-start;"><label>จำนวนสุ่ม (pcs)</label></div>
+        <div class="pro3-proc1-g-it" style="font-size:75em;"><label>จำนวนสุ่ม (pcs)</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="SamplingSize" min="0" required>
         </div>
