@@ -43,19 +43,29 @@
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="form-pro3-proc1-g">
 
-        <div class="pro3-proc1-g-it"><label>Product name</label></div>
+        <div class="pro3-proc1-g-it"><label>Product name from Lot Tag</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="text" name="ProdName" autofocus required>
+          <input type="text" name="ProdName_LotTag" autofocus required>
+        </div>
+
+        <div class="pro3-proc1-g-it"><label>Product name from Travelling Sheet</label></div>
+        <div class="pro3-proc1-g-it">
+          <input type="text" name="ProdName" required>
+        </div>
+
+        <div class="pro3-proc1-g-it"><label>WO from Lot Tag</label></div>
+        <div class="pro3-proc1-g-it">
+          <input type="text" name="WO_LotTag" required>
+        </div>
+
+        <div class="pro3-proc1-g-it"><label>WO from Traveling Sheet </label></div>
+        <div class="pro3-proc1-g-it">
+          <input type="text" name="WO" required>
         </div>
 
         <div class="pro3-proc1-g-it"><label>Invoice no</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" name="InvNo" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>WO</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="text" name="WO" required>
         </div>
 
         <div class="pro3-proc1-g-it"><label>Sub lot no</label></div>
@@ -98,6 +108,23 @@
             <option value="" selected disabled>โปรดระบุ</option>
             <option value="OK">OK</option>
             <option value="FAIL">FAIL</option>
+          </select>
+        </div>
+
+        <div class="pro3-proc1-g-it"><label>Lot ID</label></div>
+        <div class="pro3-proc1-g-it">
+          <select name="BoxJudge" required>
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="L01">L01</option>
+            <option value="L02">L02</option>
+            <option value="L03">L03</option>
+            <option value="L04">L04</option>
+            <option value="L05">L05</option>
+            <option value="L06">L06</option>
+            <option value="L07">L07</option>
+            <option value="L08">L08</option>
+            <option value="L09">L09</option>
+            <option value="L10">L10</option>
           </select>
         </div>
       </div>
