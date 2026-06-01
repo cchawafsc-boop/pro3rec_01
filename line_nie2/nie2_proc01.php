@@ -14,10 +14,12 @@
         $appCheck = $_POST['AppCheck'];
         $boxQty   = (int)$_POST['BoxQty'];
         $boxJudge = $_POST['BoxJudge'];
+        $lotID    = $_POST['LotID'];
+        $lotIDFull= $lotID."_".$date."_".$time;
 
         $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`) VALUES (?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "ssssssssis", $prodName, $invNo, $wo, $subLot, $date, $time, $opr, $appCheck, $boxQty, $boxJudge);
+            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`lotIDFull`) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "ssssssssis", $prodName, $invNo, $wo, $subLot, $date, $time, $opr, $appCheck, $boxQty, $boxJudge, $lotIDFull);
         $req = mysqli_stmt_execute($stmt);
         if ($req) {
             echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
@@ -113,7 +115,7 @@
 
         <div class="pro3-proc1-g-it"><label>Lot ID</label></div>
         <div class="pro3-proc1-g-it">
-          <select name="BoxJudge" required>
+          <select name="LotID" required>
             <option value="" selected disabled>โปรดระบุ</option>
             <option value="L01">L01</option>
             <option value="L02">L02</option>
