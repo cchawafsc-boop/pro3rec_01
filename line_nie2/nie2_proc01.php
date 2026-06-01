@@ -18,7 +18,7 @@
         $lotIDFull= $lotID."_".$date."_".$time;
 
         $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`lotIDFull`) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
         mysqli_stmt_bind_param($stmt, "ssssssssis", $prodName, $invNo, $wo, $subLot, $date, $time, $opr, $appCheck, $boxQty, $boxJudge, $lotIDFull);
         $req = mysqli_stmt_execute($stmt);
         if ($req) {
