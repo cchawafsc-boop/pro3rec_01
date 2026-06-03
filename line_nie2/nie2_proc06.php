@@ -47,6 +47,12 @@
             $qaJudge, $remark);
         $req = mysqli_stmt_execute($stmt);
         if ($req) {
+            if ($qaJudge === 'PASS' && !empty($_SESSION['lotid'])) {
+                $ustmt = mysqli_prepare($conn,
+                    "UPDATE `tb_proc1` SET `DoneFlag`='yes' WHERE `LotID`=?");
+                mysqli_stmt_bind_param($ustmt, 's', $_SESSION['lotid']);
+                mysqli_stmt_execute($ustmt);
+            }
             echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
         } else {
             echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
@@ -179,3 +185,4 @@
   </script>
 </body>
 </html>
+
