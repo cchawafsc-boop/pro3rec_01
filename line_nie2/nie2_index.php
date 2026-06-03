@@ -30,7 +30,7 @@
     <p> <button type="button"   id="์Nie2_Proc03_Btn"   onclick="goProc03()">3. Racking    </button> </p>
     <p> <button type="button"   id="์Nie2_Proc04_Btn"   onclick="goProc04()">4. Plating    </button> </p>
     <p> <button type="button"   id="์Nie2_Proc05_Btn"   onclick="goProc05()">5. Inspection </button> </p>
-    <p> <button type="button"   id="์Nie2_Proc06_Btn"   onclick="goProc06()">6. QAoutgoing </button> </p>
+    <p> <button type="button"   id="์Nie2_Proc06_Btn"   >6. QAoutgoing </button> </p>
         
   </div>
 
