@@ -55,7 +55,7 @@
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc5`
              (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,
-              `BoxNo`,`PlateNo`,`RackNo`,`FGtatal`,
+              `BoxNo`,`PlateNo`,`RackNo`,`FGtotal`,
               `Blister`,`Break`,`Bumps`,`Chip`,`Crack`,
               `EdgeFlowMark`,`FlowMark`,`Discolor`,`Contam`,`Dent`,
               `Scuff`,`Scratch`,`Stain`,`ExposedCu`,`Pitting`,
