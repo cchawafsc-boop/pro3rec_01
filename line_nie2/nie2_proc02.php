@@ -79,11 +79,7 @@
 
   <div class="form-pro3-proc1">
     <h2>2 Incoming — Ni-e Line 2</h2>
-    <?php if (!empty($_SESSION['lotid'])): ?>
-    <p style="color:#1a6e1a; font-weight:bold; font-size:1.05em;">
-      กำลังทำงานบน Lot: <?php echo htmlspecialchars($_SESSION['lotid']); ?>
-    </p>
-    <?php endif; ?>
+      
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="form-pro3-proc1-g">
 
