@@ -62,15 +62,21 @@
 
   <div class="form-pro3-proc1">
     <h2>4 Plating — Ni-e Line 2</h2>
-    <?php if (!empty($_SESSION['lotid'])): ?>
-    <p style="color:#1a6e1a; font-weight:bold; font-size:1.05em;">
-      กำลังทำงานบน Lot: <?php echo htmlspecialchars($_SESSION['lotid']); ?>
-    </p>
-    <?php endif; ?>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="form-pro3-proc1-g">
 
+        <div class="pro3-proc1-g-it"><label>Lot ID</label></div>
+        <div class="pro3-proc1-g-it" style="font-size:0.8em"><label>
+          <?php 
+            if (!empty($_SESSION['lotid'])):
+              echo htmlspecialchars($_SESSION['lotid']);
+            else:
+              echo "กรุณาเลือก Lot ID";
+            endif;
+          ?></label>
+        </div>
+          
         <div class="pro3-proc1-g-it"><label>Product name</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" name="ProdName" value="<?php echo $lot_prodname; ?>" autofocus required>
