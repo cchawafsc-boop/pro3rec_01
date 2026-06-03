@@ -129,7 +129,7 @@
 
         <div class="pro3-proc1-g-it"><label>Tank no</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="text" name="TankNo" required>
+          <input type="number" name="TankNo" min="1" max="3" required>
         </div>
 
         <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center; margin-top:6px;">
