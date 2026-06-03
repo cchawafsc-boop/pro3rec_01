@@ -50,6 +50,7 @@
         $incpltCNC    = (int)$_POST['IncpltCNC'];
         $kizZone      = (int)$_POST['KIZzone'];
         $ngTotal      = (int)$_POST['NGtotal'];
+        $fgngTotal    = (int)$_POST['FGNGtotal'];
         $remark       = $_POST['Remark'];
 
         $stmt = mysqli_prepare($conn,
@@ -60,16 +61,16 @@
               `EdgeFlowMark`,`FlowMark`,`Discolor`,`Contam`,`Dent`,
               `Scuff`,`Scratch`,`Stain`,`ExposedCu`,`Pitting`,
               `Finger`,`Deform`,`IncpltCNC`,`KIZzone`,
-              `NGtotal`,`Remark`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "ssssssisiiiiiiiiiiiiiiiiiiiiiiis",
+              `NGtotal`,`FGNGtotal`,`Remark`)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "ssssssisiiiiiiiiiiiiiiiiiiiiiiiis",
             $prodName, $invNo, $wo, $subLot, $date, $time, $opr,
             $boxNo, $plateNo, $rackNo, $fgTotal,
             $blister, $break_, $bumps, $chip, $crack,
             $edgeFlowMark, $flowMark, $discolor, $contam, $dent,
             $scuff, $scratch, $stain, $exposedCu, $pitting,
             $finger, $deform, $incpltCNC, $kizZone,
-            $ngTotal, $remark);
+            $ngTotal, $fgngTotal, $remark);
         $req = mysqli_stmt_execute($stmt);
         if ($req) {
             echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
@@ -153,7 +154,7 @@
 
         <div class="pro3-proc1-g-it"><label>จำนวน FG (pcs)</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="number" name="FGtotal" id="f_FGtotal" min="0" required>
+          <input type="number" name="FGtotal" id="f_FGtotal" min="0" oninput="calcNG()" required>
         </div>
 
         <!-- Defect section header -->
@@ -261,6 +262,11 @@
           <input type="number" name="NGtotal" id="f_NGtotal" min="0" value="0" readonly required>
         </div>
 
+        <div class="pro3-proc1-g-it"><label>FG &amp; NG</label></div>
+        <div class="pro3-proc1-g-it">
+          <input type="number" name="FGNGtotal" id="f_FGNGtotal" min="0" value="0" readonly required>
+        </div>
+
         <!-- Remark -->
         <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center; margin-top:6px;">
           <label>-หมายเหตุ-</label>
@@ -293,6 +299,8 @@
         total += parseInt(document.getElementById('f_' + name).value) || 0;
       });
       document.getElementById('f_NGtotal').value = total;
+      const fg = parseInt(document.getElementById('f_FGtotal').value) || 0;
+      document.getElementById('f_FGNGtotal').value = fg + total;
     }
   </script>
 </body>
