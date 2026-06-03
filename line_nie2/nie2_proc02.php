@@ -84,7 +84,7 @@
       <div class="form-pro3-proc1-g">
 
         <div class="pro3-proc1-g-it"><label>Lot ID</label></div>
-        <div class="pro3-proc1-g-it"><label>
+        <div class="pro3-proc1-g-it" style="font-size:0.8em"><label>
           <?php 
             if (!empty($_SESSION['lotid'])):
               echo htmlspecialchars($_SESSION['lotid']);
