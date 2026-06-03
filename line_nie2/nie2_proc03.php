@@ -30,7 +30,7 @@
                 'WO'       => $wo,
                 'SubLot'   => $subLot,
             ]);
-            header('Location: ./nie2_proc3.php?' . $qs);
+            header('Location: ./nie2_proc03.php?' . $qs);
             exit;
         } else {
             echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
