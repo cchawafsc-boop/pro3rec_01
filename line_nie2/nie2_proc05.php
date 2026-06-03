@@ -263,7 +263,7 @@
 
         <!-- Remark -->
         <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center; margin-top:6px;">
-          <label>หมายเหตุ</label>
+          <label>-หมายเหตุ-</label>
         </div>
         <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center;">
           <textarea name="Remark" rows="3" style="width:270px;"></textarea>
