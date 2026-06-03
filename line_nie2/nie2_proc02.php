@@ -92,7 +92,7 @@
           <?php 
             if (!empty($_SESSION['lotid'])):
               echo htmlspecialchars($_SESSION['lotid']);
-            else
+            else:
               echo "กรุณาเลือก Lot ID";
             endif;
           ?></label>
