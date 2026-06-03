@@ -319,7 +319,7 @@
               <td><?php echo htmlspecialchars($r['PlateNo']); ?></td>
               <td><?php echo htmlspecialchars($r['RackNo']); ?></td>
               <td><?php echo htmlspecialchars($r['Qty']); ?></td>
-              <td><?php echo htmlspecialchars($r['TankNO']); ?></td>
+              <td><?php echo htmlspecialchars($r['TankNo']); ?></td>
               <td><?php echo htmlspecialchars($r['Remark']); ?></td>
             </tr>
             <?php endforeach; ?>
