@@ -24,6 +24,7 @@
         mysqli_close($conn);
 
         if ($req) {
+            echo "<script>alert('บันทึกข้อมูลสำเร็จ');</script>"
             $qs = http_build_query([
                 'ProdName' => $prodName,
                 'InvNo'    => $invNo,
