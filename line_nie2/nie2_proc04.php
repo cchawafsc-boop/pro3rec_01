@@ -44,7 +44,7 @@
         mysqli_close($conn);
 
         if ($req) {
-            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
+            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_proc04.php';</script>";
         } else {
             echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
         }
