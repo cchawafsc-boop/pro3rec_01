@@ -55,14 +55,14 @@
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc5`
              (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,
-              `BoxNo`,`PlateNo`,`RackNo`,`FGtotal`,
+              `BoxNo`,   `PlateNo`,`RackNo`,`FGtotal`,
               `Blister`,`Break`,`Bumps`,`Chip`,`Crack`,
               `EdgeFlowMark`,`FlowMark`,`Discolor`,`Contam`,`Dent`,
               `Scuff`,`Scratch`,`Stain`,`ExposedCu`,`Pitting`,
               `Finger`,`Deform`,`IncpltCNC`,`KIZzone`,
               `NGtotal`,`Remark`)
              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "ssssssisiiiiiiiiiiiiiiiiiiiiiis",
+        mysqli_stmt_bind_param($stmt, "ssssssisiiiiiiiiiiiiiiiiiiiiiiis",
             $prodName, $invNo, $wo, $subLot, $date, $time, $opr,
             $boxNo, $plateNo, $rackNo, $fgTotal,
             $blister, $break_, $bumps, $chip, $crack,
