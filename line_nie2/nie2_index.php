@@ -18,7 +18,7 @@
   <!-- Main menu -->
   <div class="main-menu">
     <h2> ระบบการผลิต Ni-e line 2 (Full-Auto) </h2>
-    <p> <button type="button"   id="Nie2_HomeBtn"      onclick="goHome()">กลับหน้าหลัก</button>
+    <p> <button type="button"   id="Nie2_BfIndexBtn"   onclick="goBfIndex()">กลับหน้าเลือก lot</button>
         <button type="button"   id="Nie2_HistBtn"      onclick="goHist()">ประวัติ Lot Card </button> </p>
     <p> <button type="button"   id="์Nie2_Proc01_Btn"   onclick="goProc01()">1. Receiving  </button> </p>
     <p> <button type="button"   id="์Nie2_Proc02_Btn"   onclick="goProc02()">2. Incoming   </button> </p>
@@ -33,8 +33,8 @@
   ?>
 
   <script>
-    function goHome() {
-      window.location.href = "../index.php";
+    function goBfIndex() {
+      window.location.href = "./nie2_before_index.php";
     }
     function goHist() {
       window.location.href = "./nie2_lcard_index.php";
