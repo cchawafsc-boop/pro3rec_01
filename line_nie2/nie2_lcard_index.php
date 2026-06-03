@@ -12,6 +12,12 @@
             SELECT ProdName, InvNo, WO, SubLot, Date FROM tb_proc2
             UNION ALL
             SELECT ProdName, InvNo, WO, SubLot, Date FROM tb_proc3
+            UNION ALL
+            SELECT ProdName, InvNo, WO, SubLot, Date FROM tb_proc4
+            UNION ALL
+            SELECT ProdName, InvNo, WO, SubLot, Date FROM tb_proc5
+            UNION ALL
+            SELECT ProdName, InvNo, WO, SubLot, Date FROM tb_proc6
         ) AS combined
         GROUP BY ProdName, InvNo, WO, SubLot
         ORDER BY MaxDate DESC, SubLot DESC";
@@ -29,6 +35,9 @@
     $proc1_rows = [];
     $proc2_rows = [];
     $proc3_rows = [];
+    $proc4_rows = [];
+    $proc5_rows = [];
+    $proc6_rows = [];
 
     if ($current) {
         $pn  = $current['ProdName'];
@@ -56,6 +65,27 @@
         mysqli_stmt_execute($stmt3);
         $r3 = mysqli_stmt_get_result($stmt3);
         while ($row = mysqli_fetch_assoc($r3)) { $proc3_rows[] = $row; }
+
+        $stmt4 = mysqli_prepare($conn,
+            "SELECT * FROM tb_proc4 WHERE ProdName=? AND InvNo=? AND WO=? AND SubLot=? ORDER BY Date, Time");
+        mysqli_stmt_bind_param($stmt4, 'ssss', $pn, $inv, $wo, $sl);
+        mysqli_stmt_execute($stmt4);
+        $r4 = mysqli_stmt_get_result($stmt4);
+        while ($row = mysqli_fetch_assoc($r4)) { $proc4_rows[] = $row; }
+
+        $stmt5 = mysqli_prepare($conn,
+            "SELECT * FROM tb_proc5 WHERE ProdName=? AND InvNo=? AND WO=? AND SubLot=? ORDER BY Date, Time");
+        mysqli_stmt_bind_param($stmt5, 'ssss', $pn, $inv, $wo, $sl);
+        mysqli_stmt_execute($stmt5);
+        $r5 = mysqli_stmt_get_result($stmt5);
+        while ($row = mysqli_fetch_assoc($r5)) { $proc5_rows[] = $row; }
+
+        $stmt6 = mysqli_prepare($conn,
+            "SELECT * FROM tb_proc6 WHERE ProdName=? AND InvNo=? AND WO=? AND SubLot=? ORDER BY Date, Time");
+        mysqli_stmt_bind_param($stmt6, 'ssss', $pn, $inv, $wo, $sl);
+        mysqli_stmt_execute($stmt6);
+        $r6 = mysqli_stmt_get_result($stmt6);
+        while ($row = mysqli_fetch_assoc($r6)) { $proc6_rows[] = $row; }
     }
 
     mysqli_close($conn);
@@ -264,6 +294,93 @@
               <td><?php echo htmlspecialchars($r['PlateNo']); ?></td>
               <td><?php echo htmlspecialchars($r['RackNo']); ?></td>
               <td><?php echo htmlspecialchars($r['Qty']); ?></td>
+            </tr>
+            <?php endforeach; ?>
+          </table>
+        <?php endif; ?>
+      </div>
+
+      <!-- 4 Plating -->
+      <div class="lcard-section">
+        <h3>4 Plating</h3>
+        <?php if (empty($proc4_rows)): ?>
+          <p class="no-data">— ไม่มีข้อมูล —</p>
+        <?php else: ?>
+          <table>
+            <tr>
+              <th>Date</th><th>Time</th><th>Opr</th>
+              <th>Plate No</th><th>Rack No</th><th>Qty</th><th>Tank No</th><th>Remark</th>
+            </tr>
+            <?php foreach ($proc4_rows as $r): ?>
+            <tr>
+              <td><?php echo htmlspecialchars($r['Date']); ?></td>
+              <td><?php echo htmlspecialchars($r['Time']); ?></td>
+              <td><?php echo htmlspecialchars($r['Opr']); ?></td>
+              <td><?php echo htmlspecialchars($r['PlateNo']); ?></td>
+              <td><?php echo htmlspecialchars($r['RackNo']); ?></td>
+              <td><?php echo htmlspecialchars($r['Qty']); ?></td>
+              <td><?php echo htmlspecialchars($r['TankNO']); ?></td>
+              <td><?php echo htmlspecialchars($r['Remark']); ?></td>
+            </tr>
+            <?php endforeach; ?>
+          </table>
+        <?php endif; ?>
+      </div>
+
+      <!-- 5 Inspection -->
+      <div class="lcard-section">
+        <h3>5 Inspection</h3>
+        <?php if (empty($proc5_rows)): ?>
+          <p class="no-data">— ไม่มีข้อมูล —</p>
+        <?php else: ?>
+          <table>
+            <tr>
+              <th>Date</th><th>Time</th><th>Opr</th>
+              <th>Box No</th><th>Plate No</th><th>Rack No</th>
+              <th>FG</th><th>NG</th><th>FG&amp;NG</th><th>Remark</th>
+            </tr>
+            <?php foreach ($proc5_rows as $r): ?>
+            <tr>
+              <td><?php echo htmlspecialchars($r['Date']); ?></td>
+              <td><?php echo htmlspecialchars($r['Time']); ?></td>
+              <td><?php echo htmlspecialchars($r['Opr']); ?></td>
+              <td><?php echo htmlspecialchars($r['BoxNo']); ?></td>
+              <td><?php echo htmlspecialchars($r['PlateNo']); ?></td>
+              <td><?php echo htmlspecialchars($r['RackNo']); ?></td>
+              <td><?php echo htmlspecialchars($r['FGtotal']); ?></td>
+              <td><?php echo htmlspecialchars($r['NGtotal']); ?></td>
+              <td><?php echo htmlspecialchars($r['FGNGtotal']); ?></td>
+              <td><?php echo htmlspecialchars($r['Remark']); ?></td>
+            </tr>
+            <?php endforeach; ?>
+          </table>
+        <?php endif; ?>
+      </div>
+
+      <!-- 6 QA Outgoing -->
+      <div class="lcard-section">
+        <h3>6 QA Outgoing</h3>
+        <?php if (empty($proc6_rows)): ?>
+          <p class="no-data">— ไม่มีข้อมูล —</p>
+        <?php else: ?>
+          <table>
+            <tr>
+              <th>Date</th><th>Time</th><th>Opr</th>
+              <th>Thick Sampling</th><th>Thick Judge</th>
+              <th>Gloss Sampling</th><th>Gloss Judge</th>
+              <th>QA Judge</th><th>Remark</th>
+            </tr>
+            <?php foreach ($proc6_rows as $r): ?>
+            <tr>
+              <td><?php echo htmlspecialchars($r['Date']); ?></td>
+              <td><?php echo htmlspecialchars($r['Time']); ?></td>
+              <td><?php echo htmlspecialchars($r['Opr']); ?></td>
+              <td><?php echo htmlspecialchars($r['ThickSamplingSize']); ?></td>
+              <td><?php echo htmlspecialchars($r['ThickJudge']); ?></td>
+              <td><?php echo htmlspecialchars($r['GlossSamplingSize']); ?></td>
+              <td><?php echo htmlspecialchars($r['GlossJudge']); ?></td>
+              <td><?php echo htmlspecialchars($r['QAJudge']); ?></td>
+              <td><?php echo htmlspecialchars($r['Remark']); ?></td>
             </tr>
             <?php endforeach; ?>
           </table>
