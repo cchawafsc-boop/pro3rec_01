@@ -20,7 +20,7 @@
     <h2> ระบบการผลิต Ni-e line 2 (Full-Auto) </h2>
     <?php if (!empty($_SESSION['lotid'])): ?>
     <p style="color:#1a6e1a; font-weight:bold; font-size:1.05em;">
-      กำลังทำงานบน Lot: <?php echo htmlspecialchars($_SESSION['lotid']); ?>
+      Lot ID : <?php echo htmlspecialchars($_SESSION['lotid']); ?>
     </p>
     <?php endif; ?>
     <p> <button type="button"   id="Nie2_BfIndexBtn"   onclick="goBfIndex()">กลับหน้าเลือก lot</button>
