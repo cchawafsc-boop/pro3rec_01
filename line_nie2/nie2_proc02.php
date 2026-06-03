@@ -87,6 +87,17 @@
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="form-pro3-proc1-g">
 
+        <div class="pro3-proc1-g-it"><label>Lot ID</label></div>
+        <div class="pro3-proc1-g-it"><label>
+          <?php 
+            if (!empty($_SESSION['lotid'])):
+              echo htmlspecialchars($_SESSION['lotid']);
+            else
+              echo "กรุณาเลือก Lot ID";
+            endif;
+          ?></label>
+        </div>
+          
         <div class="pro3-proc1-g-it"><label>Product name</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" name="ProdName" value="<?php echo $lot_prodname; ?>" autofocus required>
