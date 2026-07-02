@@ -4,25 +4,36 @@
     require('../init_session.php');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $prodName = $_POST['ProdName'];
+        $prodNames = $_POST['ProdName'];
+        $wos       = $_POST['WO'];
+        $boxNos    = $_POST['BoxNo'];
+        $boxQtys   = $_POST['BoxQty'];
+        $materials = $_POST['Materials'];
+
         $invNo    = $_POST['InvNo'];
-        $wo       = $_POST['WO'];
-        $boxNo    = $_POST['BoxNo'];
-        $materials= $_POST['Materials'];
         $date     = $_POST['Date'];
         $time     = $_POST['Time'];
         $opr      = $_POST['Opr'];
         $appCheck = $_POST['AppCheck'];
-        $boxQty   = (int)$_POST['BoxQty'];
         $boxJudge = $_POST['BoxJudge'];
         $lotID    = $_POST['LotID'];
         $lotIDFull= $lotID."_".$date."_".$time;
         $done_f   = 'no';
 
         $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`DoneFlag`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "sssssssssisss", $prodName, $invNo, $wo, $boxNo, $materials, $date, $time, $opr, $appCheck, $boxQty, $boxJudge, $lotIDFull, $done_f);
-        $req = mysqli_stmt_execute($stmt);
+            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Materials`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`DoneFlag`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "sssssssssisss", $prodName, $invNo, $wo, $boxNo, $material, $date, $time, $opr, $appCheck, $boxQty, $boxJudge, $lotIDFull, $done_f);
+
+        $req = true;
+        for ($i = 0; $i < count($prodNames); $i++) {
+            $prodName = $prodNames[$i];
+            $wo       = $wos[$i];
+            $boxNo    = $boxNos[$i];
+            $boxQty   = (int)$boxQtys[$i];
+            $material = $materials[$i];
+            $req = mysqli_stmt_execute($stmt) && $req;
+        }
+
         if ($req) {
             echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
         } else {
@@ -57,7 +68,7 @@
           <input type="text" id="lotTagData" autocomplete="off">
         </div>
 
-        <div id="lotTagFields" style="display:contents"></div>
+        <div id="lotTagBlocks" style="display:contents"></div>
 
         <div class="pro3-proc1-g-it"><label>Date</label></div>
         <div class="pro3-proc1-g-it">
@@ -120,21 +131,33 @@
   <?php if (!isset($req)) { mysqli_close($conn); } ?>
 
   <script>
+    var lotTagCount = 0;
+
     document.getElementById('lotTagData').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
 
       var parts = this.value.split(',');
       var fields = [
-        { label: "Product name", name: "ProdName" },
-        { label: "WO",           name: "WO" },
-        { label: "Box No",      name: "BoxNo" },
-        { label: "Q'ty",        name: "BoxQty" },
-        { label: "Materials",   name: "Materials" }
+        { label: "Product name", name: "ProdName[]" },
+        { label: "WO",           name: "WO[]" },
+        { label: "Box no",       name: "BoxNo[]" },
+        { label: "Q'ty",         name: "BoxQty[]" },
+        { label: "Materials",    name: "Materials[]" }
       ];
 
-      var container = document.getElementById('lotTagFields');
-      container.innerHTML = '';
+      lotTagCount++;
+
+      var container = document.getElementById('lotTagBlocks');
+
+      var titleDiv = document.createElement('div');
+      titleDiv.className = 'pro3-proc1-g-it';
+      titleDiv.innerHTML = '<label><b>data ' + lotTagCount + '</b></label>';
+      container.appendChild(titleDiv);
+
+      var titleSpacer = document.createElement('div');
+      titleSpacer.className = 'pro3-proc1-g-it';
+      container.appendChild(titleSpacer);
 
       fields.forEach(function (f, i) {
         var labelDiv = document.createElement('div');
