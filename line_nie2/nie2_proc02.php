@@ -43,19 +43,21 @@
     }
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
 
-    $incChkBox_qty = $lot_samplingsize > 0 ? (int)ceil($lot_amountinv / $lot_samplingsize) : 0;
-
     $lot_boxnos = [];
-    if (!empty($_SESSION['lotid']) && $incChkBox_qty > 0) {
+    if (!empty($_SESSION['lotid']) && $lot_samplingsize > 0) {
         $bstmt = mysqli_prepare($conn,
-            "SELECT BoxNo FROM tb_proc1 WHERE LotID = ? LIMIT ?");
-        mysqli_stmt_bind_param($bstmt, 'si', $_SESSION['lotid'], $incChkBox_qty);
+            "SELECT BoxNo, BoxQty FROM tb_proc1 WHERE LotID = ?");
+        mysqli_stmt_bind_param($bstmt, 's', $_SESSION['lotid']);
         mysqli_stmt_execute($bstmt);
         $bres = mysqli_stmt_get_result($bstmt);
-        while ($brow = mysqli_fetch_assoc($bres)) {
+
+        $residual = $lot_samplingsize;
+        while ($residual > 0 && ($brow = mysqli_fetch_assoc($bres))) {
             $lot_boxnos[] = $brow['BoxNo'];
+            $residual -= (int)$brow['BoxQty'];
         }
     }
+    $incChkBox_qty = count($lot_boxnos);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $prodName      = $_POST['ProdName'];
