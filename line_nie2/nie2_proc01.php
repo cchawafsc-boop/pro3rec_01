@@ -79,7 +79,7 @@
 
         <div class="pro3-proc1-g-it"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod , wo , box , qty , material">
+          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod , wo , box , qty , mat">
         </div>
 
       </div>
