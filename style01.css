@@ -264,6 +264,22 @@ label{
 	justify-items: center;
     text-align: center;
 }
+.form-pro3-proc2-g1{
+	display: grid;
+    grid-template-columns: 150px 160px;  /* Defines column width */
+    gap: 0px;                            /* Sets a gap between grid items */
+    border: 1px solid #ccc;
+    padding: 3px;
+    border-radius: 8px;
+	justify-content: center;             /* Center the grid horizontally */
+}
+.pro3-proc2-g1-it{
+	display: flex;                       /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+
 .pro1incoming-g1 {
     display: grid;
     grid-template-columns: 140px 180px;  /* Defines 2 columns with equal width */
