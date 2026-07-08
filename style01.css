@@ -211,7 +211,7 @@ label{
 }
 .pro3-proc1-lotList {
 	display: grid;
-	grid-template-columns: 260px 70px 70px 70px;
+	grid-template-columns: 100px 70px 40px 20px 10px 70px 70px 70px;
 	gap: 5px;
 	width: fit-content;
 	border: 1px solid #ccc;
@@ -236,6 +236,26 @@ label{
 	text-align: center;
 }
 .lotListHeader-4{
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+.lotListHeader-5{
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+.lotListHeader-6{
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+.lotListHeader-7{
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+.lotListHeader-8{
 	width: 100%;
 	box-sizing: border-box;
 	text-align: center;
