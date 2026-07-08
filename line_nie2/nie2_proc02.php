@@ -6,7 +6,7 @@
     $lot_prodname = $lot_invno = $lot_wo = $lot_sublot = '';
     if (!empty($_SESSION['lotid'])) {
         $lstmt = mysqli_prepare($conn,
-            "SELECT ProdName, InvNo, WO, SubLot FROM tb_proc1 WHERE LotID = ? LIMIT 1");
+            "SELECT ProdName, InvNo, WO, BoxNo FROM tb_proc1 WHERE LotID = ? LIMIT 1");
         mysqli_stmt_bind_param($lstmt, 's', $_SESSION['lotid']);
         mysqli_stmt_execute($lstmt);
         $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
@@ -14,7 +14,7 @@
             $lot_prodname = htmlspecialchars($lrow['ProdName']);
             $lot_invno    = htmlspecialchars($lrow['InvNo']);
             $lot_wo       = htmlspecialchars($lrow['WO']);
-            $lot_sublot   = htmlspecialchars($lrow['SubLot']);
+            $lot_sublot   = htmlspecialchars($lrow['BoxNo']);
         }
     }
 
