@@ -89,7 +89,7 @@
         <div class="lotListHeader-2"><label>WO</label></div>
         <div class="lotListHeader-3"><label>Box no.</label></div>
         <div class="lotListHeader-4"><label>Box q'ty</label></div>
-        <div class="lotListHeader-5"><label>Material</label></div>
+        <div class="lotListHeader-5"><label>Mat.</label></div>
         <div class="lotListHeader-6"><label>App Check</label></div>
         <div class="lotListHeader-7"><label>Lot ID</label></div>
         <div class="lotListHeader-8"><label>Delete</label></div>
