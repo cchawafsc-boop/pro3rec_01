@@ -211,40 +211,70 @@ label{
 }
 .pro3-proc1-lotList {
 	display: grid;
-	grid-template-columns: 400px 100px 100PX;
+	grid-template-columns: 260px 70px 70px 70px;
 	gap: 5px;
-	width: 400px;
+	width: fit-content;
 	border: 1px solid #ccc;
 	border-radius: 8px;
-	margin: 4 auto;
+	margin: 4px auto;
 	padding: 5px;
+	box-sizing: border-box;
 }
 .lotListHeader-1{
-	width: 400px;
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
 }
 .lotListHeader-2{
-	width: 100px;
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
 }
 .lotListHeader-3{
-	width: 100px;
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+.lotListHeader-4{
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
 }
 .lotListTextarea {
-	width: 400px;
+	width: 100%;
+	box-sizing: border-box;
 	font-family: monospace;
 	white-space: pre;
 	resize: none;
 	line-height: 1.6em;
+	overflow-y: auto;
 }
-.appCheckList {
+.appCheckList,
+#lotIDList,
+#DelItem {
 	display: flex;
 	flex-direction: column;
+	width: 100%;
+	box-sizing: border-box;
 }
-.appCheckRow {
+.appCheckRow,
+.lotIDRow,
+.delRow {
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 4px;
 	height: 1.6em;
 	white-space: nowrap;
+}
+.appCheckRow select,
+.lotIDRow select {
+	width: 100%;
+	box-sizing: border-box;
+}
+.delRow button {
+	width: 100%;
+	box-sizing: border-box;
 }
 
 /*==========================================================*/
