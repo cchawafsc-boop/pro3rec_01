@@ -116,7 +116,7 @@
 <body>
   <?php require('../topbar.php'); ?>
 
-  <div class="form-pro3-proc1">
+  <div class="form-pro3-proc2-g1">
     <h2>2 Incoming — Ni-e Line 2</h2>
       
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
