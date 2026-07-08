@@ -3,7 +3,22 @@
     require('../connect.php');
     require('../init_session.php');
 
+    function calcSamplingSize($n) {
+        if ($n >= 2   && $n <= 8)    return 2;
+        if ($n >= 9   && $n <= 15)   return 3;
+        if ($n >= 16  && $n <= 25)   return 5;
+        if ($n >= 26  && $n <= 50)   return 8;
+        if ($n >= 51  && $n <= 90)   return 13;
+        if ($n >= 91  && $n <= 150)  return 20;
+        if ($n >= 151 && $n <= 280)  return 32;
+        if ($n >= 281 && $n <= 500)  return 50;
+        if ($n >= 501 && $n <= 1000) return 80;
+        return 0;
+    }
+
     $lot_prodname = $lot_invno = $lot_wo = $lot_sublot = '';
+    $lot_boxcount = 0;
+    $lot_amountinv = 0;
     if (!empty($_SESSION['lotid'])) {
         $lstmt = mysqli_prepare($conn,
             "SELECT ProdName, InvNo, WO, BoxNo FROM tb_proc1 WHERE LotID = ? LIMIT 1");
@@ -16,7 +31,18 @@
             $lot_wo       = htmlspecialchars($lrow['WO']);
             $lot_sublot   = htmlspecialchars($lrow['BoxNo']);
         }
+
+        $cstmt = mysqli_prepare($conn,
+            "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
+        mysqli_stmt_bind_param($cstmt, 's', $_SESSION['lotid']);
+        mysqli_stmt_execute($cstmt);
+        $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
+        if ($crow) {
+            $lot_boxcount  = (int)$crow['boxCount'];
+            $lot_amountinv = (int)$crow['totalQty'];
+        }
     }
+    $lot_samplingsize = calcSamplingSize($lot_amountinv);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $prodName      = $_POST['ProdName'];
@@ -81,10 +107,10 @@
     <h2>2 Incoming — Ni-e Line 2</h2>
       
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="form-pro3-proc1-g">
+      <div class="form-pro3-proc2-g1">
 
-        <div class="pro3-proc1-g-it"><label>Lot ID</label></div>
-        <div class="pro3-proc1-g-it" style="font-size:0.8em"><label>
+        <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em"><label>
           <?php 
             if (!empty($_SESSION['lotid'])):
               echo htmlspecialchars($_SESSION['lotid']);
@@ -94,58 +120,66 @@
           ?></label>
         </div>
           
-        <div class="pro3-proc1-g-it"><label>Product name</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="text" name="ProdName" value="<?php echo $lot_prodname; ?>" autofocus required>
+        <div class="pro3-proc2-g1-it"><label>Product name</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" value="<?php echo $lot_prodname; ?>" autofocus disabled>
+          <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Invoice no</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="text" name="InvNo" value="<?php echo $lot_invno; ?>" required>
+        <div class="pro3-proc2-g1-it"><label>Invoice no</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" value="<?php echo $lot_invno; ?>" disabled>
+          <input type="hidden" name="InvNo" value="<?php echo $lot_invno; ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label>WO</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="text" name="WO" value="<?php echo $lot_wo; ?>" required>
+        <div class="pro3-proc2-g1-it"><label>WO</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" value="<?php echo $lot_wo; ?>" disabled>
+          <input type="hidden" name="WO" value="<?php echo $lot_wo; ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Sub lot no</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนกล่องตาม Inv</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="number" value="<?php echo $lot_boxcount; ?>" readonly>
+        </div>
+
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนใน Inv (pcs)</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="number" name="AmountInv" value="<?php echo $lot_amountinv; ?>" min="0" readonly required>
+        </div>
+
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนสุ่ม (pcs)</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="number" name="SamplingSize" value="<?php echo $lot_samplingsize; ?>" min="0" readonly required>
+        </div>
+
+        <div class="pro3-proc2-g1-it"><label>Box no</label></div>
+        <div class="pro3-proc2-g1-it">
           <input type="text" name="SubLot" value="<?php echo $lot_sublot; ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Date</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc2-g1-it"><label>Date</label></div>
+        <div class="pro3-proc2-g1-it">
           <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Time</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc2-g1-it"><label>Time</label></div>
+        <div class="pro3-proc2-g1-it">
           <input type="time" name="Time" value="<?php echo date('H:i'); ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Operator</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc2-g1-it"><label>Operator</label></div>
+        <div class="pro3-proc2-g1-it">
           <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" readonly required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Box check</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc2-g1-it"><label>Box check</label></div>
+        <div class="pro3-proc2-g1-it">
           <select name="BoxCondition" required>
             <option value="" selected disabled>โปรดระบุ</option>
             <option value="OK">OK</option>
             <option value="FAIL">FAIL</option>
           </select>
-        </div>
-
-        <div class="pro3-proc1-g-it" style="font-size:0.8em;"><label>จำนวนใน Inv (pcs)</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="AmountInv" min="0" required>
-        </div>
-
-        <div class="pro3-proc1-g-it" style="font-size:0.8em;"><label>จำนวนสุ่ม (pcs)</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="SamplingSize" min="0" required>
         </div>
 
         <!-- Defect section header -->
