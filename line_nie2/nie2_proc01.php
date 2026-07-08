@@ -85,10 +85,14 @@
       </div>
 
       <div class="pro3-proc1-lotList">
-        <div class="lotListHeader-1"><label>Lot List</label></div>
-        <div class="lotListHeader-2"><label>App Check</label></div>
-        <div class="lotListHeader-3"><label>Lot ID</label></div>
-        <div class="lotListHeader-4"><label>Delete</label></div>
+        <div class="lotListHeader-1"><label>Pro Name</label></div>
+        <div class="lotListHeader-2"><label>WO</label></div>
+        <div class="lotListHeader-3"><label>Box no.</label></div>
+        <div class="lotListHeader-4"><label>Box q'ty</label></div>
+        <div class="lotListHeader-5"><label>Material</label></div>
+        <div class="lotListHeader-6"><label>App Check</label></div>
+        <div class="lotListHeader-7"><label>Lot ID</label></div>
+        <div class="lotListHeader-8"><label>Delete</label></div>
         <div><textarea id="lotListTable" class="lotListTextarea" rows="6" disabled></textarea></div>
         <div id="appCheckList" class="appCheckList"></div>
         <div id="lotIDList"></div>
