@@ -210,8 +210,8 @@ label{
 	width: 130px;
 }
 .pro3-proc1-lotList {
-	display: flex;
-	align-items: flex-start;
+	display: grid;
+	grid-template-columns: 200px 200px;
 	gap: 5px;
 	width: 400px;
 	border: 1px solid #ccc;
