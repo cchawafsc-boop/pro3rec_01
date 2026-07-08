@@ -215,7 +215,8 @@ label{
 	gap: 5px;
 	width: 400px;
 	border: 1px solid #ccc;
-	margin: 0 auto;
+	border-radius: 8px;
+	margin: 4 auto;
 	padding: 5px;
 }
 .lotListHeader-1{
