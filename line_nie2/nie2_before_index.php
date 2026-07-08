@@ -12,7 +12,7 @@
     }
 
     $stmt = mysqli_prepare($conn,
-        "SELECT ProdName, WO, InvNo, BoxNo, LotID FROM tb_proc1 WHERE (Status NOT LIKE ? OR Status IS NULL) ORDER BY LotID ASC");
+        "SELECT ProdName, WO, InvNo, BoxNo, LotID, Status FROM tb_proc1 WHERE (Status NOT LIKE ? OR Status IS NULL) ORDER BY LotID ASC");
     mysqli_stmt_bind_param($stmt, 's', $flag);
     $flag = 'yes';
     mysqli_stmt_execute($stmt);
@@ -134,12 +134,13 @@
           <th>Invoice no</th>
           <th>Box no.</th>
           <th>LotID</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
         <?php if (empty($rows)): ?>
           <tr class="no-data">
-            <td colspan="5">— ไม่มีข้อมูล (DoneFlag = no) —</td>
+            <td colspan="6">— ไม่มีข้อมูล (DoneFlag = no) —</td>
           </tr>
         <?php else: ?>
           <?php foreach ($rows as $r): ?>
@@ -154,6 +155,7 @@
                 <button type="submit" class="lotid-btn"><?php echo htmlspecialchars($r['LotID']); ?></button>
               </form>
             </td>
+            <td><?php echo htmlspecialchars($r['Status']); ?></td>
           </tr>
           <?php endforeach; ?>
         <?php endif; ?>
