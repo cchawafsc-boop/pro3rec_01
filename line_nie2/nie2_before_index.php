@@ -12,7 +12,7 @@
     }
 
     $stmt = mysqli_prepare($conn,
-        "SELECT ProdName, WO, InvNo, SubLot, LotID FROM tb_proc1 WHERE DoneFlag = ? ORDER BY LotID DESC");
+        "SELECT ProdName, WO, InvNo, BoxNo, LotID FROM tb_proc1 WHERE DoneFlag = ? ORDER BY LotID DESC");
     mysqli_stmt_bind_param($stmt, 's', $flag);
     $flag = 'no';
     mysqli_stmt_execute($stmt);
@@ -132,7 +132,7 @@
           <th>Product name</th>
           <th>WO</th>
           <th>Invoice no</th>
-          <th>Sub lot</th>
+          <th>Box no.</th>
           <th>LotID</th>
         </tr>
       </thead>
@@ -147,7 +147,7 @@
             <td><?php echo htmlspecialchars($r['ProdName']); ?></td>
             <td><?php echo htmlspecialchars($r['WO']); ?></td>
             <td><?php echo htmlspecialchars($r['InvNo']); ?></td>
-            <td><?php echo htmlspecialchars($r['SubLot']); ?></td>
+            <td><?php echo htmlspecialchars($r['BoxNo']); ?></td>
             <td>
               <form method="POST" action="" style="display:inline;">
                 <input type="hidden" name="lotid" value="<?php echo htmlspecialchars($r['LotID']); ?>">
