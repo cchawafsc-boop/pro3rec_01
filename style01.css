@@ -211,7 +211,7 @@ label{
 }
 .pro3-proc1-lotList {
 	display: grid;
-	grid-template-columns: 100px 70px 40px 20px 10px 70px 70px 70px;
+	grid-template-columns: 100px 70px 40px 40px 40px 70px 70px 70px;
 	gap: 5px;
 	width: fit-content;
 	border: 1px solid #ccc;
