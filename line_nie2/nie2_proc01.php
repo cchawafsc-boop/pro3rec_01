@@ -128,7 +128,7 @@
       e.preventDefault();
 
       var text = this.value.trim();
-      var m = text.match(/^(\S+) , (\S+) , (\S+) , (\S+) , (\S+)$/);
+      var m = text.match(/^(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)$/);
       if (!m) {
         alert('invalid format');
         return;
@@ -144,7 +144,7 @@
       addHidden('BoxQty[]', boxQty);
       addHidden('Materials[]', material);
 
-      var textarea = document.getElementById('lotTagTable');
+      var textarea = document.getElementById('lotListTable');
       var line = pad(prodName) + pad(wo) + pad(boxNo) + pad(boxQty) + material;
       textarea.value += (textarea.value ? '\n' : '') + line;
 
