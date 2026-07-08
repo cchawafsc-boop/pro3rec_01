@@ -87,8 +87,7 @@
       <div class="pro3-proc1-lotList">
         <div class="lotListHeader-1"><label>Lot List</label></div>
         <div class="lotListHeader-2"><label>App Check</label></div>
-        <br>
-        <textarea id="lotListTable" class="lotListTextarea" rows="6" disabled></textarea>
+        <div><textarea id="lotListTable" class="lotListTextarea" rows="6" disabled></textarea></div>
         <div id="appCheckList" class="appCheckList"></div>
       </div>
 
