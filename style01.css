@@ -268,15 +268,7 @@ label{
 	box-sizing: border-box;
 	text-align: center;
 }
-.lotListTextarea {
-	width: 100%;
-	box-sizing: border-box;
-	font-family: monospace;
-	white-space: pre;
-	resize: none;
-	line-height: 1.6em;
-	overflow-y: auto;
-}
+.lotDataList,
 .appCheckList,
 #lotIDList,
 #DelItem {
@@ -285,6 +277,7 @@ label{
 	width: 100%;
 	box-sizing: border-box;
 }
+.dataRow,
 .appCheckRow,
 .lotIDRow,
 .delRow {
@@ -294,6 +287,7 @@ label{
 	gap: 4px;
 	height: 1.6em;
 	white-space: nowrap;
+	font-family: monospace;
 }
 .appCheckRow select,
 .lotIDRow select {
