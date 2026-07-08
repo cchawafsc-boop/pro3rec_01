@@ -181,9 +181,9 @@ label{
 }
 .form-pro3-proc1-g {
     display: grid;
-    grid-template-columns: 130px 150px;  /* Defines 2 columns with equal width */
+    grid-template-columns: 150px 150px;  /* Defines 2 columns with equal width */
     gap: 0px;                            /* Sets a gap between grid items */
-    /*border: 1px solid #ccc;*/
+    border: 1px solid #ccc;
     padding: 3px;
     border-radius: 8px;
 	justify-content: center;             /* Center the grid horizontally */
