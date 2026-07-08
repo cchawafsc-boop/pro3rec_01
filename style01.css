@@ -265,12 +265,33 @@ label{
     text-align: center;
 }
 .form-pro3-proc2-g1{
+	justify-items: center;
+	text-align: center;
+}
+.form-pro3-proc2-g1 button{
+	padding: 8px 5px;
+	margin: 3px 5px;
+	width: 110px;
+	border-style: none;
+	border-radius: 4px;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.form-pro3-proc2-g1 button#Nie2_homeBtn{
+	color:white;
+	background-color: blue;
+}
+.form-pro3-proc2-g1 button#okBtn{
+	color:white;
+	background-color: green;
+}
+form .form-pro3-proc2-g1 {
 	display: grid;
     grid-template-columns: 150px 160px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
     border: 1px solid #ccc;
     padding: 3px;
     border-radius: 8px;
+    margin-top: 10px;
 	justify-content: center;             /* Center the grid horizontally */
 }
 .pro3-proc2-g1-it{
