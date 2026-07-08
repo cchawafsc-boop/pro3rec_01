@@ -23,7 +23,7 @@
         $done_f    = 'no';
 
         $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Materials`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`DoneFlag`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`DoneFlag`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
         mysqli_stmt_bind_param($stmt, "sssssssssisss", $prodName, $invNo, $wo, $boxNo, $material, $date, $time, $opr, $appCheck, $boxQty, $boxJudge, $lotIDFull, $done_f);
 
         $req = true;
@@ -51,34 +51,6 @@
   <meta http-equiv="Content-Type" name="viewport" content="text/html; charset=utf-8; width=device-width; initial-scale=1.0">
   <title>production record</title>
   <link rel="stylesheet" type='text/css' href="../style01.css">
-  <style>
-    .lotTagRow {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      width: 280px;
-      margin: 0 auto;
-      padding: 5px;
-    }
-    .lotTagTextarea {
-      width: 200px;
-      font-family: monospace;
-      white-space: pre;
-      resize: none;
-      line-height: 1.6em;
-    }
-    .appCheckList {
-      display: flex;
-      flex-direction: column;
-    }
-    .appCheckRow {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      height: 1.6em;
-      white-space: nowrap;
-    }
-  </style>
 </head>
 <body>
   <?php require('../topbar.php'); ?>
@@ -112,8 +84,10 @@
 
       </div>
 
-      <div class="lotTagRow">
-        <textarea id="lotTagTable" class="lotTagTextarea" rows="6" disabled></textarea>
+      <div class="pro3-proc1-lotList">
+        <div class="lotListHeader-1"><label>Lot List</label></div>
+        <div class="lotListHeader-2"><label>App Check</label></div>
+        <textarea id="lotListTable" class="lotListTextarea" rows="6" disabled></textarea>
         <div id="appCheckList" class="appCheckList"></div>
       </div>
 
@@ -177,7 +151,6 @@
       var row = document.createElement('div');
       row.className = 'appCheckRow';
       row.innerHTML =
-        '<label>App Check</label>' +
         '<select name="AppCheck[]" required>' +
           '<option value="" selected disabled>โปรดระบุ</option>' +
           '<option value="pass">pass</option>' +
