@@ -10,17 +10,15 @@
         $boxQtys   = $_POST['BoxQty'];
         $materials = $_POST['Materials'];
         $appChecks = $_POST['AppCheck'];
+        $lotIDs    = $_POST['LotID'];
 
         $invNo    = $_POST['InvNo'];
         $date     = $_POST['Date'];
         $opr      = $_POST['Opr'];
 
-        // Time, Box judge, Lot ID fields removed from form; keep columns filled for the table.
-        $time      = date('H:i:s');
-        $boxJudge  = '';
-        $lotID     = '';
-        $lotIDFull = $lotID."_".$date."_".$time;
-        $done_f    = 'no';
+        // Time removed from form; keep column filled for the table.
+        $time   = date('H:i:s');
+        $done_f = 'no';
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`DoneFlag`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -28,12 +26,15 @@
 
         $req = true;
         for ($i = 0; $i < count($prodNames); $i++) {
-            $prodName = $prodNames[$i];
-            $wo       = $wos[$i];
-            $boxNo    = $boxNos[$i];
-            $boxQty   = (int)$boxQtys[$i];
-            $material = $materials[$i];
-            $appCheck = $appChecks[$i];
+            $prodName  = $prodNames[$i];
+            $wo        = $wos[$i];
+            $boxNo     = $boxNos[$i];
+            $boxQty    = (int)$boxQtys[$i];
+            $material  = $materials[$i];
+            $appCheck  = $appChecks[$i];
+            $boxJudge  = $appChecks[$i];
+            $lotID     = $lotIDs[$i];
+            $lotIDFull = $lotID."_".$date."_".$time;
             $req = mysqli_stmt_execute($stmt) && $req;
         }
 
