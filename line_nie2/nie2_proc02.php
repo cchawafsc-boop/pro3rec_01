@@ -63,7 +63,7 @@
         $prodName      = $_POST['ProdName'];
         $invNo         = $_POST['InvNo'];
         $wo            = $_POST['WO'];
-        $subLot        = $_POST['SubLot'];
+        $boxNoSelected = $_POST['SubLot'];
         $date          = $_POST['Date'];
         $time          = $_POST['Time'];
         $opr           = (int)$_POST['Opr'];
@@ -94,7 +94,7 @@
               `NGtotal`,`Remark`)
              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         mysqli_stmt_bind_param($stmt, "ssssssissiiiiiiiiiiiiiis",
-            $prodName, $invNo, $wo, $subLot, $date, $time, $opr,
+            $prodName, $invNo, $wo, $boxNoSelected, $date, $time, $opr,
             $boxCondition, $amountInv, $samplingSize,
             $break, $bumps, $burrs, $chip, $crack, $contam,
             $dent, $scratch, $scuff, $stain, $deform, $finger,
