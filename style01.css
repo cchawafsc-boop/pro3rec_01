@@ -211,7 +211,7 @@ label{
 }
 .pro3-proc1-lotList {
 	display: grid;
-	grid-template-columns: 200px 200px;
+	grid-template-columns: 400px 100px 100PX;
 	gap: 5px;
 	width: 400px;
 	border: 1px solid #ccc;
@@ -225,8 +225,11 @@ label{
 .lotListHeader-2{
 	width: 100px;
 }
+.lotListHeader-3{
+	width: 100px;
+}
 .lotListTextarea {
-	width: 200px;
+	width: 400px;
 	font-family: monospace;
 	white-space: pre;
 	resize: none;
