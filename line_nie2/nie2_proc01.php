@@ -93,7 +93,11 @@
         <div class="lotListHeader-6"><label>App Check</label></div>
         <div class="lotListHeader-7"><label>Lot ID</label></div>
         <div class="lotListHeader-8"><label>Delete</label></div>
-        <div><textarea id="lotListTable" class="lotListTextarea" rows="6" disabled></textarea></div>
+        <div id="prodNameList" class="lotDataList"></div>
+        <div id="woList" class="lotDataList"></div>
+        <div id="boxNoList" class="lotDataList"></div>
+        <div id="boxQtyList" class="lotDataList"></div>
+        <div id="matList" class="lotDataList"></div>
         <div id="appCheckList" class="appCheckList"></div>
         <div id="lotIDList"></div>
         <div id="DelItem"></div>
@@ -115,23 +119,6 @@
       document.getElementById('invNo').focus();
     });
 
-    var lotTagCount = 0;
-    var COL_W = 12;
-    var lotRows = new Map();
-
-    function pad(s) {
-      s = (s || '').toString();
-      return s.length >= COL_W ? s + ' ' : s + ' '.repeat(COL_W - s.length);
-    }
-
-    function rebuildTextarea() {
-      var textarea = document.getElementById('lotListTable');
-      var lines = [];
-      lotRows.forEach(function (row) { lines.push(row.line); });
-      textarea.value = lines.join('\n');
-      textarea.rows = Math.max(6, lines.length);
-    }
-
     document.getElementById('lotTagData').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
@@ -144,7 +131,6 @@
       }
 
       var prodName = m[1], wo = m[2], boxNo = m[3], boxQty = m[4], material = m[5];
-      var rowId = ++lotTagCount;
 
       var hiddenDiv = document.createElement('div');
       [['ProdName[]', prodName], ['WO[]', wo], ['BoxNo[]', boxNo], ['BoxQty[]', boxQty], ['Materials[]', material]]
@@ -157,9 +143,19 @@
         });
       document.getElementById('lotTagHidden').appendChild(hiddenDiv);
 
-      var line = pad(prodName) + pad(wo) + pad(boxNo) + pad(boxQty) + material;
-      lotRows.set(rowId, { line: line });
-      rebuildTextarea();
+      function addDataRow(listId, value) {
+        var row = document.createElement('div');
+        row.className = 'dataRow';
+        row.textContent = value;
+        document.getElementById(listId).appendChild(row);
+        return row;
+      }
+
+      var prodNameRow = addDataRow('prodNameList', prodName);
+      var woRow       = addDataRow('woList', wo);
+      var boxNoRow    = addDataRow('boxNoList', boxNo);
+      var boxQtyRow   = addDataRow('boxQtyList', boxQty);
+      var matRow      = addDataRow('matList', material);
 
       var appCheckRow = document.createElement('div');
       appCheckRow.className = 'appCheckRow';
@@ -186,12 +182,15 @@
       delBtn.type = 'button';
       delBtn.textContent = 'ลบ';
       delBtn.addEventListener('click', function () {
-        lotRows.delete(rowId);
         hiddenDiv.remove();
+        prodNameRow.remove();
+        woRow.remove();
+        boxNoRow.remove();
+        boxQtyRow.remove();
+        matRow.remove();
         appCheckRow.remove();
         lotIDRow.remove();
         delRow.remove();
-        rebuildTextarea();
       });
       delRow.appendChild(delBtn);
       document.getElementById('DelItem').appendChild(delRow);
