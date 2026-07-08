@@ -181,7 +181,7 @@ label{
 }
 .form-pro3-proc1-g {
     display: grid;
-    grid-template-columns: 150px 150px;  /* Defines column width */
+    grid-template-columns: 150px 160px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
     border: 1px solid #ccc;
     padding: 3px;
@@ -204,10 +204,10 @@ label{
 	width: 130px;
 }
 .pro3-proc1-g-it input[type="text"]{
-	width: 144px;
+	width: 155px;
 }
 .pro3-proc1-g-it input[type="number"]{
-	width: 144px;
+	width: 155px;
 }
 .pro3-proc1-lotList {
 	display: grid;
