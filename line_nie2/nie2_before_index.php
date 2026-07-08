@@ -12,9 +12,9 @@
     }
 
     $stmt = mysqli_prepare($conn,
-        "SELECT ProdName, WO, InvNo, BoxNo, LotID FROM tb_proc1 WHERE DoneFlag = ? ORDER BY LotID DESC");
+        "SELECT ProdName, WO, InvNo, BoxNo, LotID FROM tb_proc1 WHERE (Status NOT LIKE ? OR Status IS NULL) ORDER BY LotID ASC");
     mysqli_stmt_bind_param($stmt, 's', $flag);
-    $flag = 'no';
+    $flag = 'yes';
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
     $rows = [];
