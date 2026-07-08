@@ -181,7 +181,7 @@ label{
 }
 .form-pro3-proc1-g {
     display: grid;
-    grid-template-columns: 150px 150px;  /* Defines 2 columns with equal width */
+    grid-template-columns: 150px 150px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
     border: 1px solid #ccc;
     padding: 3px;
@@ -209,6 +209,40 @@ label{
 .pro3-proc1-g-it input[type="number"]{
 	width: 130px;
 }
+.pro3-proc1-lotList {
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+	width: 400px;
+	border: 1px solid #ccc;
+	margin: 0 auto;
+	padding: 5px;
+}
+.lotListHeader-1{
+	width: 200px;
+}
+.lotListHeader-2{
+	width: 200px;
+}
+.lotListTextarea {
+	width: 200px;
+	font-family: monospace;
+	white-space: pre;
+	resize: none;
+	line-height: 1.6em;
+}
+.appCheckList {
+	display: flex;
+	flex-direction: column;
+}
+.appCheckRow {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	height: 1.6em;
+	white-space: nowrap;
+}
+
 /*==========================================================*/
 
 .pro1incoming {
