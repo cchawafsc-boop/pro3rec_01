@@ -88,9 +88,11 @@
         <div class="lotListHeader-1"><label>Lot List</label></div>
         <div class="lotListHeader-2"><label>App Check</label></div>
         <div class="lotListHeader-3"><label>Lot ID</label></div>
+        <div class="lotListHeader-4"><label>Delete</label></div>
         <div><textarea id="lotListTable" class="lotListTextarea" rows="6" disabled></textarea></div>
         <div id="appCheckList" class="appCheckList"></div>
         <div id="lotIDList"></div>
+        <div id="DelItem"></div>
       </div>
 
       <div id="lotTagHidden" style="display:none"></div>
@@ -111,18 +113,19 @@
 
     var lotTagCount = 0;
     var COL_W = 12;
+    var lotRows = new Map();
 
     function pad(s) {
       s = (s || '').toString();
       return s.length >= COL_W ? s + ' ' : s + ' '.repeat(COL_W - s.length);
     }
 
-    function addHidden(name, value) {
-      var input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = name;
-      input.value = value;
-      document.getElementById('lotTagHidden').appendChild(input);
+    function rebuildTextarea() {
+      var textarea = document.getElementById('lotListTable');
+      var lines = [];
+      lotRows.forEach(function (row) { lines.push(row.line); });
+      textarea.value = lines.join('\n');
+      textarea.rows = Math.max(6, lines.length);
     }
 
     document.getElementById('lotTagData').addEventListener('keydown', function (e) {
@@ -137,28 +140,57 @@
       }
 
       var prodName = m[1], wo = m[2], boxNo = m[3], boxQty = m[4], material = m[5];
+      var rowId = ++lotTagCount;
 
-      lotTagCount++;
+      var hiddenDiv = document.createElement('div');
+      [['ProdName[]', prodName], ['WO[]', wo], ['BoxNo[]', boxNo], ['BoxQty[]', boxQty], ['Materials[]', material]]
+        .forEach(function (pair) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = pair[0];
+          input.value = pair[1];
+          hiddenDiv.appendChild(input);
+        });
+      document.getElementById('lotTagHidden').appendChild(hiddenDiv);
 
-      addHidden('ProdName[]', prodName);
-      addHidden('WO[]', wo);
-      addHidden('BoxNo[]', boxNo);
-      addHidden('BoxQty[]', boxQty);
-      addHidden('Materials[]', material);
-
-      var textarea = document.getElementById('lotListTable');
       var line = pad(prodName) + pad(wo) + pad(boxNo) + pad(boxQty) + material;
-      textarea.value += (textarea.value ? '\n' : '') + line;
+      lotRows.set(rowId, { line: line });
+      rebuildTextarea();
 
-      var row = document.createElement('div');
-      row.className = 'appCheckRow';
-      row.innerHTML =
+      var appCheckRow = document.createElement('div');
+      appCheckRow.className = 'appCheckRow';
+      appCheckRow.innerHTML =
         '<select name="AppCheck[]" required>' +
           '<option value="" selected disabled>โปรดระบุ</option>' +
           '<option value="pass">pass</option>' +
           '<option value="fail">fail</option>' +
         '</select>';
-      document.getElementById('appCheckList').appendChild(row);
+      document.getElementById('appCheckList').appendChild(appCheckRow);
+
+      var lotIDRow = document.createElement('div');
+      lotIDRow.className = 'lotIDRow';
+      var lotIDOptions = '<option value="" selected disabled>โปรดระบุ</option>';
+      for (var n = 1; n <= 30; n++) {
+        lotIDOptions += '<option value="' + n + '">' + n + '</option>';
+      }
+      lotIDRow.innerHTML = '<select name="LotID[]" required>' + lotIDOptions + '</select>';
+      document.getElementById('lotIDList').appendChild(lotIDRow);
+
+      var delRow = document.createElement('div');
+      delRow.className = 'delRow';
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.textContent = 'ลบ';
+      delBtn.addEventListener('click', function () {
+        lotRows.delete(rowId);
+        hiddenDiv.remove();
+        appCheckRow.remove();
+        lotIDRow.remove();
+        delRow.remove();
+        rebuildTextarea();
+      });
+      delRow.appendChild(delBtn);
+      document.getElementById('DelItem').appendChild(delRow);
 
       this.value = '';
       this.focus();
