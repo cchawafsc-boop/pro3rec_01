@@ -318,6 +318,7 @@ form .form-pro3-proc2-g1 {
 	border-radius: 8px;
 	margin: 6px auto;
 	justify-content: center;             /* Center the grid horizontally */
+	background-color: khaki;
 }
 .pro3-proc2-qrset-it {
 	display: flex;                       /* Using flexbox for vertical alignment within each cell */
