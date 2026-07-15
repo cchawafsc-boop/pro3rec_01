@@ -178,110 +178,45 @@
           <input type="number" name="SamplingSize" value="<?php echo $lot_samplingsize; ?>" min="0" disabled required>
         </div>
 
-        <div class="pro3-proc2-g1-it"><label>Box no</label></div>
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนสุ่ม (box)</label></div>
         <div class="pro3-proc2-g1-it">
-          <select name="SubLot" required>
-            <option value="" selected disabled>โปรดระบุ</option>
-            <?php foreach ($lot_boxnos as $boxNo): ?>
-              <option value="<?php echo htmlspecialchars($boxNo); ?>"><?php echo htmlspecialchars($boxNo); ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-
-
-        <div class="pro3-proc2-g1-it"><label>Time</label></div>
-        <div class="pro3-proc2-g1-it">
-          <input type="time" name="Time" value="<?php echo date('H:i'); ?>" required>
-        </div>
-
-        <div class="pro3-proc2-g1-it"><label>Box check</label></div>
-        <div class="pro3-proc2-g1-it">
-          <select name="BoxCondition" required>
-            <option value="" selected disabled>โปรดระบุ</option>
-            <option value="OK">OK</option>
-            <option value="FAIL">FAIL</option>
-          </select>
-        </div>
-
-        <!-- Defect section header -->
-        <div class="pro3-proc1-g-it" style="grid-column:1/span 2; background-color:lightskyblue; font-weight:bold; justify-content:center; margin-top:6px;">
-          Defect
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>แตกหัก</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Break" id="f_Break" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>รอยกระแทก</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Bumps" id="f_Bumps" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>เศษเสี้ยน</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Burrs" id="f_Burrs" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>เศษกระเทาะ</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Chip" id="f_Chip" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>รอยร้าว</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Crack" id="f_Crack" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>สิ่งแปลกปลอม</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Contam" id="f_Contam" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>รอยยุบ</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Dent" id="f_Dent" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>รอยขีดข่วน</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Scratch" id="f_Scratch" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>รอยขูด</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Scuff" id="f_Scuff" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>คราบน้ำ</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Stain" id="f_Stain" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>เสียรูป</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Deform" id="f_Deform" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>รอยนิ้วมือ</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Finger" id="f_Finger" min="0" value="0" oninput="calcNG()" required>
-        </div>
-
-        <div class="pro3-proc1-g-it" style="background-color:lightyellow; font-weight:bold;"><label>NG รวม</label></div>
-        <div class="pro3-proc1-g-it" style="background-color:lightyellow;">
-          <input type="number" name="NGtotal" id="f_NGtotal" min="0" value="0" readonly required>
-        </div>
-
-        <!-- Remark -->
-        <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center; margin-top:6px;">
-          <label>หมายเหตุ</label>
-        </div>
-        <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center;">
-          <textarea name="Remark" rows="3" style="width:270px;"></textarea>
+          <input type="number" value="<?php echo $incChkBox_qty; ?>" disabled>
         </div>
 
       </div>
+
+      <?php
+        $sorted_boxnos = $lot_boxnos;
+        sort($sorted_boxnos);
+        foreach ($sorted_boxnos as $boxNo):
+      ?>
+      <div class="pro3-proc2-qrset">
+        <div class="pro3-proc2-qrset-it"><label>Box no</label></div>
+        <div class="pro3-proc2-qrset-it">
+          <input type="text" value="<?php echo htmlspecialchars($boxNo); ?>" disabled>
+        </div>
+
+        <div class="pro3-proc2-qrset-it"><label>ยิง QR ที่นี่</label></div>
+        <div class="pro3-proc2-qrset-it">
+          <input type="text" class="qr-scan-input" onkeydown="handleQrScan(event, '<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">
+        </div>
+
+        <div class="pro3-proc2-qrset-it"><label>เช็คการยิง</label></div>
+        <div class="pro3-proc2-qrset-it">
+          <input type="text" class="qr-result-input" disabled>
+        </div>
+
+        <div class="pro3-proc2-qrset-it"><label>เช็ค App</label></div>
+        <div class="pro3-proc2-qrset-it">
+          <select class="app-check-select" onchange="handleAppCheck(this)">
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="ผ่าน">ผ่าน</option>
+            <option value="ไม่ผ่าน">ไม่ผ่าน</option>
+          </select>
+          <button type="button" class="ngTypeBtn" style="display:none;">เลือกชนิด NG</button>
+        </div>
+      </div>
+      <?php endforeach; ?>
 
       <p style="display:flex; justify-content:space-between; padding:0 10px;">
         <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
@@ -293,13 +228,25 @@
   <?php if (!isset($req)) { mysqli_close($conn); } ?>
 
   <script>
-    const defectFields = ['Break','Bumps','Burrs','Chip','Crack','Contam','Dent','Scratch','Scuff','Stain','Deform','Finger'];
-    function calcNG() {
-      let total = 0;
-      defectFields.forEach(function(name) {
-        total += parseInt(document.getElementById('f_' + name).value) || 0;
-      });
-      document.getElementById('f_NGtotal').value = total;
+    function handleQrScan(e, boxNo) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const input = e.target;
+      const set = input.closest('.pro3-proc2-qrset');
+      const resultInput = set.querySelector('.qr-result-input');
+      const parts = input.value.split(/\s*,\s*/);
+      const prodName = document.querySelector('input[name="ProdName"]').value;
+      const wo = document.querySelector('input[name="WO"]').value;
+      const ok = parts.length === 5
+        && parts[0] === prodName
+        && parts[1] === wo
+        && parts[2] === boxNo;
+      resultInput.value = ok ? 'ข้อมูลถูกต้อง' : 'ข้อมูลไม่ถูกต้อง';
+    }
+
+    function handleAppCheck(sel) {
+      const btn = sel.parentElement.querySelector('.ngTypeBtn');
+      btn.style.display = sel.value === 'ไม่ผ่าน' ? 'inline-block' : 'none';
     }
   </script>
 </body>
