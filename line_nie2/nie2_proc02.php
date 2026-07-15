@@ -242,6 +242,7 @@
         && parts[1] === wo
         && parts[2] === boxNo;
       resultInput.value = ok ? 'ข้อมูลถูกต้อง' : 'ข้อมูลไม่ถูกต้อง';
+      resultInput.style.color = ok ? 'green' : 'red';
     }
 
     function handleAppCheck(sel) {
