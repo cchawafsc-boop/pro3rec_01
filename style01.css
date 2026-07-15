@@ -300,6 +300,39 @@ form .form-pro3-proc2-g1 {
     padding: 5px;
     border-radius: 4px;
 }
+.pro3-proc2-g1-it input[type="text"],
+.pro3-proc2-g1-it input[type="number"],
+.pro3-proc2-g1-it input[type="date"],
+.pro3-proc2-g1-it input[type="time"],
+.pro3-proc2-g1-it select {
+	width: 140px;
+	box-sizing: border-box;
+}
+
+.pro3-proc2-qrset {
+	display: grid;
+	grid-template-columns: 150px 160px;  /* Defines column width */
+	gap: 0px;                            /* Sets a gap between grid items */
+	border: 1px solid #ccc;
+	padding: 3px;
+	border-radius: 8px;
+	margin: 6px auto;
+	justify-content: center;             /* Center the grid horizontally */
+}
+.pro3-proc2-qrset-it {
+	display: flex;                       /* Using flexbox for vertical alignment within each cell */
+	align-items: center;
+	padding: 5px;
+	border-radius: 4px;
+}
+.pro3-proc2-qrset-it input[type="text"],
+.pro3-proc2-qrset-it select {
+	width: 140px;
+	box-sizing: border-box;
+}
+.pro3-proc2-qrset-it .ngTypeBtn {
+	margin-left: 6px;
+}
 
 .pro1incoming-g1 {
     display: grid;
