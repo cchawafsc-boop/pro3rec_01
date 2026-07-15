@@ -60,46 +60,47 @@
     $incChkBox_qty = count($lot_boxnos);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $prodName      = $_POST['ProdName'];
-        $invNo         = $_POST['InvNo'];
-        $wo            = $_POST['WO'];
-        $boxNoSelected = $_POST['SubLot'];
-        $date          = $_POST['Date'];
-        $time          = $_POST['Time'];
-        $opr           = (int)$_POST['Opr'];
-        $boxCondition  = $_POST['BoxCondition'];
-        $amountInv     = (int)$_POST['AmountInv'];
-        $samplingSize  = (int)$_POST['SamplingSize'];
-        $break         = (int)$_POST['Break'];
-        $bumps         = (int)$_POST['Bumps'];
-        $burrs         = (int)$_POST['Burrs'];
-        $chip          = (int)$_POST['Chip'];
-        $crack         = (int)$_POST['Crack'];
-        $contam        = (int)$_POST['Contam'];
-        $dent          = (int)$_POST['Dent'];
-        $scratch       = (int)$_POST['Scratch'];
-        $scuff         = (int)$_POST['Scuff'];
-        $stain         = (int)$_POST['Stain'];
-        $deform        = (int)$_POST['Deform'];
-        $finger        = (int)$_POST['Finger'];
-        $ngTotal       = (int)$_POST['NGtotal'];
-        $remark        = $_POST['Remark'];
+        $prodName     = $_POST['ProdName'];
+        $invNo        = $_POST['InvNo'];
+        $wo           = $_POST['WO'];
+        $date         = $_POST['Date'];
+        $time         = date('H:i:s');
+        $opr          = (int)$_POST['Opr'];
+        $amountInv    = (int)$_POST['AmountInv'];
+        $samplingSize = (int)$_POST['SamplingSize'];
+
+        $boxSubLots   = $_POST['box_subLot']   ?? [];
+        $boxAppChecks = $_POST['box_appcheck'] ?? [];
+        $boxQrResults = $_POST['box_qrresult'] ?? [];
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc2`
-             (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,
+             (`Prod_Name`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,
               `BoxCondition`,`AmountInv`,`SamplingSize`,
               `Break`,`Bumps`,`Burrs`,`Chip`,`Crack`,`Contam`,
               `Dent`,`Scratch`,`Scuff`,`Stain`,`Deform`,`Finger`,
               `NGtotal`,`Remark`)
              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "ssssssissiiiiiiiiiiiiiis",
-            $prodName, $invNo, $wo, $boxNoSelected, $date, $time, $opr,
-            $boxCondition, $amountInv, $samplingSize,
-            $break, $bumps, $burrs, $chip, $crack, $contam,
-            $dent, $scratch, $scuff, $stain, $deform, $finger,
-            $ngTotal, $remark);
-        $req = mysqli_stmt_execute($stmt);
+
+        $break = $bumps = $burrs = $chip = $crack = $contam = 0;
+        $dent = $scratch = $scuff = $stain = $deform = $finger = $ngTotal = 0;
+
+        $req = true;
+        foreach ($boxSubLots as $idx => $subLot) {
+            $boxCondition = $boxAppChecks[$idx] ?? '';
+            $remark       = $boxQrResults[$idx] ?? '';
+
+            mysqli_stmt_bind_param($stmt, "ssssssissiiiiiiiiiiiiiis",
+                $prodName, $invNo, $wo, $subLot, $date, $time, $opr,
+                $boxCondition, $amountInv, $samplingSize,
+                $break, $bumps, $burrs, $chip, $crack, $contam,
+                $dent, $scratch, $scuff, $stain, $deform, $finger,
+                $ngTotal, $remark);
+            if (!mysqli_stmt_execute($stmt)) {
+                $req = false;
+            }
+        }
+
         if ($req) {
             echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
         } else {
@@ -194,6 +195,7 @@
         <div class="pro3-proc2-qrset-it"><label>Box no</label></div>
         <div class="pro3-proc2-qrset-it">
           <input type="text" value="<?php echo htmlspecialchars($boxNo); ?>" disabled>
+          <input type="hidden" name="box_subLot[]" value="<?php echo htmlspecialchars($boxNo); ?>">
         </div>
 
         <div class="pro3-proc2-qrset-it"><label>ยิง QR ที่นี่</label></div>
@@ -204,11 +206,12 @@
         <div class="pro3-proc2-qrset-it"><label>เช็คการยิง</label></div>
         <div class="pro3-proc2-qrset-it">
           <input type="text" class="qr-result-input" disabled>
+          <input type="hidden" class="qr-result-hidden" name="box_qrresult[]" value="">
         </div>
 
         <div class="pro3-proc2-qrset-it"><label>เช็ค App</label></div>
         <div class="pro3-proc2-qrset-it">
-          <select class="app-check-select" onchange="handleAppCheck(this)">
+          <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)">
             <option value="" selected disabled>โปรดระบุ</option>
             <option value="ผ่าน">ผ่าน</option>
             <option value="ไม่ผ่าน">ไม่ผ่าน</option>
@@ -234,6 +237,7 @@
       const input = e.target;
       const set = input.closest('.pro3-proc2-qrset');
       const resultInput = set.querySelector('.qr-result-input');
+      const resultHidden = set.querySelector('.qr-result-hidden');
       const parts = input.value.split(/\s*,\s*/);
       const prodName = document.querySelector('input[name="ProdName"]').value;
       const wo = document.querySelector('input[name="WO"]').value;
@@ -241,8 +245,10 @@
         && parts[0] === prodName
         && parts[1] === wo
         && parts[2] === boxNo;
-      resultInput.value = ok ? 'ข้อมูลถูกต้อง' : 'ข้อมูลไม่ถูกต้อง';
+      const resultText = ok ? 'ข้อมูลถูกต้อง' : 'ข้อมูลไม่ถูกต้อง';
+      resultInput.value = resultText;
       resultInput.style.color = ok ? 'green' : 'red';
+      resultHidden.value = resultText;
     }
 
     function handleAppCheck(sel) {
