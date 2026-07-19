@@ -1,0 +1,570 @@
+/* CSS Document */
+
+body{        
+	padding-top: 36px;
+	left:0;
+	background-color: aliceblue;
+}
+table, th, td {
+	border: 1px solid black;
+}
+th{  
+	background-color: lightgrey;
+}
+label{
+	padding: 0px 4px;
+}
+.topbar1{
+	width: 100%;
+	position: fixed;
+	display: flex;
+	background: darkblue;/* #222;*/
+	color:#FFF;
+	top: 0;
+	left:0;
+	height: 33px;
+	line-height:2px;
+	align-items: center;
+	overflow:auto;
+}
+.topbar1 img{
+	height: 30px;
+	padding: 0px 5px;
+}
+.topbar2{
+	width: 100%;
+	position: fixed;        
+	background: mediumblue; /* #444;*/
+	color:#FFF;
+	top: 33px;
+	left:0;
+	height: 33px;
+	overflow:auto;
+	display: inline;
+}
+.topbar2::after {
+	content: "";
+	clear: both;
+	display: table;
+}
+/*==========================================================*/
+
+.form-lgin {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+	text-align:center;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.form-lgin input[type="number"],
+.form-lgin input[type="password"],
+.form-lgin input[type="text"],
+.form-lgin select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-lgin button {
+	padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-lgin button#cancelBtn {
+    background-color: #f44336;
+    color: white;
+}
+.form-lgin button#okBtn {
+    background-color: #4CAF50;
+    color: white;
+}
+.form-lgin button#regCancelBtn {
+    background-color: #f44336;
+    color: white;
+}
+.form-lgin button#regOkBtn {
+    background-color: #4CAF50;
+    color: white;
+}
+/*==========================================================*/
+
+.main-menu{
+	justify-items: center;
+	text-align: center;
+}
+.main-menu button {
+	padding: 6px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+	width: 20em;
+	border-color:#aaa;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.main-menu button#Nie2_HistBtn {
+	font-weight: bold;
+	color: white;
+	background-color: mediumblue;
+	width: 10em;
+}
+.main-menu button#Nie2_BfIndexBtn{
+	font-weight: bold;
+	color: white;
+	background-color: red;
+	width: 10em;
+}
+/*==========================================================*/
+
+.pro1LcardHis{
+	justify-items: center;
+	text-align: center;
+}
+.pro1LcardHis input[type='date']{
+	height: 20px;
+	margin: 5px 15px;
+}
+.pro1LcardHis select{
+	height: 25px;
+	margin: 5px 15px;
+}
+.pro1LcardHis button#okBtn{
+	color:white;
+	margin: 5px 15px;
+	background-color: blue;	
+}
+.pro1LcardHis button#cancelBtn{
+	color:white;
+	margin: 5px 15px;
+	background-color: red;	
+}
+.pro1LcardHis table{
+	margin: 5px 5px;
+}
+.pro1LcardHis th,td{
+	padding: 0px 5px;
+}
+.pro1LcardHis th{
+	background-color: lightskyblue ;
+} 
+/*=========================================================*/
+
+.form-pro3-proc1{
+    justify-items: center;
+    text-align: center;
+}
+.form-pro3-proc1 button{
+	padding: 8px 5px;
+	margin: 3px 5px;
+	width: 110px;
+	border-style: none;
+	border-radius: 4px;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.form-pro3-proc1 button#Nie2_homeBtn{
+	color:white;
+	background-color: blue;
+}
+.form-pro3-proc1 button#okBtn{
+	color:white;
+	background-color: green;	
+}
+.form-pro3-proc1-g {
+    display: grid;
+    grid-template-columns: 150px 160px;  /* Defines column width */
+    gap: 0px;                            /* Sets a gap between grid items */
+    border: 1px solid #ccc;
+    padding: 3px;
+    border-radius: 8px;
+	justify-content: center;             /* Center the grid horizontally */
+}
+.pro3-proc1-g-it {
+    display: flex;                       /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro3-proc1-g-it input:-webkit-autofill {
+	/* This prevents client's browser change background-color automatically */
+	-webkit-box-shadow: 0 0 0 30px white inset !important;
+	box-shadow: 0 0 0 30px white inset !important;
+    background-color: white !important;
+}
+.pro3-proc1-g-it select{
+	width: 130px;
+}
+.pro3-proc1-g-it input[type="text"]{
+	width: 155px;
+}
+.pro3-proc1-g-it input[type="number"]{
+	width: 155px;
+}
+.pro3-proc1-lotList {
+	display: grid;
+	grid-template-columns: 100px 70px 40px 40px 40px 70px 70px 70px;
+	gap: 5px;
+	width: fit-content;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	margin: 4px auto;
+	padding: 5px;
+	box-sizing: border-box;
+}
+.lotListHeader{
+	width: 100%;
+	background: lightblue;
+	box-sizing: border-box;
+	text-align: center;
+}
+.lotDataList,
+.appCheckList,
+#lotIDList,
+#DelItem {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	box-sizing: border-box;
+}
+.dataRow,
+.appCheckRow,
+.lotIDRow,
+.delRow {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	height: 2.4em;
+	white-space: nowrap;
+	font-family: monospace;
+}
+.appCheckRow select,
+.lotIDRow select {
+	width: 100%;
+	box-sizing: border-box;
+}
+.delRow button {
+	width: 100%;
+	height: 1.8em;
+	box-sizing: border-box;
+}
+
+/*==========================================================*/
+
+.pro1incoming {
+	justify-items: center;
+    text-align: center;
+}
+.form-pro3-proc2-g1{
+	justify-items: center;
+	text-align: center;
+}
+.form-pro3-proc2-g1 button{
+	padding: 8px 5px;
+	margin: 3px 5px;
+	width: 110px;
+	border-style: none;
+	border-radius: 4px;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.form-pro3-proc2-g1 button#Nie2_homeBtn{
+	color:white;
+	background-color: blue;
+}
+.form-pro3-proc2-g1 button#okBtn{
+	color:white;
+	background-color: green;
+}
+form .form-pro3-proc2-g1 {
+	display: grid;
+    grid-template-columns: 150px 160px;  /* Defines column width */
+    gap: 0px;                            /* Sets a gap between grid items */
+    border: 1px solid #ccc;
+    padding: 3px;
+    border-radius: 8px;
+    margin-top: 10px;
+	justify-content: center;             /* Center the grid horizontally */
+}
+.pro3-proc2-g1-it{
+	display: flex;                       /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro3-proc2-g1-it input[type="text"],
+.pro3-proc2-g1-it input[type="number"],
+.pro3-proc2-g1-it input[type="date"],
+.pro3-proc2-g1-it input[type="time"],
+.pro3-proc2-g1-it select {
+	width: 140px;
+	box-sizing: border-box;
+}
+
+.pro3-proc2-qrset {
+	display: grid;
+	grid-template-columns: 150px 160px;  /* Defines column width */
+	gap: 0px;                            /* Sets a gap between grid items */
+	border: 1px solid #ccc;
+	padding: 3px;
+	border-radius: 8px;
+	margin: 6px auto;
+	justify-content: center;             /* Center the grid horizontally */
+	background-color: khaki;
+}
+.pro3-proc2-qrset-it {
+	display: flex;                       /* Using flexbox for vertical alignment within each cell */
+	align-items: center;
+	padding: 5px;
+	border-radius: 4px;
+}
+.pro3-proc2-qrset-it input[type="text"],
+.pro3-proc2-qrset-it select {
+	width: 140px;
+	box-sizing: border-box;
+}
+.pro3-proc2-qrset-it .ngTypeBtn {
+	margin-left: 6px;
+}
+
+.pro1incoming-g1 {
+    display: grid;
+    grid-template-columns: 140px 180px;  /* Defines 2 columns with equal width */
+    gap: 0px;                                  /* Sets a gap between grid items */
+    /*border: 1px solid #ccc;*/
+    padding: 3px;
+    border-radius: 8px;
+	justify-content: center;                   /* Center the grid horizontally */
+	text-align: center;
+}
+.pro1incoming-g1-it {
+    display: flex;                             /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro1incoming-g1-bot {
+	grid-column: 1 / span 2;
+	display: flex;                            /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+	justify-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro1incoming-g1-bot button{
+	padding: 2px;
+	margin: 5px 5px;
+	border-radius: 4px;
+	border-style: none;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.pro1incoming-g1-bot button#okBtn{
+	width: 120px;
+	background-color: blue;
+	color: white;
+}
+.pro1incoming-g1-bot button#cancelBtn{
+    width: 200px;
+	background-color: red;
+	color: white;
+
+}
+.pro1incoming-tb th{
+	padding: 0px 4px;
+	background-color: lightskyblue;
+}
+.pro1incoming button{
+    margin:2px;
+}
+.pro1incoming-g2 {
+    display: grid;
+    grid-template-columns: 150px 200px;  /* Defines 2 columns with equal width */
+    gap: 0px;                                  /* Sets a gap between grid items */
+    /*border: 1px solid #ccc;*/
+    padding: 3px;
+    border-radius: 8px;
+	justify-content: center;                   /* Center the grid horizontally */
+	text-align: center;
+}
+.pro1incoming-g2-hd{
+	grid-column: 1 / span 2;
+	background-color: lightskyblue;
+	margin-top:10px;
+	padding: 3px;
+	font-weight: bold;
+}
+
+.pro1incoming-g2 input[type="text"]{
+	width: 80px;
+}
+.pro1incoming-g2-it {
+    display: flex;                             /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+.pro1incoming-g3 {
+  display: grid;
+  grid-template-columns: 150px 190px 80px;
+  gap: 0px;
+  padding: 3px;
+  border-radius: 8px;
+  justify-content: center;
+  text-align: center;
+}
+.pro1incoming-g3-hd {
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  padding: 3px;
+}
+.pro1incoming-g3-it {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+.pro1incoming-g3-it input[type="text"] {
+  width: 50px;
+}
+.pro1incoming-g3-it1 {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+.pro1incoming-g3-it1 input[type="text"] {
+  width: 180px;
+}
+.pro1incoming-g3-sum {
+  display: flex;
+  background-color: lightyellow;
+  align-items: center;
+  padding: 5px;
+}
+.pro1incoming-g3-sum input[type="text"] {
+  width: 50px;
+}
+.pro1incoming-g3-bot {
+  grid-column: 1 / span 2;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  padding: 5px;
+  border-radius: 4px;
+}
+.pro1incoming-g3-ft {
+  grid-column: 1 / span 3;
+  display: flex;
+  justify-content: center;
+}
+.pro1incoming-g3-ft button {
+  background-color: blue;
+  color: white;
+  border-style: none;
+  border-radius: 4px;
+  padding: 3px 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+/*==========================================================*/
+
+/*==========================================================*/
+
+.form-pro3-ngin{
+	justify-items: center;
+	text-align: center;
+}
+.form-pro3-ngin button{
+	padding: 8px 5px;
+	margin: 3px 5px;
+	width: 110px;
+	border-style: none;
+	border-radius: 4px;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.form-pro3-ngin button#Nie2_homeBtn{
+	color:white;
+	background-color: blue;
+}
+.ngInputTbl{
+	border-collapse: collapse;
+	margin: 10px auto;
+	width: 95%;
+	max-width: 700px;
+}
+.ngInputTbl th,
+.ngInputTbl td{
+	border: 1px solid #ccc;
+	padding: 6px 4px;
+	text-align: center;
+}
+.ngInputTbl th{
+	background-color: lightskyblue;
+}
+.ngInputTbl input[type="number"]{
+	width: 70px;
+	box-sizing: border-box;
+}
+.ngInputTbl select{
+	width: 100px;
+	box-sizing: border-box;
+}
+.ngInputTbl textarea{
+	width: 110px;
+	box-sizing: border-box;
+	resize: vertical;
+}
+.ngInputTbl button{
+	padding: 4px 6px;
+	border-style: none;
+	border-radius: 4px;
+	background-color: green;
+	color: white;
+	cursor: pointer;
+}
+/*==========================================================*/
+
+.makeButton{
+	background:#555;
+	padding: 0px 8px;
+	margin: 1px 5px;
+	font-size:24px;
+	color:#FFF;
+}
+.makeButton:visited{
+	color:#FFF;
+}
+.makeButton:hover{
+	background:#aaa;
+}
+
+
+.cautionMsg{
+	text-align: center;
+	vertical-align: middle;
+}
+@media only screen and (min-width: 768px) {
+	body{
+		padding-top: 28px;
+	}
+	.topbar1{
+		height: 24px;
+	}
+	.topbar1 img{
+		height: 24px;
+	}
+	.topbar2{
+		top: 24px;
+		height: 24px;
+	}
+	.makeButton{
+		font-size:14px;
+	}
+
+}
