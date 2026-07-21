@@ -65,7 +65,7 @@
         exit;
     }
 
-    // Per-row AJAX submit -> tb_ng
+    // Per-row AJAX submit -> tb_ng (insert new record, or overwrite the matching one)
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_submit'])) {
         header('Content-Type: application/json');
 
@@ -82,37 +82,34 @@
         $qty      = (int)($_POST['Qty'] ?? 0);
         $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
 
-        if ($process === '' || $boxNo === '' || !in_array($ngMode, $ngModeList, true) || $qty <= 0) {
+        if ($prodName === '' || $invNo === '' || $wo === '' || $process === '' || $boxNo === ''
+            || !in_array($ngMode, $ngModeList, true) || $qty <= 0) {
             echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
             exit;
         }
 
-        $defects = array_fill_keys($ngModeList, 0);
-        $defects[$ngMode] = $qty;
-        $ngTotal = array_sum($defects);
+        // Key = ProdName + InvNo + WO + Process + BoxNo + NGmode
+        $checkStmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
+        mysqli_stmt_bind_param($checkStmt, 'ssssss', $prodName, $invNo, $wo, $process, $boxNo, $ngMode);
+        mysqli_stmt_execute($checkStmt);
+        $exists = mysqli_stmt_get_result($checkStmt)->fetch_row() !== null;
 
-        $cols = array_merge(
-            ['ProdName','InvNo','WO','BoxNo','Date','Time','Opr','Process','SampSize'],
-            $ngModeList,
-            ['NGtotal','Remark']
-        );
-        $colList      = '`' . implode('`,`', $cols) . '`';
-        $placeholders = implode(',', array_fill(0, count($cols), '?'));
-
-        $stmt = mysqli_prepare($conn, "INSERT INTO `tb_ng` ($colList) VALUES ($placeholders)");
-
-        $types  = 'ssssssisi' . str_repeat('i', count($ngModeList)) . 'is';
-        $values = array_merge(
-            [$prodName, $invNo, $wo, $boxNo, $date, $time, $opr, $process, $sampSize],
-            array_values($defects),
-            [$ngTotal, $remark]
-        );
-
-        $bindArgs = [$stmt, $types];
-        foreach ($values as $k => $v) {
-            $bindArgs[] = &$values[$k];
+        if ($exists) {
+            $stmt = mysqli_prepare($conn,
+                "UPDATE tb_ng SET Date = ?, Time = ?, Opr = ?, SampSize = ?, NGqty = ?, NGtotal = ?, Remark = ?
+                 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
+            mysqli_stmt_bind_param($stmt, 'ssiiiisssssss',
+                $date, $time, $opr, $sampSize, $qty, $qty, $remark,
+                $prodName, $invNo, $wo, $process, $boxNo, $ngMode);
+        } else {
+            $stmt = mysqli_prepare($conn,
+                "INSERT INTO tb_ng
+                 (ProdName, InvNo, WO, BoxNo, Date, Time, Opr, Process, SampSize, NGmode, NGqty, NGtotal, Remark)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($stmt, 'ssssssisisiis',
+                $prodName, $invNo, $wo, $boxNo, $date, $time, $opr, $process, $sampSize, $ngMode, $qty, $qty, $remark);
         }
-        call_user_func_array('mysqli_stmt_bind_param', $bindArgs);
 
         $ok = mysqli_stmt_execute($stmt);
         echo json_encode(['status' => $ok ? 'ok' : 'fail']);
@@ -312,6 +309,64 @@
 
     document.getElementById('hdrProcess').addEventListener('change', loadNGRows);
     document.getElementById('hdrBoxNo').addEventListener('change', loadNGRows);
+
+    document.getElementById('ngTblBody').addEventListener('click', function (e) {
+      const btn = e.target.closest('.rowSubmitBtn');
+      if (!btn) return;
+
+      const process = document.getElementById('hdrProcess').value;
+      const boxNo   = document.getElementById('hdrBoxNo').value;
+      if (!process || !boxNo) {
+        alert('กรุณาเลือก Process และ Box no');
+        return;
+      }
+
+      const tr     = btn.closest('tr');
+      const mode   = tr.querySelector('.rowNGmode').value;
+      const qty    = parseInt(tr.querySelector('.rowQty').value, 10) || 0;
+      const remark = tr.querySelector('.rowRemark').value;
+
+      if (!mode || qty <= 0) {
+        alert('กรุณาระบุ NGmode และจำนวนให้ถูกต้อง');
+        return;
+      }
+
+      const payload = new URLSearchParams({
+        ajax_submit: '1',
+        ProdName: document.getElementById('hdrProdName').value,
+        InvNo:    document.getElementById('hdrInvNo').value,
+        WO:       document.getElementById('hdrWO').value,
+        BoxNo:    boxNo,
+        Date:     document.getElementById('hdrDate').value,
+        Time:     document.getElementById('hdrTime').value,
+        Opr:      document.getElementById('hdrOpr').value,
+        Process:  process,
+        NGmode:   mode,
+        Qty:      qty,
+        Remark:   remark
+      });
+
+      btn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'ok') {
+            loadNGRows();
+          } else {
+            alert(data.message || 'บันทึกไม่สำเร็จ');
+            btn.disabled = false;
+          }
+        })
+        .catch(() => {
+          alert('เกิดข้อผิดพลาด');
+          btn.disabled = false;
+        });
+    });
+
     loadNGRows();
   </script>
 </body>
