@@ -29,9 +29,11 @@
     <p> <button type="button"   id="์Nie2_Proc02_Btn"   onclick="goProc02()">2. Incoming   </button> </p>
     <p> <button type="button"   id="์Nie2_Proc03_Btn"   onclick="goProc03()">3. Racking    </button> </p>
     <p> <button type="button"   id="์Nie2_Proc04_Btn"   onclick="goProc04()">4. Plating    </button> </p>
-    <p> <button type="button"   id="์Nie2_Proc05_Btn"   onclick="goProc05()">5. Inspection </button> </p>
-    <p> <button type="button"   id="์Nie2_Proc06_Btn"   onclick="goProc06()">6. QAoutgoing </button> </p>
-        
+    <p> <button type="button"   id="์Nie2_Proc04_Btn"   onclick="goProc05()">5. Unracking  </button> </p>
+    <p> <button type="button"   id="์Nie2_Proc05_Btn"   onclick="goProc06()">6. Inspection </button> </p>
+    <p> <button type="button"   id="์Nie2_Proc06_Btn"   onclick="goProc07()">7. QAoutgoing </button> </p>
+    <p> <button type="button"   id="Nie2_NGinputBtn"   onclick="goNGinput()">ระบุ NG </button> </p>
+
   </div>
 
   <?php mysqli_close($conn);   // ปิดฐานข้อมูล
@@ -61,6 +63,12 @@
     }
     function goProc06() {
       window.location.href = "./nie2_proc06.php";
+    }
+    function goProc07() {
+      window.location.href = "./nie2_proc07.php";
+    }
+    function goNGinput() {
+      window.location.href = "./nie2_ng_input.php";
     }
   </script>
   
