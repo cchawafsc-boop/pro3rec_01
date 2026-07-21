@@ -2,13 +2,10 @@
     session_start();
     require('../connect.php');
     require('../init_session.php');
-
-    $ngModeOptions = [
-        'Blister','Break','Bumps','Burrs','Chip','Crack','Contam','Discolor',
-        'Dent','Scratch','Scuff','Stain','Exposed','Pitting','Deform','Finger'
-    ];
+    require('./ngmode.php');
 
     $lot_prodname = $lot_invno = $lot_wo = '';
+    $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
     if (!empty($_SESSION['lotid'])) {
         $lstmt = mysqli_prepare($conn,
             "SELECT ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
@@ -16,6 +13,9 @@
         mysqli_stmt_execute($lstmt);
         $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
         if ($lrow) {
+            $lot_prodname_raw = $lrow['ProdName'];
+            $lot_invno_raw    = $lrow['InvNo'];
+            $lot_wo_raw       = $lrow['WO'];
             $lot_prodname = htmlspecialchars($lrow['ProdName']);
             $lot_invno    = htmlspecialchars($lrow['InvNo']);
             $lot_wo       = htmlspecialchars($lrow['WO']);
@@ -41,6 +41,30 @@
     $pre_process = $_SESSION['process'] ?? '';
     $pre_boxno   = $_SESSION['boxno']   ?? '';
 
+    // Extract existing tb_ng rows for the selected Process + Box no
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fetch_ng'])) {
+        header('Content-Type: application/json');
+
+        $process = $_POST['Process'] ?? '';
+        $boxNo   = $_POST['BoxNo'] ?? '';
+
+        $rows = [];
+        if ($process !== '' && $boxNo !== '') {
+            $fstmt = mysqli_prepare($conn,
+                "SELECT NGmode, NGqty, Remark FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
+            mysqli_stmt_bind_param($fstmt, 'sssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $process, $boxNo);
+            mysqli_stmt_execute($fstmt);
+            $fres = mysqli_stmt_get_result($fstmt);
+            while ($frow = mysqli_fetch_assoc($fres)) {
+                $rows[] = $frow;
+            }
+        }
+
+        echo json_encode(['status' => 'ok', 'rows' => $rows]);
+        mysqli_close($conn);
+        exit;
+    }
+
     // Per-row AJAX submit -> tb_ng
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_submit'])) {
         header('Content-Type: application/json');
@@ -58,18 +82,18 @@
         $qty      = (int)($_POST['Qty'] ?? 0);
         $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
 
-        if ($process === '' || $boxNo === '' || !in_array($ngMode, $ngModeOptions, true) || $qty <= 0) {
+        if ($process === '' || $boxNo === '' || !in_array($ngMode, $ngModeList, true) || $qty <= 0) {
             echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
             exit;
         }
 
-        $defects = array_fill_keys($ngModeOptions, 0);
+        $defects = array_fill_keys($ngModeList, 0);
         $defects[$ngMode] = $qty;
         $ngTotal = array_sum($defects);
 
         $cols = array_merge(
             ['ProdName','InvNo','WO','BoxNo','Date','Time','Opr','Process','SampSize'],
-            $ngModeOptions,
+            $ngModeList,
             ['NGtotal','Remark']
         );
         $colList      = '`' . implode('`,`', $cols) . '`';
@@ -77,7 +101,7 @@
 
         $stmt = mysqli_prepare($conn, "INSERT INTO `tb_ng` ($colList) VALUES ($placeholders)");
 
-        $types  = 'ssssssisi' . str_repeat('i', count($ngModeOptions)) . 'is';
+        $types  = 'ssssssisi' . str_repeat('i', count($ngModeList)) . 'is';
         $values = array_merge(
             [$prodName, $invNo, $wo, $boxNo, $date, $time, $opr, $process, $sampSize],
             array_values($defects),
@@ -186,72 +210,86 @@
     <table class="ngInputTbl">
       <thead>
         <tr>
-          <th>Box no</th>
-          <th>Sampling size</th>
-          <th>NG-mode</th>
-          <th>Q'ty (pcs)</th>
+          <th>NGmode</th>
+          <th>NGqty (pcs)</th>
           <th>Remark</th>
           <th>Submit</th>
         </tr>
       </thead>
-      <tbody>
-        <?php foreach ($lot_boxnos as $boxNo): ?>
-        <tr>
-          <td><?php echo htmlspecialchars($boxNo); ?></td>
-          <td><input type="number" class="rowSampSize" min="0" value="0"></td>
-          <td>
-            <select class="rowNGmode">
-              <option value="" selected disabled>เลือก</option>
-              <?php foreach ($ngModeOptions as $mode): ?>
-              <option value="<?php echo $mode; ?>"><?php echo $mode; ?></option>
-              <?php endforeach; ?>
-            </select>
-          </td>
-          <td><input type="number" class="rowQty" min="0" value="0"></td>
-          <td><textarea class="rowRemark" rows="2" maxlength="30"></textarea></td>
-          <td><button type="button" onclick="submitRow(this, '<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">บันทึกลงระบบ</button></td>
-        </tr>
-        <?php endforeach; ?>
+      <tbody id="ngTblBody">
       </tbody>
     </table>
 
     <p style="display:flex; justify-content:center; padding:0 10px;">
-      <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
+      <button type="button" id="Nie2_homeBtn" onclick="window.history.back();">กลับหน้าก่อน</button>
     </p>
   </div>
 
   <?php mysqli_close($conn); ?>
 
   <script>
-    function submitRow(btn, boxNo) {
-      const tr       = btn.closest('tr');
-      const sampSize = tr.querySelector('.rowSampSize').value;
-      const ngMode   = tr.querySelector('.rowNGmode').value;
-      const qty      = tr.querySelector('.rowQty').value;
-      const remark   = tr.querySelector('.rowRemark').value;
-      const process  = document.getElementById('hdrProcess').value;
+    const ngModeList = <?php echo json_encode($ngModeList); ?>;
 
-      if (!process)               { alert('โปรดเลือก Process'); return; }
-      if (!ngMode)                { alert('โปรดเลือก NG-mode'); return; }
-      if (!qty || Number(qty) <= 0) { alert('โปรดระบุ Q\'ty'); return; }
-
-      const payload = new URLSearchParams({
-        ajax_submit: '1',
-        ProdName: document.getElementById('hdrProdName').value,
-        InvNo:    document.getElementById('hdrInvNo').value,
-        WO:       document.getElementById('hdrWO').value,
-        BoxNo:    boxNo,
-        Date:     document.getElementById('hdrDate').value,
-        Time:     document.getElementById('hdrTime').value,
-        Opr:      document.getElementById('hdrOpr').value,
-        Process:  process,
-        SampSize: sampSize,
-        NGmode:   ngMode,
-        Qty:      qty,
-        Remark:   remark
+    function buildModeOptions(selected) {
+      let html = '<option value=""' + (selected ? '' : ' selected') + ' disabled>เลือก</option>';
+      ngModeList.forEach(m => {
+        html += '<option value="' + m + '"' + (m === selected ? ' selected' : '') + '>' + m + '</option>';
       });
+      return html;
+    }
 
-      btn.disabled = true;
+    function buildRow(mode, qty, remark, isNew) {
+      const tr = document.createElement('tr');
+      tr.className = isNew ? 'new-data-row' : 'existing-data-row';
+
+      const tdMode = document.createElement('td');
+      const selMode = document.createElement('select');
+      selMode.className = 'rowNGmode';
+      selMode.innerHTML = buildModeOptions(mode || '');
+      tdMode.appendChild(selMode);
+
+      const tdQty = document.createElement('td');
+      const inpQty = document.createElement('input');
+      inpQty.type = 'number';
+      inpQty.className = 'rowQty';
+      inpQty.min = '0';
+      inpQty.value = mode ? qty : 0;
+      tdQty.appendChild(inpQty);
+
+      const tdRemark = document.createElement('td');
+      const txtRemark = document.createElement('textarea');
+      txtRemark.className = 'rowRemark';
+      txtRemark.rows = 2;
+      txtRemark.maxLength = 30;
+      txtRemark.value = remark || '';
+      tdRemark.appendChild(txtRemark);
+
+      const tdSubmit = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rowSubmitBtn';
+      btn.textContent = isNew ? 'บันทึกลงระบบ' : 'แก้ไขในระบบ';
+      tdSubmit.appendChild(btn);
+
+      tr.appendChild(tdMode);
+      tr.appendChild(tdQty);
+      tr.appendChild(tdRemark);
+      tr.appendChild(tdSubmit);
+      return tr;
+    }
+
+    function loadNGRows() {
+      const process = document.getElementById('hdrProcess').value;
+      const boxNo   = document.getElementById('hdrBoxNo').value;
+      const tbody   = document.getElementById('ngTblBody');
+      tbody.innerHTML = '';
+
+      if (!process || !boxNo) {
+        tbody.appendChild(buildRow('', 0, '', true));
+        return;
+      }
+
+      const payload = new URLSearchParams({ fetch_ng: '1', Process: process, BoxNo: boxNo });
       fetch(location.href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -259,22 +297,22 @@
       })
         .then(r => r.json())
         .then(data => {
-          btn.disabled = false;
-          if (data.status === 'ok') {
-            alert('บันทึกข้อมูลสำเร็จ');
-            tr.querySelector('.rowNGmode').selectedIndex = 0;
-            tr.querySelector('.rowQty').value = 0;
-            tr.querySelector('.rowSampSize').value = 0;
-            tr.querySelector('.rowRemark').value = '';
-          } else {
-            alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');
-          }
+          tbody.innerHTML = '';
+          const rows = (data.status === 'ok') ? data.rows : [];
+          rows.forEach(r => {
+            tbody.appendChild(buildRow(r.NGmode, r.NGqty, r.Remark, false));
+          });
+          tbody.appendChild(buildRow('', 0, '', true));
         })
         .catch(() => {
-          btn.disabled = false;
-          alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+          tbody.innerHTML = '';
+          tbody.appendChild(buildRow('', 0, '', true));
         });
     }
+
+    document.getElementById('hdrProcess').addEventListener('change', loadNGRows);
+    document.getElementById('hdrBoxNo').addEventListener('change', loadNGRows);
+    loadNGRows();
   </script>
 </body>
 </html>
