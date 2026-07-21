@@ -216,7 +216,7 @@
             <option value="ผ่าน">ผ่าน</option>
             <option value="ไม่ผ่าน">ไม่ผ่าน</option>
           </select>
-          <button type="button" class="ngTypeBtn" style="display:none;">เลือกชนิด NG</button>
+          <button type="button" class="ngTypeBtn" style="display:none;" onclick="goNGtype('<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">เลือกชนิด NG</button>
         </div>
       </div>
       <?php endforeach; ?>
@@ -254,6 +254,10 @@
     function handleAppCheck(sel) {
       const btn = sel.parentElement.querySelector('.ngTypeBtn');
       btn.style.display = sel.value === 'ไม่ผ่าน' ? 'inline-block' : 'none';
+    }
+
+    function goNGtype(boxNo) {
+      window.location.href = './nie2_ng_input.php?process=' + encodeURIComponent('2. Incoming') + '&boxno=' + encodeURIComponent(boxNo);
     }
   </script>
 </body>
