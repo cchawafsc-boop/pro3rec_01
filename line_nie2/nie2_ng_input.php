@@ -166,12 +166,12 @@
           <option value="" <?php echo $pre_process === '' ? 'selected' : ''; ?> disabled>โปรดระบุ</option>
           <?php
             $processOptions = [
-                '1.Receiving'  => '1. Receiving',
-                '2.Incoming'   => '2. Incoming',
-                '3.Racking'    => '3. Racking',
-                '4.Plating'    => '4. Plating',
-                '5.Inspection' => '5. Inspection',
-                '6.QAoutgoing' => '6. QAoutgoing',
+                '1. Receiving'  => '1. Receiving',
+                '2. Incoming'   => '2. Incoming',
+                '3. Racking'    => '3. Racking',
+                '4. Plating'    => '4. Plating',
+                '5. Inspection' => '5. Inspection',
+                '6. QAoutgoing' => '6. QAoutgoing',
             ];
             foreach ($processOptions as $val => $label):
           ?>
