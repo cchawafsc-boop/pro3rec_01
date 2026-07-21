@@ -2,6 +2,7 @@
     session_start();
     require('../connect.php');
     require('../init_session.php');
+    require('./ngmode.php');
 
     function calcSamplingSize($n) {
         if ($n >= 2   && $n <= 8)    return 2;
@@ -17,6 +18,7 @@
     }
 
     $lot_prodname = $lot_invno = $lot_wo = '';
+    $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
     $lot_boxcount = 0;
     $lot_amountinv = 0;
     if (!empty($_SESSION['lotid'])) {
@@ -26,6 +28,9 @@
         mysqli_stmt_execute($lstmt);
         $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
         if ($lrow) {
+            $lot_prodname_raw = $lrow['ProdName'];
+            $lot_invno_raw    = $lrow['InvNo'];
+            $lot_wo_raw       = $lrow['WO'];
             $lot_prodname = htmlspecialchars($lrow['ProdName']);
             $lot_invno    = htmlspecialchars($lrow['InvNo']);
             $lot_wo       = htmlspecialchars($lrow['WO']);
@@ -189,7 +194,13 @@
       <?php
         $sorted_boxnos = $lot_boxnos;
         sort($sorted_boxnos);
+        $ngSumStmt = mysqli_prepare($conn,
+            "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ?");
         foreach ($sorted_boxnos as $boxNo):
+          mysqli_stmt_bind_param($ngSumStmt, 'ssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $boxNo);
+          mysqli_stmt_execute($ngSumStmt);
+          $ngSumRow = mysqli_fetch_assoc(mysqli_stmt_get_result($ngSumStmt));
+          $ngSum = $ngSumRow ? (int)$ngSumRow['ngSum'] : 0;
       ?>
       <div class="pro3-proc2-qrset">
         <div class="pro3-proc2-qrset-it"><label>Box no</label></div>
@@ -216,8 +227,16 @@
             <option value="ผ่าน">ผ่าน</option>
             <option value="ไม่ผ่าน">ไม่ผ่าน</option>
           </select>
-          <button type="button" class="ngTypeBtn" style="display:none;" onclick="goNGtype('<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">เลือกชนิด NG</button>
+          <button type="button" class="ngTypeBtn" style="display:none;" onclick="goNGtype('<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">เลือก NG</button>
         </div>
+
+        <div class="pro3-proc2-qrset-it"><label>NG รวม</label></div>
+        <div class="pro3-proc2-qrset-it">
+          <input type="text" value="<?php echo $ngSum; ?>" disabled>
+        </div>
+
+        <div class="pro3-proc2-qrset-it"><label>หมายเหตุ</label></div>
+        <div class="pro3-proc2-qrset-it"><textarea></textarea></div>
       </div>
       <?php endforeach; ?>
 
