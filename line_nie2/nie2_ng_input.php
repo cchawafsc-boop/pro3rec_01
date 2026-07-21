@@ -34,9 +34,12 @@
         }
     }
 
-    // Auto-selected from the previous page (query string or session); blank if none.
-    $pre_process = $_GET['Process'] ?? $_SESSION['ng_process'] ?? '';
-    $pre_boxno   = $_GET['BoxNo']   ?? $_SESSION['ng_boxno']   ?? '';
+    // Set by the "เลือกชนิด NG" button on nie2_proc02.php
+    if (isset($_GET['process'])) { $_SESSION['process'] = $_GET['process']; }
+    if (isset($_GET['boxno']))   { $_SESSION['boxno']   = $_GET['boxno']; }
+
+    $pre_process = $_SESSION['process'] ?? '';
+    $pre_boxno   = $_SESSION['boxno']   ?? '';
 
     // Per-row AJAX submit -> tb_ng
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_submit'])) {
@@ -148,7 +151,7 @@
             ];
             foreach ($processOptions as $val => $label):
           ?>
-          <option value="<?php echo $val; ?>" <?php echo ($pre_process === $val) ? 'selected' : ''; ?>><?php echo $label; ?></option>
+          <option value="<?php echo $val; ?>" <?php echo (str_replace(' ', '', $pre_process) === str_replace(' ', '', $val)) ? 'selected' : ''; ?>><?php echo $label; ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -170,7 +173,12 @@
 
       <div class="pro3-proc1-g-it"><label>Box no</label></div>
       <div class="pro3-proc1-g-it">
-        <input type="text" id="hdrBoxNo" value="<?php echo htmlspecialchars($pre_boxno); ?>">
+        <select id="hdrBoxNo">
+          <option value="" <?php echo $pre_boxno === '' ? 'selected' : ''; ?> disabled>โปรดระบุ</option>
+          <?php foreach ($lot_boxnos as $boxNoOpt): ?>
+          <option value="<?php echo htmlspecialchars($boxNoOpt); ?>" <?php echo ($pre_boxno === $boxNoOpt) ? 'selected' : ''; ?>><?php echo htmlspecialchars($boxNoOpt); ?></option>
+          <?php endforeach; ?>
+        </select>
       </div>
 
     </div>
