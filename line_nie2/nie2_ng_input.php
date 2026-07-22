@@ -87,28 +87,28 @@
             exit;
         }
 
-        // Key = ProdName + InvNo + WO + Process + BoxNo
+        // Key = ProdName + InvNo + WO + Process + BoxNo + NGmode
         $checkStmt = mysqli_prepare($conn,
-            "SELECT 1 FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
+            "SELECT 1 FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
         if (!$checkStmt) {
             echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
             exit;
         }
-        mysqli_stmt_bind_param($checkStmt, 'sssss', $prodName, $invNo, $wo, $process, $boxNo);
+        mysqli_stmt_bind_param($checkStmt, 'ssssss', $prodName, $invNo, $wo, $process, $boxNo, $ngMode);
         mysqli_stmt_execute($checkStmt);
         $exists = mysqli_stmt_get_result($checkStmt)->fetch_row() !== null;
 
         if ($exists) {
             $stmt = mysqli_prepare($conn,
-                "UPDATE tb_ng SET NGmode = ?, NGqty = ?, Remark = ?
-                 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
+                "UPDATE tb_ng SET Date = ?, Time = ?, Opr = ?, NGmode = ?, NGqty = ?, Remark = ?
+                 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
             if (!$stmt) {
                 echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
                 exit;
             }
-            mysqli_stmt_bind_param($stmt, 'sissssss',
-                $ngMode, $qty, $remark,
-                $prodName, $invNo, $wo, $process, $boxNo);
+            mysqli_stmt_bind_param($stmt, 'ssisisssssss',
+                $date, $time, $opr, $ngMode, $qty, $remark,
+                $prodName, $invNo, $wo, $process, $boxNo, $ngMode);
         } else {
             $stmt = mysqli_prepare($conn,
                 "INSERT INTO tb_ng
