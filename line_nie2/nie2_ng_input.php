@@ -45,10 +45,19 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_edit'])) {
         header('Content-Type: application/json');
 
-        $jobId  = (int)($_POST['JobID'] ?? 0);
-        $ngMode = $_POST['NGmode'] ?? '';
-        $qty    = (int)($_POST['Qty'] ?? -1);
-        $remark = mb_substr($_POST['Remark'] ?? '', 0, 30);
+        $jobId    = (int)($_POST['JobID'] ?? 0);
+        $prodName = $_POST['ProdName'] ?? '';
+        $invNo    = $_POST['InvNo'] ?? '';
+        $wo       = $_POST['WO'] ?? '';
+        $process  = $_POST['Process'] ?? '';
+        $boxNo    = $_POST['BoxNo'] ?? '';
+        $date     = $_POST['Date'] ?? '';
+        $time     = $_POST['Time'] ?? '';
+        $opr      = (int)($_POST['Opr'] ?? 0);
+        $ngMode   = $_POST['NGmode'] ?? '';
+        $qty      = (int)($_POST['Qty'] ?? -1);
+        $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
+        $force    = isset($_POST['force']);
 
         if ($jobId <= 0 || !in_array($ngMode, $ngModeList, true) || $qty < 0) {
             echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
@@ -63,6 +72,21 @@
             }
             mysqli_stmt_bind_param($stmt, 'i', $jobId);
         } else {
+            if (!$force) {
+                $dstmt = mysqli_prepare($conn,
+                    "SELECT 1 FROM tb_ng
+                     WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?
+                       AND Date = ? AND Time = ? AND Opr = ? AND NGmode = ? AND JobID <> ? LIMIT 1");
+                mysqli_stmt_bind_param($dstmt, 'sssssssisi',
+                    $prodName, $invNo, $wo, $process, $boxNo, $date, $time, $opr, $ngMode, $jobId);
+                mysqli_stmt_execute($dstmt);
+                if (mysqli_stmt_get_result($dstmt)->fetch_row() !== null) {
+                    echo json_encode(['status' => 'duplicate']);
+                    mysqli_close($conn);
+                    exit;
+                }
+            }
+
             $stmt = mysqli_prepare($conn, "UPDATE tb_ng SET NGmode = ?, NGqty = ?, Remark = ? WHERE JobID = ?");
             if (!$stmt) {
                 echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
@@ -92,11 +116,27 @@
         $ngMode   = $_POST['NGmode'] ?? '';
         $qty      = (int)($_POST['Qty'] ?? 0);
         $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
+        $force    = isset($_POST['force']);
 
         if ($prodName === '' || $invNo === '' || $wo === '' || $process === '' || $boxNo === ''
             || !in_array($ngMode, $ngModeList, true) || $qty <= 0) {
             echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
             exit;
+        }
+
+        if (!$force) {
+            $dstmt = mysqli_prepare($conn,
+                "SELECT 1 FROM tb_ng
+                 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?
+                   AND Date = ? AND Time = ? AND Opr = ? AND NGmode = ? LIMIT 1");
+            mysqli_stmt_bind_param($dstmt, 'sssssssis',
+                $prodName, $invNo, $wo, $process, $boxNo, $date, $time, $opr, $ngMode);
+            mysqli_stmt_execute($dstmt);
+            if (mysqli_stmt_get_result($dstmt)->fetch_row() !== null) {
+                echo json_encode(['status' => 'duplicate']);
+                mysqli_close($conn);
+                exit;
+            }
         }
 
         $stmt = mysqli_prepare($conn,
@@ -120,7 +160,7 @@
     $ngRows = [];
     if ($lot_prodname_raw !== '' && $lot_invno_raw !== '' && $lot_wo_raw !== '' && $pre_process !== '' && $pre_boxno !== '') {
         $nstmt = mysqli_prepare($conn,
-            "SELECT JobID, NGmode, NGqty, Remark FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
+            "SELECT JobID, NGmode, NGqty, Remark, Date, Time, Opr FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
         mysqli_stmt_bind_param($nstmt, 'sssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $pre_process, $pre_boxno);
         mysqli_stmt_execute($nstmt);
         $nres = mysqli_stmt_get_result($nstmt);
@@ -227,7 +267,7 @@
       </thead>
       <tbody>
         <?php foreach ($ngRows as $row): ?>
-        <tr data-jobid="<?php echo (int)$row['JobID']; ?>">
+        <tr data-jobid="<?php echo (int)$row['JobID']; ?>" data-date="<?php echo htmlspecialchars($row['Date']); ?>" data-time="<?php echo htmlspecialchars($row['Time']); ?>" data-opr="<?php echo (int)$row['Opr']; ?>">
           <td>
             <select class="rowNGmode">
               <?php foreach ($ngModeList as $mode): ?>
@@ -264,7 +304,7 @@
 
   <div id="ngDeleteConfirm" class="ngConfirmOverlay" style="display:none;">
     <div class="ngConfirmBox">
-      <p>do you want to delete this NG</p>
+      <p id="ngConfirmMsg">do you want to delete this NG</p>
       <button type="button" id="ngConfirmNo">No</button>
       <button type="button" id="ngConfirmYes">Yes</button>      
     </div>
@@ -273,10 +313,12 @@
   <?php mysqli_close($conn); ?>
 
   <script>
-    function showDeleteConfirm(onYes) {
+    function showConfirm(message, onYes, onNo) {
       const overlay = document.getElementById('ngDeleteConfirm');
+      const msgEl   = document.getElementById('ngConfirmMsg');
       const yesBtn  = document.getElementById('ngConfirmYes');
       const noBtn   = document.getElementById('ngConfirmNo');
+      msgEl.textContent = message;
       overlay.style.display = 'flex';
 
       function cleanup() {
@@ -285,20 +327,29 @@
         noBtn.removeEventListener('click', onNoClick);
       }
       function onYesClick() { cleanup(); onYes(); }
-      function onNoClick() { cleanup(); }
+      function onNoClick() { cleanup(); if (onNo) onNo(); }
 
       yesBtn.addEventListener('click', onYesClick);
       noBtn.addEventListener('click', onNoClick);
     }
 
-    function submitEdit(jobId, mode, qty, remark, btn) {
+    function submitEdit(jobId, mode, qty, remark, tr, btn, force) {
       const payload = new URLSearchParams({
         ajax_edit: '1',
-        JobID:  jobId,
-        NGmode: mode,
-        Qty:    qty,
-        Remark: remark
+        JobID:    jobId,
+        ProdName: document.getElementById('hdrProdName').value,
+        InvNo:    document.getElementById('hdrInvNo').value,
+        WO:       document.getElementById('hdrWO').value,
+        Process:  document.getElementById('hdrProcess').value,
+        BoxNo:    document.getElementById('hdrBoxNo').value,
+        Date:     tr.dataset.date,
+        Time:     tr.dataset.time,
+        Opr:      tr.dataset.opr,
+        NGmode:   mode,
+        Qty:      qty,
+        Remark:   remark
       });
+      if (force) payload.set('force', '1');
 
       btn.disabled = true;
       fetch(location.href, {
@@ -310,6 +361,12 @@
         .then(data => {
           if (data.status === 'ok') {
             location.reload();
+          } else if (data.status === 'duplicate') {
+            showConfirm(
+              'NG mode is repeatedly input. Please change the old NG mode value',
+              () => submitEdit(jobId, mode, qty, remark, tr, btn, true),
+              () => { btn.disabled = false; }
+            );
           } else {
             alert(data.message || 'บันทึกไม่สำเร็จ');
             btn.disabled = false;
@@ -330,16 +387,17 @@
         const remark = tr.querySelector('.rowRemark').value;
 
         if (qty === 0) {
-          showDeleteConfirm(() => submitEdit(jobId, mode, qty, remark, btn));
+          showConfirm('do you want to delete this NG', () => submitEdit(jobId, mode, qty, remark, tr, btn, false));
           return;
         }
 
-        submitEdit(jobId, mode, qty, remark, btn);
+        submitEdit(jobId, mode, qty, remark, tr, btn, false);
       });
     });
 
     const newSubmitBtn = document.getElementById('newSubmitBtn');
-    newSubmitBtn.addEventListener('click', function () {
+
+    function submitInsert(force) {
       const mode   = document.getElementById('newNGmode').value;
       const qty    = parseInt(document.getElementById('newQty').value, 10) || 0;
       const remark = document.getElementById('newRemark').value;
@@ -363,6 +421,7 @@
         Qty:      qty,
         Remark:   remark
       });
+      if (force) payload.set('force', '1');
 
       newSubmitBtn.disabled = true;
       fetch(location.href, {
@@ -374,6 +433,12 @@
         .then(data => {
           if (data.status === 'ok') {
             location.reload();
+          } else if (data.status === 'duplicate') {
+            showConfirm(
+              'NG mode is repeatedly input. Please change the old NG mode value',
+              () => submitInsert(true),
+              () => { newSubmitBtn.disabled = false; }
+            );
           } else {
             alert(data.message || 'บันทึกไม่สำเร็จ');
             newSubmitBtn.disabled = false;
@@ -383,7 +448,9 @@
           alert('เกิดข้อผิดพลาด');
           newSubmitBtn.disabled = false;
         });
-    });
+    }
+
+    newSubmitBtn.addEventListener('click', () => submitInsert(false));
   </script>
 </body>
 </html>
