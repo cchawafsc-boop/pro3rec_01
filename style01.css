@@ -200,14 +200,13 @@ label{
 	box-shadow: 0 0 0 30px white inset !important;
     background-color: white !important;
 }
-.pro3-proc1-g-it select{
-	width: 130px;
-}
-.pro3-proc1-g-it input[type="text"]{
-	width: 155px;
-}
-.pro3-proc1-g-it input[type="number"]{
-	width: 155px;
+.pro3-proc1-g-it select,
+.pro3-proc1-g-it input[type="text"],
+.pro3-proc1-g-it input[type="number"],
+.pro3-proc1-g-it input[type="date"],
+.pro3-proc1-g-it input[type="time"]{
+	width: 100%;
+	box-sizing: border-box;
 }
 .pro3-proc1-lotList {
 	display: grid;
@@ -337,7 +336,7 @@ form .form-pro3-proc2-g1 {
 
 .pro1incoming-g1 {
     display: grid;
-    grid-template-columns: 140px 180px;  /* Defines 2 columns with equal width */
+    grid-template-columns: 140px 180px;        /* Defines 2 columns with equal width */
     gap: 0px;                                  /* Sets a gap between grid items */
     /*border: 1px solid #ccc;*/
     padding: 3px;
@@ -495,33 +494,33 @@ form .form-pro3-proc2-g1 {
 .ngInputTbl{
 	border-collapse: collapse;
 	margin: 10px auto;
-	width: 95%;
-	max-width: 700px;
+	table-layout: fixed;
 }
 .ngInputTbl th,
 .ngInputTbl td{
 	border: 1px solid #ccc;
-	padding: 6px 4px;
+	padding: 4px;
 	text-align: center;
 }
 .ngInputTbl th{
 	background-color: lightskyblue;
 }
-.ngInputTbl input[type="number"]{
-	width: 70px;
-	box-sizing: border-box;
-}
-.ngInputTbl select{
-	width: 100px;
+.ngInputTbl th:nth-child(1), .ngInputTbl td:nth-child(1){ width: 110px; }
+.ngInputTbl th:nth-child(2), .ngInputTbl td:nth-child(2){ width: 70px; }
+.ngInputTbl th:nth-child(3), .ngInputTbl td:nth-child(3){ width: 130px; }
+.ngInputTbl th:nth-child(4), .ngInputTbl td:nth-child(4){ width: 60px; }
+.ngInputTbl select,
+.ngInputTbl input[type="number"],
+.ngInputTbl textarea{
+	width: 100%;
 	box-sizing: border-box;
 }
 .ngInputTbl textarea{
-	width: 110px;
-	box-sizing: border-box;
 	resize: vertical;
 }
 .ngInputTbl button{
-	padding: 4px 6px;
+	width: 100%;
+	padding: 4px 0;
 	border-style: none;
 	border-radius: 4px;
 	background-color: green;
