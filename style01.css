@@ -528,6 +528,38 @@ form .form-pro3-proc2-g1 {
 	color: white;
 	cursor: pointer;
 }
+.ngConfirmOverlay{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.5);
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+.ngConfirmBox{
+	background: white;
+	padding: 20px 25px;
+	border-radius: 6px;
+	text-align: center;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.ngConfirmBox button{
+	padding: 6px 18px;
+	margin: 8px 6px 0;
+	border-style: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+.ngConfirmBox button#ngConfirmYes{
+	background-color: #b30000;
+	color: white;
+}
+.ngConfirmBox button#ngConfirmNo{
+	background-color: #ccc;
+}
 /*==========================================================*/
 
 .makeButton{
