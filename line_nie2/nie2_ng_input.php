@@ -54,7 +54,6 @@
         $ngMode   = $_POST['NGmode'] ?? '';
         $qty      = (int)($_POST['Qty'] ?? -1);
         $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
-        $force    = isset($_POST['force']);
 
         if ($jobId <= 0 || !in_array($ngMode, $ngModeList, true) || $qty < 0) {
             echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
@@ -69,19 +68,23 @@
             }
             mysqli_stmt_bind_param($stmt, 'i', $jobId);
         } else {
-            if (!$force) {
-                $dstmt = mysqli_prepare($conn,
-                    "SELECT 1 FROM tb_ng
-                     WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?
-                       AND NGmode = ? AND JobID <> ? LIMIT 1");
-                mysqli_stmt_bind_param($dstmt, 'ssssssi',
-                    $prodName, $invNo, $wo, $process, $boxNo, $ngMode, $jobId);
-                mysqli_stmt_execute($dstmt);
-                if (mysqli_stmt_get_result($dstmt)->fetch_row() !== null) {
-                    echo json_encode(['status' => 'duplicate']);
-                    mysqli_close($conn);
-                    exit;
-                }
+            $dstmt = mysqli_prepare($conn,
+                "SELECT 1 FROM tb_ng
+                 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?
+                   AND NGmode = ? AND JobID <> ? LIMIT 1");
+            if (!$dstmt) {
+                echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
+                exit;
+            }
+            mysqli_stmt_bind_param($dstmt, 'ssssssi',
+                $prodName, $invNo, $wo, $process, $boxNo, $ngMode, $jobId);
+            mysqli_stmt_execute($dstmt);
+            $dupFound = mysqli_stmt_get_result($dstmt)->fetch_row() !== null;
+            mysqli_stmt_close($dstmt);
+            if ($dupFound) {
+                echo json_encode(['status' => 'duplicate']);
+                mysqli_close($conn);
+                exit;
             }
 
             $stmt = mysqli_prepare($conn, "UPDATE tb_ng SET NGmode = ?, NGqty = ?, Remark = ? WHERE JobID = ?");
@@ -113,7 +116,6 @@
         $ngMode   = $_POST['NGmode'] ?? '';
         $qty      = (int)($_POST['Qty'] ?? 0);
         $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
-        $force    = isset($_POST['force']);
 
         if ($prodName === '' || $invNo === '' || $wo === '' || $process === '' || $boxNo === ''
             || !in_array($ngMode, $ngModeList, true) || $qty <= 0) {
@@ -121,19 +123,23 @@
             exit;
         }
 
-        if (!$force) {
-            $dstmt = mysqli_prepare($conn,
-                "SELECT 1 FROM tb_ng
-                 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?
-                   AND NGmode = ? LIMIT 1");
-            mysqli_stmt_bind_param($dstmt, 'ssssss',
-                $prodName, $invNo, $wo, $process, $boxNo, $ngMode);
-            mysqli_stmt_execute($dstmt);
-            if (mysqli_stmt_get_result($dstmt)->fetch_row() !== null) {
-                echo json_encode(['status' => 'duplicate']);
-                mysqli_close($conn);
-                exit;
-            }
+        $dstmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_ng
+             WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?
+               AND NGmode = ? LIMIT 1");
+        if (!$dstmt) {
+            echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
+            exit;
+        }
+        mysqli_stmt_bind_param($dstmt, 'ssssss',
+            $prodName, $invNo, $wo, $process, $boxNo, $ngMode);
+        mysqli_stmt_execute($dstmt);
+        $dupFound = mysqli_stmt_get_result($dstmt)->fetch_row() !== null;
+        mysqli_stmt_close($dstmt);
+        if ($dupFound) {
+            echo json_encode(['status' => 'duplicate']);
+            mysqli_close($conn);
+            exit;
         }
 
         $stmt = mysqli_prepare($conn,
@@ -330,7 +336,7 @@
       noBtn.addEventListener('click', onNoClick);
     }
 
-    function submitEdit(jobId, mode, qty, remark, btn, force) {
+    function submitEdit(jobId, mode, qty, remark, btn) {
       const payload = new URLSearchParams({
         ajax_edit: '1',
         JobID:    jobId,
@@ -343,7 +349,6 @@
         Qty:      qty,
         Remark:   remark
       });
-      if (force) payload.set('force', '1');
 
       btn.disabled = true;
       fetch(location.href, {
@@ -356,11 +361,8 @@
           if (data.status === 'ok') {
             location.reload();
           } else if (data.status === 'duplicate') {
-            showConfirm(
-              'NG mode is repeatedly input. Please change the old NG mode value',
-              () => submitEdit(jobId, mode, qty, remark, btn, true),
-              () => { btn.disabled = false; }
-            );
+            alert('NG mode is repeatedly input. Please change the old NG mode value');
+            btn.disabled = false;
           } else {
             alert(data.message || 'บันทึกไม่สำเร็จ');
             btn.disabled = false;
@@ -381,17 +383,17 @@
         const remark = tr.querySelector('.rowRemark').value;
 
         if (qty === 0) {
-          showConfirm('do you want to delete this NG', () => submitEdit(jobId, mode, qty, remark, btn, false));
+          showConfirm('do you want to delete this NG', () => submitEdit(jobId, mode, qty, remark, btn));
           return;
         }
 
-        submitEdit(jobId, mode, qty, remark, btn, false);
+        submitEdit(jobId, mode, qty, remark, btn);
       });
     });
 
     const newSubmitBtn = document.getElementById('newSubmitBtn');
 
-    function submitInsert(force) {
+    function submitInsert() {
       const mode   = document.getElementById('newNGmode').value;
       const qty    = parseInt(document.getElementById('newQty').value, 10) || 0;
       const remark = document.getElementById('newRemark').value;
@@ -415,7 +417,6 @@
         Qty:      qty,
         Remark:   remark
       });
-      if (force) payload.set('force', '1');
 
       newSubmitBtn.disabled = true;
       fetch(location.href, {
@@ -428,11 +429,8 @@
           if (data.status === 'ok') {
             location.reload();
           } else if (data.status === 'duplicate') {
-            showConfirm(
-              'NG mode is repeatedly input. Please change the old NG mode value',
-              () => submitInsert(true),
-              () => { newSubmitBtn.disabled = false; }
-            );
+            alert('NG mode is repeatedly input. Please change the old NG mode value');
+            newSubmitBtn.disabled = false;
           } else {
             alert(data.message || 'บันทึกไม่สำเร็จ');
             newSubmitBtn.disabled = false;
@@ -444,7 +442,7 @@
         });
     }
 
-    newSubmitBtn.addEventListener('click', () => submitInsert(false));
+    newSubmitBtn.addEventListener('click', submitInsert);
   </script>
 </body>
 </html>
