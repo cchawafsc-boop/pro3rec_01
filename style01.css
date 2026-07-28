@@ -508,7 +508,7 @@ form .form-pro3-proc2-g1 {
 .ngInputTbl th:nth-child(1), .ngInputTbl td:nth-child(1){ width: 110px; }
 .ngInputTbl th:nth-child(2), .ngInputTbl td:nth-child(2){ width: 70px; }
 .ngInputTbl th:nth-child(3), .ngInputTbl td:nth-child(3){ width: 130px; }
-.ngInputTbl th:nth-child(4), .ngInputTbl td:nth-child(4){ width: 60px; }
+.ngInputTbl th:nth-child(4), .ngInputTbl td:nth-child(4){ width: 80px; }
 .ngInputTbl select,
 .ngInputTbl input[type="number"],
 .ngInputTbl textarea{
@@ -526,6 +526,9 @@ form .form-pro3-proc2-g1 {
 	background-color: green;
 	color: white;
 	cursor: pointer;
+}
+.rowEditBtn{
+	background-color: #FFC72C;
 }
 .ngConfirmOverlay{
 	position: fixed;
@@ -551,13 +554,13 @@ form .form-pro3-proc2-g1 {
 	border-style: none;
 	border-radius: 4px;
 	cursor: pointer;
-}
-.ngConfirmBox button#ngConfirmYes{
-	background-color: #b30000;
 	color: white;
 }
+.ngConfirmBox button#ngConfirmYes{
+	background-color: #4CAF50;
+}
 .ngConfirmBox button#ngConfirmNo{
-	background-color: #ccc;
+	background-color: red;
 }
 /*==========================================================*/
 
