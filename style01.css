@@ -508,7 +508,7 @@ form .form-pro3-proc2-g1 {
 .ngInputTbl th:nth-child(1), .ngInputTbl td:nth-child(1){ width: 110px; }
 .ngInputTbl th:nth-child(2), .ngInputTbl td:nth-child(2){ width: 70px; }
 .ngInputTbl th:nth-child(3), .ngInputTbl td:nth-child(3){ width: 130px; }
-.ngInputTbl th:nth-child(4), .ngInputTbl td:nth-child(4){ width: 80px; }
+.ngInputTbl th:nth-child(4), .ngInputTbl td:nth-child(4){ width: 90px; }
 .ngInputTbl select,
 .ngInputTbl input[type="number"],
 .ngInputTbl textarea{
