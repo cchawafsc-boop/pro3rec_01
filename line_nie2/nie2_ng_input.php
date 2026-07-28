@@ -51,9 +51,6 @@
         $wo       = $_POST['WO'] ?? '';
         $process  = $_POST['Process'] ?? '';
         $boxNo    = $_POST['BoxNo'] ?? '';
-        $date     = $_POST['Date'] ?? '';
-        $time     = $_POST['Time'] ?? '';
-        $opr      = (int)($_POST['Opr'] ?? 0);
         $ngMode   = $_POST['NGmode'] ?? '';
         $qty      = (int)($_POST['Qty'] ?? -1);
         $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
@@ -76,9 +73,9 @@
                 $dstmt = mysqli_prepare($conn,
                     "SELECT 1 FROM tb_ng
                      WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?
-                       AND Date = ? AND Time = ? AND Opr = ? AND NGmode = ? AND JobID <> ? LIMIT 1");
-                mysqli_stmt_bind_param($dstmt, 'sssssssisi',
-                    $prodName, $invNo, $wo, $process, $boxNo, $date, $time, $opr, $ngMode, $jobId);
+                       AND NGmode = ? AND JobID <> ? LIMIT 1");
+                mysqli_stmt_bind_param($dstmt, 'ssssssi',
+                    $prodName, $invNo, $wo, $process, $boxNo, $ngMode, $jobId);
                 mysqli_stmt_execute($dstmt);
                 if (mysqli_stmt_get_result($dstmt)->fetch_row() !== null) {
                     echo json_encode(['status' => 'duplicate']);
@@ -128,9 +125,9 @@
             $dstmt = mysqli_prepare($conn,
                 "SELECT 1 FROM tb_ng
                  WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?
-                   AND Date = ? AND Time = ? AND Opr = ? AND NGmode = ? LIMIT 1");
-            mysqli_stmt_bind_param($dstmt, 'sssssssis',
-                $prodName, $invNo, $wo, $process, $boxNo, $date, $time, $opr, $ngMode);
+                   AND NGmode = ? LIMIT 1");
+            mysqli_stmt_bind_param($dstmt, 'ssssss',
+                $prodName, $invNo, $wo, $process, $boxNo, $ngMode);
             mysqli_stmt_execute($dstmt);
             if (mysqli_stmt_get_result($dstmt)->fetch_row() !== null) {
                 echo json_encode(['status' => 'duplicate']);
@@ -160,7 +157,7 @@
     $ngRows = [];
     if ($lot_prodname_raw !== '' && $lot_invno_raw !== '' && $lot_wo_raw !== '' && $pre_process !== '' && $pre_boxno !== '') {
         $nstmt = mysqli_prepare($conn,
-            "SELECT JobID, NGmode, NGqty, Remark, Date, Time, Opr FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
+            "SELECT JobID, NGmode, NGqty, Remark FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
         mysqli_stmt_bind_param($nstmt, 'sssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $pre_process, $pre_boxno);
         mysqli_stmt_execute($nstmt);
         $nres = mysqli_stmt_get_result($nstmt);
@@ -267,7 +264,7 @@
       </thead>
       <tbody>
         <?php foreach ($ngRows as $row): ?>
-        <tr data-jobid="<?php echo (int)$row['JobID']; ?>" data-date="<?php echo htmlspecialchars($row['Date']); ?>" data-time="<?php echo htmlspecialchars($row['Time']); ?>" data-opr="<?php echo (int)$row['Opr']; ?>">
+        <tr data-jobid="<?php echo (int)$row['JobID']; ?>">
           <td>
             <select class="rowNGmode">
               <?php foreach ($ngModeList as $mode): ?>
@@ -333,7 +330,7 @@
       noBtn.addEventListener('click', onNoClick);
     }
 
-    function submitEdit(jobId, mode, qty, remark, tr, btn, force) {
+    function submitEdit(jobId, mode, qty, remark, btn, force) {
       const payload = new URLSearchParams({
         ajax_edit: '1',
         JobID:    jobId,
@@ -342,9 +339,6 @@
         WO:       document.getElementById('hdrWO').value,
         Process:  document.getElementById('hdrProcess').value,
         BoxNo:    document.getElementById('hdrBoxNo').value,
-        Date:     tr.dataset.date,
-        Time:     tr.dataset.time,
-        Opr:      tr.dataset.opr,
         NGmode:   mode,
         Qty:      qty,
         Remark:   remark
@@ -364,7 +358,7 @@
           } else if (data.status === 'duplicate') {
             showConfirm(
               'NG mode is repeatedly input. Please change the old NG mode value',
-              () => submitEdit(jobId, mode, qty, remark, tr, btn, true),
+              () => submitEdit(jobId, mode, qty, remark, btn, true),
               () => { btn.disabled = false; }
             );
           } else {
@@ -387,11 +381,11 @@
         const remark = tr.querySelector('.rowRemark').value;
 
         if (qty === 0) {
-          showConfirm('do you want to delete this NG', () => submitEdit(jobId, mode, qty, remark, tr, btn, false));
+          showConfirm('do you want to delete this NG', () => submitEdit(jobId, mode, qty, remark, btn, false));
           return;
         }
 
-        submitEdit(jobId, mode, qty, remark, tr, btn, false);
+        submitEdit(jobId, mode, qty, remark, btn, false);
       });
     });
 
