@@ -238,7 +238,7 @@
       </thead>
       <tbody>
         <?php foreach ($ngRows as $row): ?>
-        <tr class="ngExistingRow" data-origmode="<?php echo htmlspecialchars($row['NGmode']); ?>">
+        <tr data-origmode="<?php echo htmlspecialchars($row['NGmode']); ?>">
           <td>
             <select class="rowNGmode">
               <?php foreach ($ngModeList as $mode): ?>
@@ -252,7 +252,7 @@
         </tr>
         <?php endforeach; ?>
 
-        <tr class="ngNewRow">
+        <tr>
           <td>
             <select id="newNGmode">
               <option value="" selected disabled>เลือก</option>
@@ -269,7 +269,7 @@
     </table>
 
     <p style="display:flex; justify-content:center; padding:0 10px;">
-      <button type="button" id="Nie2_backBtn" onclick="window.history.back();">กลับหน้าก่อน</button>
+      <button type="button" onclick="window.history.back();">กลับหน้าก่อน</button>
     </p>
   </div>
 
