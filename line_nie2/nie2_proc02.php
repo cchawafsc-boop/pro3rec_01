@@ -80,7 +80,7 @@
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc2`
-             (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,
+             (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Date`,`Time`,`Opr`,
               `BoxCondition`,`AmountInv`,`SamplingSize`,
               `Break`,`Bumps`,`Burrs`,`Chip`,`Crack`,`Contam`,
               `Dent`,`Scratch`,`Scuff`,`Stain`,`Deform`,`Finger`,
