@@ -237,7 +237,7 @@
           </td>
           <td><input type="number" class="rowQty" min="0" value="<?php echo (int)$row['NGqty']; ?>"></td>
           <td><textarea class="rowRemark" rows="2" maxlength="30"><?php echo htmlspecialchars($row['Remark']); ?></textarea></td>
-          <td><button type="button" class="rowEditBtn">edit</button></td>
+          <td><button type="button" class="rowEditBtn">แก้ไขเข้าระบบ</button></td>
         </tr>
         <?php endforeach; ?>
 
