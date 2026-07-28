@@ -45,41 +45,30 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_edit'])) {
         header('Content-Type: application/json');
 
-        $prodName = $_POST['ProdName'] ?? '';
-        $invNo    = $_POST['InvNo'] ?? '';
-        $wo       = $_POST['WO'] ?? '';
-        $process  = $_POST['Process'] ?? '';
-        $boxNo    = $_POST['BoxNo'] ?? '';
-        $origMode = $_POST['OrigNGmode'] ?? '';
-        $ngMode   = $_POST['NGmode'] ?? '';
-        $qty      = (int)($_POST['Qty'] ?? -1);
-        $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
+        $jobId  = (int)($_POST['JobID'] ?? 0);
+        $ngMode = $_POST['NGmode'] ?? '';
+        $qty    = (int)($_POST['Qty'] ?? -1);
+        $remark = mb_substr($_POST['Remark'] ?? '', 0, 30);
 
-        if ($prodName === '' || $invNo === '' || $wo === '' || $process === '' || $boxNo === '' || $origMode === ''
-            || !in_array($ngMode, $ngModeList, true) || $qty < 0) {
+        if ($jobId <= 0 || !in_array($ngMode, $ngModeList, true) || $qty < 0) {
             echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
             exit;
         }
 
         if ($qty === 0) {
-            $stmt = mysqli_prepare($conn,
-                "DELETE FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
+            $stmt = mysqli_prepare($conn, "DELETE FROM tb_ng WHERE JobID = ?");
             if (!$stmt) {
                 echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
                 exit;
             }
-            mysqli_stmt_bind_param($stmt, 'ssssss', $prodName, $invNo, $wo, $process, $boxNo, $origMode);
+            mysqli_stmt_bind_param($stmt, 'i', $jobId);
         } else {
-            $stmt = mysqli_prepare($conn,
-                "UPDATE tb_ng SET NGmode = ?, NGqty = ?, Remark = ?
-                 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
+            $stmt = mysqli_prepare($conn, "UPDATE tb_ng SET NGmode = ?, NGqty = ?, Remark = ? WHERE JobID = ?");
             if (!$stmt) {
                 echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
                 exit;
             }
-            mysqli_stmt_bind_param($stmt, 'sisssssss',
-                $ngMode, $qty, $remark,
-                $prodName, $invNo, $wo, $process, $boxNo, $origMode);
+            mysqli_stmt_bind_param($stmt, 'sisi', $ngMode, $qty, $remark, $jobId);
         }
 
         $ok = mysqli_stmt_execute($stmt);
@@ -131,7 +120,7 @@
     $ngRows = [];
     if ($lot_prodname_raw !== '' && $lot_invno_raw !== '' && $lot_wo_raw !== '' && $pre_process !== '' && $pre_boxno !== '') {
         $nstmt = mysqli_prepare($conn,
-            "SELECT NGmode, NGqty, Remark FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
+            "SELECT JobID, NGmode, NGqty, Remark FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
         mysqli_stmt_bind_param($nstmt, 'sssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $pre_process, $pre_boxno);
         mysqli_stmt_execute($nstmt);
         $nres = mysqli_stmt_get_result($nstmt);
@@ -238,7 +227,7 @@
       </thead>
       <tbody>
         <?php foreach ($ngRows as $row): ?>
-        <tr data-origmode="<?php echo htmlspecialchars($row['NGmode']); ?>">
+        <tr data-jobid="<?php echo (int)$row['JobID']; ?>">
           <td>
             <select class="rowNGmode">
               <?php foreach ($ngModeList as $mode): ?>
@@ -276,8 +265,8 @@
   <div id="ngDeleteConfirm" class="ngConfirmOverlay" style="display:none;">
     <div class="ngConfirmBox">
       <p>do you want to delete this NG</p>
-      <button type="button" id="ngConfirmYes">Yes</button>
       <button type="button" id="ngConfirmNo">No</button>
+      <button type="button" id="ngConfirmYes">Yes</button>      
     </div>
   </div>
 
@@ -302,18 +291,13 @@
       noBtn.addEventListener('click', onNoClick);
     }
 
-    function submitEdit(origMode, mode, qty, remark, btn) {
+    function submitEdit(jobId, mode, qty, remark, btn) {
       const payload = new URLSearchParams({
         ajax_edit: '1',
-        ProdName:   document.getElementById('hdrProdName').value,
-        InvNo:      document.getElementById('hdrInvNo').value,
-        WO:         document.getElementById('hdrWO').value,
-        Process:    document.getElementById('hdrProcess').value,
-        BoxNo:      document.getElementById('hdrBoxNo').value,
-        OrigNGmode: origMode,
-        NGmode:     mode,
-        Qty:        qty,
-        Remark:     remark
+        JobID:  jobId,
+        NGmode: mode,
+        Qty:    qty,
+        Remark: remark
       });
 
       btn.disabled = true;
@@ -339,18 +323,18 @@
 
     document.querySelectorAll('.rowEditBtn').forEach(btn => {
       btn.addEventListener('click', function () {
-        const tr       = btn.closest('tr');
-        const origMode = tr.dataset.origmode;
-        const mode     = tr.querySelector('.rowNGmode').value;
-        const qty      = parseInt(tr.querySelector('.rowQty').value, 10) || 0;
-        const remark   = tr.querySelector('.rowRemark').value;
+        const tr     = btn.closest('tr');
+        const jobId  = tr.dataset.jobid;
+        const mode   = tr.querySelector('.rowNGmode').value;
+        const qty    = parseInt(tr.querySelector('.rowQty').value, 10) || 0;
+        const remark = tr.querySelector('.rowRemark').value;
 
         if (qty === 0) {
-          showDeleteConfirm(() => submitEdit(origMode, mode, qty, remark, btn));
+          showDeleteConfirm(() => submitEdit(jobId, mode, qty, remark, btn));
           return;
         }
 
-        submitEdit(origMode, mode, qty, remark, btn);
+        submitEdit(jobId, mode, qty, remark, btn);
       });
     });
 
