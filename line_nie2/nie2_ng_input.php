@@ -127,6 +127,35 @@
         mysqli_close($conn);
         exit;
     }
+
+    // Per-row AJAX delete -> remove the chosen row from tb_ng
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete'])) {
+        header('Content-Type: application/json');
+
+        $prodName = $_POST['ProdName'] ?? '';
+        $invNo    = $_POST['InvNo'] ?? '';
+        $wo       = $_POST['WO'] ?? '';
+        $process  = $_POST['Process'] ?? '';
+        $boxNo    = $_POST['BoxNo'] ?? '';
+        $ngMode   = $_POST['NGmode'] ?? '';
+
+        if ($prodName === '' || $invNo === '' || $wo === '' || $process === '' || $boxNo === '' || $ngMode === '') {
+            echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
+            exit;
+        }
+
+        $stmt = mysqli_prepare($conn,
+            "DELETE FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
+        if (!$stmt) {
+            echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
+            exit;
+        }
+        mysqli_stmt_bind_param($stmt, 'ssssss', $prodName, $invNo, $wo, $process, $boxNo, $ngMode);
+        $ok = mysqli_stmt_execute($stmt);
+        echo json_encode(['status' => $ok ? 'ok' : 'fail', 'message' => $ok ? '' : mysqli_error($conn)]);
+        mysqli_close($conn);
+        exit;
+    }
 ?>
 
 <!doctype html>
@@ -228,6 +257,14 @@
       </tbody>
     </table>
 
+    <table class="ngInputTbl ngNewRowTbl">
+      <tbody>
+        <tr id="ngNewRow"></tr>
+      </tbody>
+    </table>
+
+    <h2 class="ngNewRowHeading">Input new NG here</h2>
+
     <p style="display:flex; justify-content:center; padding:0 10px;">
       <button type="button" id="Nie2_homeBtn" onclick="window.history.back();">กลับหน้าก่อน</button>
     </p>
@@ -246,37 +283,25 @@
       return html;
     }
 
-    function buildRow(mode, qty, remark, isNew) {
+    function renderExistingRow(mode, qty, remark) {
       const tr = document.createElement('tr');
-      tr.className = isNew ? 'new-data-row' : 'existing-data-row';
+      tr.className = 'existing-data-row';
 
       const tdMode = document.createElement('td');
-      const selMode = document.createElement('select');
-      selMode.className = 'rowNGmode';
-      selMode.innerHTML = buildModeOptions(mode || '');
-      tdMode.appendChild(selMode);
+      tdMode.textContent = mode || '';
 
       const tdQty = document.createElement('td');
-      const inpQty = document.createElement('input');
-      inpQty.type = 'number';
-      inpQty.className = 'rowQty';
-      inpQty.min = '0';
-      inpQty.value = mode ? qty : 0;
-      tdQty.appendChild(inpQty);
+      tdQty.textContent = qty;
 
       const tdRemark = document.createElement('td');
-      const txtRemark = document.createElement('textarea');
-      txtRemark.className = 'rowRemark';
-      txtRemark.rows = 2;
-      txtRemark.maxLength = 30;
-      txtRemark.value = remark || '';
-      tdRemark.appendChild(txtRemark);
+      tdRemark.textContent = remark || '';
 
       const tdSubmit = document.createElement('td');
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'rowSubmitBtn';
-      btn.textContent = isNew ? 'บันทึกลงระบบ' : 'แก้ไขในระบบ';
+      btn.className = 'rowDeleteBtn';
+      btn.textContent = 'ลบ';
+      btn.dataset.ngmode = mode || '';
       tdSubmit.appendChild(btn);
 
       tr.appendChild(tdMode);
@@ -286,6 +311,44 @@
       return tr;
     }
 
+    function resetNewRow() {
+      const tr = document.getElementById('ngNewRow');
+      tr.innerHTML = '';
+
+      const tdMode = document.createElement('td');
+      const selMode = document.createElement('select');
+      selMode.className = 'rowNGmode';
+      selMode.innerHTML = buildModeOptions('');
+      tdMode.appendChild(selMode);
+
+      const tdQty = document.createElement('td');
+      const inpQty = document.createElement('input');
+      inpQty.type = 'number';
+      inpQty.className = 'rowQty';
+      inpQty.min = '0';
+      inpQty.value = 0;
+      tdQty.appendChild(inpQty);
+
+      const tdRemark = document.createElement('td');
+      const txtRemark = document.createElement('textarea');
+      txtRemark.className = 'rowRemark';
+      txtRemark.rows = 2;
+      txtRemark.maxLength = 30;
+      tdRemark.appendChild(txtRemark);
+
+      const tdSubmit = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rowSubmitBtn';
+      btn.textContent = 'บันทึกลงระบบ';
+      tdSubmit.appendChild(btn);
+
+      tr.appendChild(tdMode);
+      tr.appendChild(tdQty);
+      tr.appendChild(tdRemark);
+      tr.appendChild(tdSubmit);
+    }
+
     function loadNGRows() {
       const process = document.getElementById('hdrProcess').value;
       const boxNo   = document.getElementById('hdrBoxNo').value;
@@ -293,7 +356,6 @@
       tbody.innerHTML = '';
 
       if (!process || !boxNo) {
-        tbody.appendChild(buildRow('', 0, '', true));
         return;
       }
 
@@ -308,13 +370,11 @@
           tbody.innerHTML = '';
           const rows = (data.status === 'ok') ? data.rows : [];
           rows.forEach(r => {
-            tbody.appendChild(buildRow(r.NGmode, r.NGqty, r.Remark, false));
+            tbody.appendChild(renderExistingRow(r.NGmode, r.NGqty, r.Remark));
           });
-          tbody.appendChild(buildRow('', 0, '', true));
         })
         .catch(() => {
           tbody.innerHTML = '';
-          tbody.appendChild(buildRow('', 0, '', true));
         });
     }
 
@@ -322,6 +382,50 @@
     document.getElementById('hdrBoxNo').addEventListener('change', loadNGRows);
 
     document.getElementById('ngTblBody').addEventListener('click', function (e) {
+      const btn = e.target.closest('.rowDeleteBtn');
+      if (!btn) return;
+
+      const process = document.getElementById('hdrProcess').value;
+      const boxNo   = document.getElementById('hdrBoxNo').value;
+      if (!process || !boxNo) {
+        alert('กรุณาเลือก Process และ Box no');
+        return;
+      }
+
+      if (!confirm('ยืนยันการลบรายการนี้?')) return;
+
+      const payload = new URLSearchParams({
+        ajax_delete: '1',
+        ProdName: document.getElementById('hdrProdName').value,
+        InvNo:    document.getElementById('hdrInvNo').value,
+        WO:       document.getElementById('hdrWO').value,
+        BoxNo:    boxNo,
+        Process:  process,
+        NGmode:   btn.dataset.ngmode
+      });
+
+      btn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'ok') {
+            loadNGRows();
+          } else {
+            alert(data.message || 'ลบไม่สำเร็จ');
+            btn.disabled = false;
+          }
+        })
+        .catch(() => {
+          alert('เกิดข้อผิดพลาด');
+          btn.disabled = false;
+        });
+    });
+
+    document.getElementById('ngNewRow').addEventListener('click', function (e) {
       const btn = e.target.closest('.rowSubmitBtn');
       if (!btn) return;
 
@@ -332,7 +436,7 @@
         return;
       }
 
-      const tr     = btn.closest('tr');
+      const tr     = document.getElementById('ngNewRow');
       const mode   = tr.querySelector('.rowNGmode').value;
       const qty    = parseInt(tr.querySelector('.rowQty').value, 10) || 0;
       const remark = tr.querySelector('.rowRemark').value;
@@ -367,10 +471,11 @@
         .then(data => {
           if (data.status === 'ok') {
             loadNGRows();
+            resetNewRow();
           } else {
             alert(data.message || 'บันทึกไม่สำเร็จ');
-            btn.disabled = false;
           }
+          btn.disabled = false;
         })
         .catch(() => {
           alert('เกิดข้อผิดพลาด');
@@ -378,6 +483,7 @@
         });
     });
 
+    resetNewRow();
     loadNGRows();
   </script>
 </body>
