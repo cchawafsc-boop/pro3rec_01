@@ -257,13 +257,12 @@
       </tbody>
     </table>
 
+    <h3 class="ngNewRowHeading">Input new NG here</h3>
     <table class="ngInputTbl ngNewRowTbl">
       <tbody>
         <tr id="ngNewRow"></tr>
       </tbody>
     </table>
-
-    <h2 class="ngNewRowHeading">Input new NG here</h2>
 
     <p style="display:flex; justify-content:center; padding:0 10px;">
       <button type="button" id="Nie2_homeBtn" onclick="window.history.back();">กลับหน้าก่อน</button>
