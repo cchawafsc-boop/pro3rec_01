@@ -2,8 +2,10 @@
     session_start();
     require('../connect.php');
     require('../init_session.php');
+    require('./ngmode.php');
 
     $lot_prodname = $lot_invno = $lot_wo = '';
+    $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
     if (!empty($_SESSION['lotid'])) {
         $lstmt = mysqli_prepare($conn,
             "SELECT ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
@@ -11,6 +13,9 @@
         mysqli_stmt_execute($lstmt);
         $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
         if ($lrow) {
+            $lot_prodname_raw = $lrow['ProdName'];
+            $lot_invno_raw    = $lrow['InvNo'];
+            $lot_wo_raw       = $lrow['WO'];
             $lot_prodname = htmlspecialchars($lrow['ProdName']);
             $lot_invno    = htmlspecialchars($lrow['InvNo']);
             $lot_wo       = htmlspecialchars($lrow['WO']);
@@ -35,6 +40,105 @@
 
     $pre_process = $_SESSION['process'] ?? '';
     $pre_boxno   = $_SESSION['boxno']   ?? '';
+
+    // AJAX: update an existing tb_ng record, or delete it when NGqty = 0
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_edit'])) {
+        header('Content-Type: application/json');
+
+        $prodName = $_POST['ProdName'] ?? '';
+        $invNo    = $_POST['InvNo'] ?? '';
+        $wo       = $_POST['WO'] ?? '';
+        $process  = $_POST['Process'] ?? '';
+        $boxNo    = $_POST['BoxNo'] ?? '';
+        $origMode = $_POST['OrigNGmode'] ?? '';
+        $ngMode   = $_POST['NGmode'] ?? '';
+        $qty      = (int)($_POST['Qty'] ?? -1);
+        $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
+
+        if ($prodName === '' || $invNo === '' || $wo === '' || $process === '' || $boxNo === '' || $origMode === ''
+            || !in_array($ngMode, $ngModeList, true) || $qty < 0) {
+            echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
+            exit;
+        }
+
+        if ($qty === 0) {
+            $stmt = mysqli_prepare($conn,
+                "DELETE FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
+            if (!$stmt) {
+                echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
+                exit;
+            }
+            mysqli_stmt_bind_param($stmt, 'ssssss', $prodName, $invNo, $wo, $process, $boxNo, $origMode);
+        } else {
+            $stmt = mysqli_prepare($conn,
+                "UPDATE tb_ng SET NGmode = ?, NGqty = ?, Remark = ?
+                 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ? AND NGmode = ?");
+            if (!$stmt) {
+                echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
+                exit;
+            }
+            mysqli_stmt_bind_param($stmt, 'sisssssss',
+                $ngMode, $qty, $remark,
+                $prodName, $invNo, $wo, $process, $boxNo, $origMode);
+        }
+
+        $ok = mysqli_stmt_execute($stmt);
+        echo json_encode(['status' => $ok ? 'ok' : 'fail', 'message' => $ok ? '' : mysqli_error($conn)]);
+        mysqli_close($conn);
+        exit;
+    }
+
+    // AJAX: insert a new tb_ng record from the last row of the table
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert'])) {
+        header('Content-Type: application/json');
+
+        $prodName = $_POST['ProdName'] ?? '';
+        $invNo    = $_POST['InvNo'] ?? '';
+        $wo       = $_POST['WO'] ?? '';
+        $boxNo    = $_POST['BoxNo'] ?? '';
+        $date     = $_POST['Date'] ?? '';
+        $time     = $_POST['Time'] ?? '';
+        $opr      = (int)($_POST['Opr'] ?? 0);
+        $process  = $_POST['Process'] ?? '';
+        $ngMode   = $_POST['NGmode'] ?? '';
+        $qty      = (int)($_POST['Qty'] ?? 0);
+        $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
+
+        if ($prodName === '' || $invNo === '' || $wo === '' || $process === '' || $boxNo === ''
+            || !in_array($ngMode, $ngModeList, true) || $qty <= 0) {
+            echo json_encode(['status' => 'fail', 'message' => 'ข้อมูลไม่ครบถ้วน']);
+            exit;
+        }
+
+        $stmt = mysqli_prepare($conn,
+            "INSERT INTO tb_ng
+             (ProdName, InvNo, WO, Process, Date, Time, Opr, BoxNo, NGmode, NGqty, Remark)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+        if (!$stmt) {
+            echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
+            exit;
+        }
+        mysqli_stmt_bind_param($stmt, 'ssssssissis',
+            $prodName, $invNo, $wo, $process, $date, $time, $opr, $boxNo, $ngMode, $qty, $remark);
+
+        $ok = mysqli_stmt_execute($stmt);
+        echo json_encode(['status' => $ok ? 'ok' : 'fail', 'message' => $ok ? '' : mysqli_error($conn)]);
+        mysqli_close($conn);
+        exit;
+    }
+
+    // Existing tb_ng records for the current ProdName + InvNo + WO + Process + BoxNo
+    $ngRows = [];
+    if ($lot_prodname_raw !== '' && $lot_invno_raw !== '' && $lot_wo_raw !== '' && $pre_process !== '' && $pre_boxno !== '') {
+        $nstmt = mysqli_prepare($conn,
+            "SELECT NGmode, NGqty, Remark FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ? AND BoxNo = ?");
+        mysqli_stmt_bind_param($nstmt, 'sssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $pre_process, $pre_boxno);
+        mysqli_stmt_execute($nstmt);
+        $nres = mysqli_stmt_get_result($nstmt);
+        while ($nrow = mysqli_fetch_assoc($nres)) {
+            $ngRows[] = $nrow;
+        }
+    }
 ?>
 
 <!doctype html>
@@ -91,7 +195,7 @@
             ];
             foreach ($processOptions as $val => $label):
           ?>
-          <option value="<?php echo $val; ?>" <?php echo (str_replace(' ', '', $pre_process) === str_replace(' ', '', $val)) ? 'selected' : ''; ?>><?php echo $label; ?></option>
+          <option value="<?php echo $val; ?>" <?php echo ($pre_process === $val) ? 'selected' : ''; ?>><?php echo $label; ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -123,11 +227,179 @@
 
     </div>
 
+    <table class="ngInputTbl">
+      <thead>
+        <tr>
+          <th>NG mode</th>
+          <th>NG (pcs)</th>
+          <th>Remark</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($ngRows as $row): ?>
+        <tr class="ngExistingRow" data-origmode="<?php echo htmlspecialchars($row['NGmode']); ?>">
+          <td>
+            <select class="rowNGmode">
+              <?php foreach ($ngModeList as $mode): ?>
+              <option value="<?php echo htmlspecialchars($mode); ?>" <?php echo ($mode === $row['NGmode']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($mode); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </td>
+          <td><input type="number" class="rowQty" min="0" value="<?php echo (int)$row['NGqty']; ?>"></td>
+          <td><textarea class="rowRemark" rows="2" maxlength="30"><?php echo htmlspecialchars($row['Remark']); ?></textarea></td>
+          <td><button type="button" class="rowEditBtn">edit</button></td>
+        </tr>
+        <?php endforeach; ?>
+
+        <tr class="ngNewRow">
+          <td>
+            <select id="newNGmode">
+              <option value="" selected disabled>เลือก</option>
+              <?php foreach ($ngModeList as $mode): ?>
+              <option value="<?php echo htmlspecialchars($mode); ?>"><?php echo htmlspecialchars($mode); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </td>
+          <td><input type="number" id="newQty" min="0" value="0"></td>
+          <td><textarea id="newRemark" rows="2" maxlength="30"></textarea></td>
+          <td><button type="button" id="newSubmitBtn">บันทึกเข้าระบบ</button></td>
+        </tr>
+      </tbody>
+    </table>
+
     <p style="display:flex; justify-content:center; padding:0 10px;">
-      <button type="button" id="Nie2_homeBtn" onclick="window.history.back();">กลับหน้าก่อน</button>
+      <button type="button" id="Nie2_backBtn" onclick="window.history.back();">กลับหน้าก่อน</button>
     </p>
   </div>
 
+  <div id="ngDeleteConfirm" class="ngConfirmOverlay" style="display:none;">
+    <div class="ngConfirmBox">
+      <p>do you want to delete this NG</p>
+      <button type="button" id="ngConfirmYes">Yes</button>
+      <button type="button" id="ngConfirmNo">No</button>
+    </div>
+  </div>
+
   <?php mysqli_close($conn); ?>
+
+  <script>
+    function showDeleteConfirm(onYes) {
+      const overlay = document.getElementById('ngDeleteConfirm');
+      const yesBtn  = document.getElementById('ngConfirmYes');
+      const noBtn   = document.getElementById('ngConfirmNo');
+      overlay.style.display = 'flex';
+
+      function cleanup() {
+        overlay.style.display = 'none';
+        yesBtn.removeEventListener('click', onYesClick);
+        noBtn.removeEventListener('click', onNoClick);
+      }
+      function onYesClick() { cleanup(); onYes(); }
+      function onNoClick() { cleanup(); }
+
+      yesBtn.addEventListener('click', onYesClick);
+      noBtn.addEventListener('click', onNoClick);
+    }
+
+    function submitEdit(origMode, mode, qty, remark, btn) {
+      const payload = new URLSearchParams({
+        ajax_edit: '1',
+        ProdName:   document.getElementById('hdrProdName').value,
+        InvNo:      document.getElementById('hdrInvNo').value,
+        WO:         document.getElementById('hdrWO').value,
+        Process:    document.getElementById('hdrProcess').value,
+        BoxNo:      document.getElementById('hdrBoxNo').value,
+        OrigNGmode: origMode,
+        NGmode:     mode,
+        Qty:        qty,
+        Remark:     remark
+      });
+
+      btn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'ok') {
+            location.reload();
+          } else {
+            alert(data.message || 'บันทึกไม่สำเร็จ');
+            btn.disabled = false;
+          }
+        })
+        .catch(() => {
+          alert('เกิดข้อผิดพลาด');
+          btn.disabled = false;
+        });
+    }
+
+    document.querySelectorAll('.rowEditBtn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const tr       = btn.closest('tr');
+        const origMode = tr.dataset.origmode;
+        const mode     = tr.querySelector('.rowNGmode').value;
+        const qty      = parseInt(tr.querySelector('.rowQty').value, 10) || 0;
+        const remark   = tr.querySelector('.rowRemark').value;
+
+        if (qty === 0) {
+          showDeleteConfirm(() => submitEdit(origMode, mode, qty, remark, btn));
+          return;
+        }
+
+        submitEdit(origMode, mode, qty, remark, btn);
+      });
+    });
+
+    const newSubmitBtn = document.getElementById('newSubmitBtn');
+    newSubmitBtn.addEventListener('click', function () {
+      const mode   = document.getElementById('newNGmode').value;
+      const qty    = parseInt(document.getElementById('newQty').value, 10) || 0;
+      const remark = document.getElementById('newRemark').value;
+
+      if (!mode || qty <= 0) {
+        alert('กรุณาระบุ NG mode และจำนวนให้ถูกต้อง');
+        return;
+      }
+
+      const payload = new URLSearchParams({
+        ajax_insert: '1',
+        ProdName: document.getElementById('hdrProdName').value,
+        InvNo:    document.getElementById('hdrInvNo').value,
+        WO:       document.getElementById('hdrWO').value,
+        Process:  document.getElementById('hdrProcess').value,
+        BoxNo:    document.getElementById('hdrBoxNo').value,
+        Date:     document.getElementById('hdrDate').value,
+        Time:     document.getElementById('hdrTime').value,
+        Opr:      document.getElementById('hdrOpr').value,
+        NGmode:   mode,
+        Qty:      qty,
+        Remark:   remark
+      });
+
+      newSubmitBtn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'ok') {
+            location.reload();
+          } else {
+            alert(data.message || 'บันทึกไม่สำเร็จ');
+            newSubmitBtn.disabled = false;
+          }
+        })
+        .catch(() => {
+          alert('เกิดข้อผิดพลาด');
+          newSubmitBtn.disabled = false;
+        });
+    });
+  </script>
 </body>
 </html>
