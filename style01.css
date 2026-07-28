@@ -520,15 +520,21 @@ form .form-pro3-proc2-g1 {
 }
 .ngInputTbl button{
 	width: 100%;
+	margin: 0;
 	padding: 4px 0;
 	border-style: none;
+	box-sizing: border-box;
 	border-radius: 4px;
 	background-color: green;
 	color: white;
 	cursor: pointer;
 }
+.ngInputTbl button::-moz-focus-inner{
+	border: 0;
+	padding: 0;
+}
 .rowEditBtn{
-	background-color: #FFC72C;
+	background-color: #B8860B;
 }
 .ngConfirmOverlay{
 	position: fixed;
