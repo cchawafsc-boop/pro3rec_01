@@ -4,6 +4,28 @@
     require('../init_session.php');
     require('./ngmode.php');
 
+    function calcNGtotal($conn, $prodName, $invNo, $wo, $process) {
+        $stmt = mysqli_prepare($conn,
+            "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ?");
+        mysqli_stmt_bind_param($stmt, 'ssss', $prodName, $invNo, $wo, $process);
+        mysqli_stmt_execute($stmt);
+        $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+        return $row ? (int)$row['ngSum'] : 0;
+    }
+
+    function decideResult($pcs, $ngTotal) {
+        if ($pcs <= 280) {
+            return $ngTotal === 0 ? 'Accept' : 'Reject';
+        }
+        if ($pcs >= 281 && $pcs <= 1200) {
+            return $ngTotal < 2 ? 'Accept' : 'Reject';
+        }
+        if ($pcs > 1200) {
+            return 'Reject';
+        }
+        return '';
+    }
+
     function calcSamplingSize($n) {
         if ($n >= 2   && $n <= 8)    return 2;
         if ($n >= 9   && $n <= 15)   return 3;
@@ -63,6 +85,42 @@
         }
     }
     $incChkBox_qty = count($lot_boxnos);
+
+    $process = '2. Incoming';
+    $ngTotal = calcNGtotal($conn, $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $process);
+    $decision = decideResult($lot_amountinv, $ngTotal);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $date       = $_POST['Date'];
+        $time       = date('H:i:s');
+        $opr        = (int)($_SESSION['us_id'] ?? 0);
+        $boxCon     = $_POST['BoxCon'] ?? '';
+        $remark     = $_POST['Remark'] ?? '';
+        $ngTotal    = calcNGtotal($conn, $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $process);
+
+        $dupStmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_proc2 WHERE ProdName = ? AND InvNo = ? AND WO = ? LIMIT 1");
+        mysqli_stmt_bind_param($dupStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+        mysqli_stmt_execute($dupStmt);
+        $dupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($dupStmt));
+
+        if ($dupRow) {
+            echo "<script>alert('There is redundant Product name, Invoice and WO in database. Please check the data intry');</script>";
+        } else {
+            $insStmt = mysqli_prepare($conn,
+                "INSERT INTO `tb_proc2`
+                 (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Remark`)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($insStmt, "sssssisiiis",
+                $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
+                $boxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $remark);
+            if (mysqli_stmt_execute($insStmt)) {
+                echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
+            } else {
+                echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
+            }
+        }
+    }
 ?>
 
 <!doctype html>
@@ -126,8 +184,8 @@
 
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>สภาพกล่องทุกกล่อง</label></div>
         <div class="pro3-proc2-g1-it">
-          <select>
-            <option value="" selected>โปรดระบุ</option>
+          <select name="BoxCon" required>
+            <option value="" selected disabled>โปรดระบุ</option>
             <option value="ผ่าน">ผ่าน</option>
             <option value="ไม่ผ่าน">ไม่ผ่าน</option>
           </select>
@@ -151,11 +209,6 @@
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนสุ่ม (box)</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $incChkBox_qty; ?>" disabled>
-        </div>
-
-        <div class="pro3-proc2-g1-it"><label>Remark</label></div>
-        <div class="pro3-proc2-g1-it">
-          <textarea></textarea>
         </div>
 
       </div>
@@ -199,13 +252,34 @@
           <button type="button" class="ngTypeBtn" style="display:none;" onclick="goNGtype('<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">เลือก NG</button>
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>NG รวม</label></div>
+        <div class="pro3-proc2-qrset-it"><label>NG รวมของกล่อง</label></div>
         <div class="pro3-proc2-qrset-it">
           <input type="text" value="<?php echo $ngSum; ?>" disabled>
         </div>
 
       </div>
       <?php endforeach; ?>
+
+      <div class="pro3-proc2-summary">
+        <div class="pro3-proc2-summary-it"><label>NG รวม</label></div>
+        <div class="pro3-proc2-summary-it">
+          <input type="number" value="<?php echo $ngTotal; ?>" readonly>
+        </div>
+
+        <div class="pro3-proc2-summary-it"><label>ผลการตัดสินใจ</label></div>
+        <div class="pro3-proc2-summary-it">
+          <select name="Decision">
+            <option value="Accept" <?php echo $decision === 'Accept' ? 'selected' : ''; ?>>Accept</option>
+            <option value="Reject" <?php echo $decision === 'Reject' ? 'selected' : ''; ?>>Reject</option>
+            <option value="Special" <?php echo $decision === 'Special' ? 'selected' : ''; ?>>Special</option>
+          </select>
+        </div>
+
+        <div class="pro3-proc2-summary-it"><label>Remark</label></div>
+        <div class="pro3-proc2-summary-it">
+          <textarea name="Remark"></textarea>
+        </div>
+      </div>
 
       <p style="display:flex; justify-content:space-between; padding:0 10px;">
         <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
