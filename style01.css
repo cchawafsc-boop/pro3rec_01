@@ -334,6 +334,29 @@ form .form-pro3-proc2-g1 {
 	margin-left: 6px;
 }
 
+.pro3-proc2-summary {
+	display: grid;
+	grid-template-columns: 150px 160px;  /* Defines column width */
+	gap: 0px;                            /* Sets a gap between grid items */
+	border: 2px solid lightblue;
+	padding: 3px;
+	border-radius: 8px;
+	margin: 6px auto;
+	justify-content: center;             /* Center the grid horizontally */
+}
+.pro3-proc2-summary-it {
+	display: flex;                       /* Using flexbox for vertical alignment within each cell */
+	align-items: center;
+	padding: 5px;
+	border-radius: 4px;
+}
+.pro3-proc2-summary-it input[type="number"],
+.pro3-proc2-summary-it select,
+.pro3-proc2-summary-it textarea {
+	width: 140px;
+	box-sizing: border-box;
+}
+
 .pro1incoming-g1 {
     display: grid;
     grid-template-columns: 140px 180px;        /* Defines 2 columns with equal width */
