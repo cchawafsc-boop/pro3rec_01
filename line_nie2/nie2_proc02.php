@@ -153,7 +153,7 @@
           <input type="number" value="<?php echo $incChkBox_qty; ?>" disabled>
         </div>
 
-        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>Remark</label></div>
+        <div class="pro3-proc2-g1-it"><label>Remark</label></div>
         <div class="pro3-proc2-g1-it">
           <textarea></textarea>
         </div>
@@ -204,8 +204,6 @@
           <input type="text" value="<?php echo $ngSum; ?>" disabled>
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>หมายเหตุ</label></div>
-        <div class="pro3-proc2-qrset-it"><textarea name="box_remark[]"></textarea></div>
       </div>
       <?php endforeach; ?>
 
