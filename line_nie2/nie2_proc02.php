@@ -115,6 +115,11 @@
                 $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
                 $boxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $remark);
             if (mysqli_stmt_execute($insStmt)) {
+                $updStmt = mysqli_prepare($conn,
+                    "UPDATE `tb_proc1` SET `Status` = 'waiting racking' WHERE `LotID` = ? AND `ProdName` = ? AND `InvNo` = ? AND `WO` = ?");
+                mysqli_stmt_bind_param($updStmt, 'ssss', $_SESSION['lotid'], $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+                mysqli_stmt_execute($updStmt);
+
                 echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
             } else {
                 echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
