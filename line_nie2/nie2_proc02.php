@@ -63,55 +63,6 @@
         }
     }
     $incChkBox_qty = count($lot_boxnos);
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $prodName     = $_POST['ProdName'];
-        $invNo        = $_POST['InvNo'];
-        $wo           = $_POST['WO'];
-        $date         = $_POST['Date'];
-        $time         = date('H:i:s');
-        $opr          = (int)$_POST['Opr'];
-        $amountInv    = (int)$_POST['AmountInv'];
-        $samplingSize = (int)$_POST['SamplingSize'];
-
-        $boxSubLots   = $_POST['box_subLot']   ?? [];
-        $boxAppChecks = $_POST['box_appcheck'] ?? [];
-        $boxRemarks   = $_POST['box_remark']   ?? [];
-
-        $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc2`
-             (`ProdName`,`InvNov`,`WO`,`BoxNo`,`Date`,`Time`,`Opr`,
-              `BoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Remark`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-
-        $ngSumStmt = mysqli_prepare($conn,
-            "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ?");
-
-        $req = true;
-        foreach ($boxSubLots as $idx => $subLot) {
-            $boxCon = $boxAppChecks[$idx] ?? '';
-            $remark = $boxRemarks[$idx]   ?? '';
-
-            mysqli_stmt_bind_param($ngSumStmt, 'ssss', $prodName, $invNo, $wo, $subLot);
-            mysqli_stmt_execute($ngSumStmt);
-            $ngSumRow = mysqli_fetch_assoc(mysqli_stmt_get_result($ngSumStmt));
-            $ngTotal  = $ngSumRow ? (int)$ngSumRow['ngSum'] : 0;
-
-            mysqli_stmt_bind_param($stmt, "ssssssisiiis",
-                $prodName, $invNo, $wo, $subLot, $date, $time, $opr,
-                $boxCon, $amountInv, $samplingSize, $ngTotal, $remark);
-            if (!mysqli_stmt_execute($stmt)) {
-                $req = false;
-            }
-        }
-
-        if ($req) {
-            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
-        } else {
-            echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
-        }
-        mysqli_close($conn);
-    }
 ?>
 
 <!doctype html>
@@ -173,6 +124,15 @@
           <input type="time" id="hdrTime" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>สภาพกล่องทุกกล่อง</label></div>
+        <div class="pro3-proc2-g1-it">
+          <select>
+            <option value="" selected>โปรดระบุ</option>
+            <option value="ผ่าน">ผ่าน</option>
+            <option value="ไม่ผ่าน">ไม่ผ่าน</option>
+          </select>
+        </div>
+
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนตาม Inv (box)</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $lot_boxcount; ?>" disabled>
@@ -191,6 +151,11 @@
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนสุ่ม (box)</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $incChkBox_qty; ?>" disabled>
+        </div>
+
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>Remark</label></div>
+        <div class="pro3-proc2-g1-it">
+          <textarea></textarea>
         </div>
 
       </div>
@@ -224,10 +189,6 @@
           <input type="hidden" class="qr-result-hidden" name="box_qrresult[]" value="">
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>Box condition</label></div>
-        <div class="pro3-proc2-qrset-it">
-        </div>
-
         <div class="pro3-proc2-qrset-it"><label>เช็คชิ้นงาน</label></div>
         <div class="pro3-proc2-qrset-it">
           <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)">
@@ -255,7 +216,7 @@
     </form>
   </div>
 
-  <?php if (!isset($req)) { mysqli_close($conn); } ?>
+  <?php mysqli_close($conn); ?>
 
   <script>
     function handleQrScan(e, boxNo) {
