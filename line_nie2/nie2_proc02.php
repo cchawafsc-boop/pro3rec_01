@@ -76,31 +76,30 @@
 
         $boxSubLots   = $_POST['box_subLot']   ?? [];
         $boxAppChecks = $_POST['box_appcheck'] ?? [];
-        $boxQrResults = $_POST['box_qrresult'] ?? [];
+        $boxRemarks   = $_POST['box_remark']   ?? [];
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc2`
-             (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Date`,`Time`,`Opr`,
-              `BoxCondition`,`AmountInv`,`SamplingSize`,
-              `Break`,`Bumps`,`Burrs`,`Chip`,`Crack`,`Contam`,
-              `Dent`,`Scratch`,`Scuff`,`Stain`,`Deform`,`Finger`,
-              `NGtotal`,`Remark`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+             (`ProdName`,`InvNov`,`WO`,`BoxNo`,`Date`,`Time`,`Opr`,
+              `BoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Remark`)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
 
-        $break = $bumps = $burrs = $chip = $crack = $contam = 0;
-        $dent = $scratch = $scuff = $stain = $deform = $finger = $ngTotal = 0;
+        $ngSumStmt = mysqli_prepare($conn,
+            "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ?");
 
         $req = true;
         foreach ($boxSubLots as $idx => $subLot) {
-            $boxCondition = $boxAppChecks[$idx] ?? '';
-            $remark       = $boxQrResults[$idx] ?? '';
+            $boxCon = $boxAppChecks[$idx] ?? '';
+            $remark = $boxRemarks[$idx]   ?? '';
 
-            mysqli_stmt_bind_param($stmt, "ssssssissiiiiiiiiiiiiiis",
+            mysqli_stmt_bind_param($ngSumStmt, 'ssss', $prodName, $invNo, $wo, $subLot);
+            mysqli_stmt_execute($ngSumStmt);
+            $ngSumRow = mysqli_fetch_assoc(mysqli_stmt_get_result($ngSumStmt));
+            $ngTotal  = $ngSumRow ? (int)$ngSumRow['ngSum'] : 0;
+
+            mysqli_stmt_bind_param($stmt, "ssssssisiiis",
                 $prodName, $invNo, $wo, $subLot, $date, $time, $opr,
-                $boxCondition, $amountInv, $samplingSize,
-                $break, $bumps, $burrs, $chip, $crack, $contam,
-                $dent, $scratch, $scuff, $stain, $deform, $finger,
-                $ngTotal, $remark);
+                $boxCon, $amountInv, $samplingSize, $ngTotal, $remark);
             if (!mysqli_stmt_execute($stmt)) {
                 $req = false;
             }
@@ -169,6 +168,11 @@
           <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
+        <div class="pro3-proc2-g1-it"><label>Time</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="time" id="hdrTime" value="<?php echo date('H:i'); ?>" disabled>
+        </div>
+
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนตาม Inv (box)</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $lot_boxcount; ?>" disabled>
@@ -220,7 +224,11 @@
           <input type="hidden" class="qr-result-hidden" name="box_qrresult[]" value="">
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>เช็ค App</label></div>
+        <div class="pro3-proc2-qrset-it"><label>Box condition</label></div>
+        <div class="pro3-proc2-qrset-it">
+        </div>
+
+        <div class="pro3-proc2-qrset-it"><label>เช็คชิ้นงาน</label></div>
         <div class="pro3-proc2-qrset-it">
           <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)">
             <option value="" selected disabled>โปรดระบุ</option>
@@ -236,7 +244,7 @@
         </div>
 
         <div class="pro3-proc2-qrset-it"><label>หมายเหตุ</label></div>
-        <div class="pro3-proc2-qrset-it"><textarea></textarea></div>
+        <div class="pro3-proc2-qrset-it"><textarea name="box_remark[]"></textarea></div>
       </div>
       <?php endforeach; ?>
 
