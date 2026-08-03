@@ -115,7 +115,7 @@
       <div class="pro3-proc1-check">
         <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">จำนวนรวม (pcs)</lable></div>
         <div class="pro3-proc1-check-it"><text id="sumPcs" readonly></text></div>
-        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ขาด/เกิน (pcs)</lable></div>
+        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">สถานะขาด/เกิน</lable></div>
         <div class="pro3-proc1-check-it"><text id="sumJudge" readonly></text></div>
         <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ระบุ Lot id</lable></div>
         <div class="pro3-proc1-check-it">
