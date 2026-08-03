@@ -267,7 +267,7 @@ label{
 }
 .pro3-proc1-check {
 	display: grid;
-	grid-template-columns: 110px 70px 110px 70px 100px 90px;
+	grid-template-columns: 100px 50px 100px 120px 100px 90px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
@@ -283,7 +283,11 @@ label{
 	box-sizing: border-box;
 	overflow: hidden;
 }
-.pro3-proc1-check-it select,
+.pro3-proc1-check-it select{
+	width: 100%;
+	box-sizing: border-box;
+	background-color: white;
+}
 .pro3-proc1-check-it text {
 	width: 100%;
 	box-sizing: border-box;
