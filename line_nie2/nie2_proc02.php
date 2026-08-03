@@ -47,6 +47,7 @@
         mysqli_stmt_execute($gStmt);
         $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
         if ($gRow) {
+            $lot_id_raw       = $gRow['LotID'];
             $lot_id           = htmlspecialchars($gRow['LotID']);
             $lot_prodname_raw = $gRow['ProdName'];
             $lot_invno_raw    = $gRow['InvNo'];
@@ -54,6 +55,18 @@
             $lot_prodname     = htmlspecialchars($gRow['ProdName']);
             $lot_invno        = htmlspecialchars($gRow['InvNo']);
             $lot_wo           = htmlspecialchars($gRow['WO']);
+
+            $cstmt = mysqli_prepare($conn,
+                "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
+            mysqli_stmt_bind_param($cstmt, 's', $lot_id_raw);
+            mysqli_stmt_execute($cstmt);
+            $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
+            if ($crow) {
+                $lot_boxcount  = (int)$crow['boxCount'];
+                $lot_amountinv = (int)$crow['totalQty'];
+            }
+        } else {
+            echo "<script>alert('Not found the data');</script>";
         }
     }
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
@@ -169,24 +182,24 @@
           </select>
         </div>
 
-        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนตาม Inv (box)</label></div>
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนกล่องตาม Inv</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $lot_boxcount; ?>" disabled>
         </div>
             
-        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนตาม Inv (pcs)</label></div>
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนชิ้นงานตาม Inv</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" name="AmountInv" value="<?php echo $lot_amountinv; ?>" min="0" disabled required>
         </div>
 
-        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนสุ่ม (pcs)</label></div>
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนชิ้นงานที่ถูกสุ่ม</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" name="SamplingSize" value="<?php echo $lot_samplingsize; ?>" min="0" disabled required>
         </div>
 
-        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนสุ่ม (box)</label></div>
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนกล่องที่ถูกสุ่ม</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="number" value="<?php echo $incChkBox_qty; ?>" disabled>
+          <input type="number" name="SampPledBox" value="<?php echo $incChkBox_qty; ?>" disabled>
         </div>
 
       </div>
