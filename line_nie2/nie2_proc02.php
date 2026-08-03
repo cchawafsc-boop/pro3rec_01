@@ -326,7 +326,7 @@
       const set = input.closest('.pro3-proc2-qrset');
       const resultInput = set.querySelector('.qr-result-input');
       const resultHidden = set.querySelector('.qr-result-hidden');
-      const parts = input.value.split(/\s*,\s*/);
+      const parts = input.value.split(/\s*|\s*/);
       const prodName = document.querySelector('input[name="ProdName"]').value;
       const wo = document.querySelector('input[name="WO"]').value;
       const ok = parts.length === 5
