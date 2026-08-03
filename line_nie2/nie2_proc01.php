@@ -117,7 +117,7 @@
         <div class="pro3-proc1-check-it"><text id="sumPcs" readonly></text></div>
         <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">สถานะขาด/เกิน</lable></div>
         <div class="pro3-proc1-check-it"><text id="sumJudge" readonly></text></div>
-        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ระบุ Lot id</lable></div>
+        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ระบุ Lot ID</lable></div>
         <div class="pro3-proc1-check-it">
           <select id="LotID" name="LotID">
             <option>โปรดระบุ</option>
