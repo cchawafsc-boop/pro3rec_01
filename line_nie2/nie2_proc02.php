@@ -20,22 +20,18 @@
         if ($pcs >= 281 && $pcs <= 1200) {
             return $ngTotal < 2 ? 'Accept' : 'Reject';
         }
-        if ($pcs > 1200) {
-            return 'Reject';
+        if ($pcs >= 1201 && $pcs <=3200) {
+            return $ngTotal < 3 ? 'Accept' : 'Reject';
         }
-        return '';
+        return 'error';
     }
 
     function calcSamplingSize($n) {
-        if ($n >= 2   && $n <= 8)    return 2;
-        if ($n >= 9   && $n <= 15)   return 3;
-        if ($n >= 16  && $n <= 25)   return 5;
-        if ($n >= 26  && $n <= 50)   return 8;
-        if ($n >= 51  && $n <= 90)   return 13;
-        if ($n >= 91  && $n <= 150)  return 20;
-        if ($n >= 151 && $n <= 280)  return 32;
-        if ($n >= 281 && $n <= 500)  return 50;
-        if ($n >= 501 && $n <= 1000) return 80;
+        /* This calculation is from AQL level II 0.65 */
+        if ($n >= 1    && $n <= 20)   return $n;
+        if ($n >= 21   && $n <= 280)  return 20;
+        if ($n >= 281  && $n <= 1200) return 80;
+        if ($n >= 1201 && $n <= 3200) return 125;
         return 0;
     }
 
@@ -43,47 +39,8 @@
     $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
     $lot_boxcount = 0;
     $lot_amountinv = 0;
-    if (!empty($_SESSION['lotid'])) {
-        $lstmt = mysqli_prepare($conn,
-            "SELECT ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
-        mysqli_stmt_bind_param($lstmt, 's', $_SESSION['lotid']);
-        mysqli_stmt_execute($lstmt);
-        $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
-        if ($lrow) {
-            $lot_prodname_raw = $lrow['ProdName'];
-            $lot_invno_raw    = $lrow['InvNo'];
-            $lot_wo_raw       = $lrow['WO'];
-            $lot_prodname = htmlspecialchars($lrow['ProdName']);
-            $lot_invno    = htmlspecialchars($lrow['InvNo']);
-            $lot_wo       = htmlspecialchars($lrow['WO']);
-        }
-
-        $cstmt = mysqli_prepare($conn,
-            "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
-        mysqli_stmt_bind_param($cstmt, 's', $_SESSION['lotid']);
-        mysqli_stmt_execute($cstmt);
-        $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
-        if ($crow) {
-            $lot_boxcount  = (int)$crow['boxCount'];
-            $lot_amountinv = (int)$crow['totalQty'];
-        }
-    }
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
-
     $lot_boxnos = [];
-    if (!empty($_SESSION['lotid']) && $lot_samplingsize > 0) {
-        $bstmt = mysqli_prepare($conn,
-            "SELECT BoxNo, BoxQty FROM tb_proc1 WHERE LotID = ?");
-        mysqli_stmt_bind_param($bstmt, 's', $_SESSION['lotid']);
-        mysqli_stmt_execute($bstmt);
-        $bres = mysqli_stmt_get_result($bstmt);
-
-        $residual = $lot_samplingsize;
-        while ($residual > 0 && ($brow = mysqli_fetch_assoc($bres))) {
-            $lot_boxnos[] = $brow['BoxNo'];
-            $residual -= (int)$brow['BoxQty'];
-        }
-    }
     $incChkBox_qty = count($lot_boxnos);
 
     $process = '2. Incoming';
@@ -116,8 +73,8 @@
                 $boxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $remark);
             if (mysqli_stmt_execute($insStmt)) {
                 $updStmt = mysqli_prepare($conn,
-                    "UPDATE `tb_proc1` SET `Status` = 'waiting racking' WHERE `LotID` = ? AND `ProdName` = ? AND `InvNo` = ? AND `WO` = ?");
-                mysqli_stmt_bind_param($updStmt, 'ssss', $_SESSION['lotid'], $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+                    "UPDATE `tb_proc1` SET `Status` = 'waiting racking' WHERE `ProdName` = ? AND `InvNo` = ? AND `WO` = ?");
+                mysqli_stmt_bind_param($updStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
                 mysqli_stmt_execute($updStmt);
 
                 echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
@@ -143,20 +100,19 @@
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="form-pro3-proc2-g1">
 
-        <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
-        <div class="pro3-proc2-g1-it" style="font-size:0.8em"><label>
-          <?php 
-            if (!empty($_SESSION['lotid'])):
-              echo htmlspecialchars($_SESSION['lotid']);
-            else:
-              echo "กรุณาเลือก Lot ID";
-            endif;
-          ?></label>
-        </div>
-
         <div class="pro3-proc2-g1-it"><label>Operator</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
+        </div>
+
+        <div class="pro3-proc2-g1-it"><label>Data from Lot Tag</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat">
+        </div>
+
+        <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text">
         </div>
           
         <div class="pro3-proc2-g1-it"><label>Product name</label></div>
