@@ -19,7 +19,7 @@
 
         // Time removed from form; keep column filled for the table.
         $time   = date('H:i:s');
-        $status = 'wait incoming';
+        $status = empty($remarks) ? 'wait incoming' : $remarks;
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`Status`,`Remark`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
