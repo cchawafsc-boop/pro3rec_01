@@ -68,9 +68,14 @@
           <input type="hidden" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Invoice no</label></div>
+        <div class="pro3-proc1-g-it"><label>Invoice no.</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" name="InvNo" id="invNo" required>
+        </div>
+
+        <div class="pro3-proc1-g-it"><label>Inv. Q'ty (pcs)</label></div>
+        <div class="pro3-proc1-g-it">
+          <input type="number" name="InvQty" id="invqty" required>
         </div>
 
         <div class="pro3-proc1-g-it"><label>Date</label></div>
@@ -80,7 +85,7 @@
 
         <div class="pro3-proc1-g-it"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod , wo , box , qty , mat">
+          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat">
         </div>
 
       </div>
@@ -132,6 +137,17 @@
       }
 
       var prodName = m[1], wo = m[2], boxNo = m[3], boxQty = m[4], material = m[5];
+
+      var invQtyVal = parseFloat(document.getElementById('invqty').value) || 0;
+      var existingBoxNoSum = 0;
+      document.querySelectorAll('#boxNoList .dataRow').forEach(function (row) {
+        existingBoxNoSum += parseFloat(row.textContent) || 0;
+      });
+      var newBoxNoSum = existingBoxNoSum + (parseFloat(boxNo) || 0);
+      if (newBoxNoSum > invQtyVal) {
+        alert('the Box qty is over Invoice qty. Please recheck');
+        return;
+      }
 
       var hiddenDiv = document.createElement('div');
       [['ProdName[]', prodName], ['WO[]', wo], ['BoxNo[]', boxNo], ['BoxQty[]', boxQty], ['Materials[]', material]]
