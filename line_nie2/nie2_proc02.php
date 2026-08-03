@@ -35,10 +35,27 @@
         return 0;
     }
 
+    $lot_id = '';
     $lot_prodname = $lot_invno = $lot_wo = '';
     $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
     $lot_boxcount = 0;
     $lot_amountinv = 0;
+    if (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
+        $gStmt = mysqli_prepare($conn,
+            "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
+        mysqli_stmt_bind_param($gStmt, 'sss', $_GET['prodName'], $_GET['wo'], $_GET['boxNo']);
+        mysqli_stmt_execute($gStmt);
+        $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
+        if ($gRow) {
+            $lot_id           = htmlspecialchars($gRow['LotID']);
+            $lot_prodname_raw = $gRow['ProdName'];
+            $lot_invno_raw    = $gRow['InvNo'];
+            $lot_wo_raw       = $gRow['WO'];
+            $lot_prodname     = htmlspecialchars($gRow['ProdName']);
+            $lot_invno        = htmlspecialchars($gRow['InvNo']);
+            $lot_wo           = htmlspecialchars($gRow['WO']);
+        }
+    }
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
     $lot_boxnos = [];
     $incChkBox_qty = count($lot_boxnos);
@@ -107,17 +124,17 @@
 
         <div class="pro3-proc2-g1-it"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat">
+          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat" autofocus>
         </div>
 
         <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="text">
+          <input type="text" value="<?php echo $lot_id; ?>" disabled>
         </div>
           
         <div class="pro3-proc2-g1-it"><label>Product name</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="text" value="<?php echo $lot_prodname; ?>" autofocus disabled>
+          <input type="text" value="<?php echo $lot_prodname; ?>" disabled>
           <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
         </div>
 
@@ -252,6 +269,28 @@
   <?php mysqli_close($conn); ?>
 
   <script>
+    document.getElementById('lotTagData').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      var text = this.value.trim();
+      var parts = text.split('|');
+      if (parts.length !== 5) {
+        alert('Data from Lot Tag is error. Please re-check');
+        this.value = '';
+        this.focus();
+        return;
+      }
+
+      var prodName = parts[0].trim(), wo = parts[1].trim(), boxNo = parts[2].trim();
+
+      var url = new URL(window.location.href);
+      url.searchParams.set('prodName', prodName);
+      url.searchParams.set('wo', wo);
+      url.searchParams.set('boxNo', boxNo);
+      window.location.href = url.toString();
+    });
+
     function handleQrScan(e, boxNo) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
