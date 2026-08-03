@@ -160,13 +160,13 @@
       e.preventDefault();
 
       var text = this.value.trim();
-      var m = text.match(/^(\S+)\s*|\s*(\S+)\s*|\s*(\S+)\s*|\s*(\S+)\s*|\s*(\S+)$/);
-      if (!m) {
+      var parts = text.split('|');
+      if (parts.length !== 5) {
         alert('invalid format');
         return;
       }
 
-      var prodName = m[1], wo = m[2], boxNo = m[3], boxQty = m[4], material = m[5];
+      var prodName = parts[0].trim(), wo = parts[1].trim(), boxNo = parts[2].trim(), boxQty = parts[3].trim(), material = parts[4].trim();
 
       var firstProdNameRow = document.querySelector('#prodNameList .dataRow');
       var firstWoRow = document.querySelector('#woList .dataRow');
