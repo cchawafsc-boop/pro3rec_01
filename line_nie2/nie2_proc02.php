@@ -36,6 +36,7 @@
     }
 
     $lot_id = '';
+    $lot_id_raw = '';
     $lot_prodname = $lot_invno = $lot_wo = '';
     $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
     $lot_boxcount = 0;
@@ -70,7 +71,21 @@
         }
     }
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
+
     $lot_boxnos = [];
+    if (!empty($lot_id_raw) && $lot_samplingsize > 0) {
+        $bstmt = mysqli_prepare($conn,
+            "SELECT BoxNo, BoxQty FROM tb_proc1 WHERE LotID = ? ORDER BY BoxNo ASC");
+        mysqli_stmt_bind_param($bstmt, 's', $lot_id_raw);
+        mysqli_stmt_execute($bstmt);
+        $bres = mysqli_stmt_get_result($bstmt);
+
+        $residual = $lot_samplingsize;
+        while ($residual > 0 && ($brow = mysqli_fetch_assoc($bres))) {
+            $lot_boxnos[] = $brow['BoxNo'];
+            $residual -= (int)$brow['BoxQty'];
+        }
+    }
     $incChkBox_qty = count($lot_boxnos);
 
     $process = '2. Incoming';
@@ -199,7 +214,7 @@
 
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนกล่องที่ถูกสุ่ม</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="number" name="SampPledBox" value="<?php echo $incChkBox_qty; ?>" disabled>
+          <input type="number" name="incChkBox_qty" value="<?php echo $incChkBox_qty; ?>" disabled>
         </div>
 
       </div>
