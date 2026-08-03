@@ -75,7 +75,7 @@
           <input type="text" name="InvNo" id="invNo" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>จำนวนตาม Inv. (pcs)</label></div>
+        <div class="pro3-proc1-g-it"><label style="font-size:0.8em;">จำนวนตาม Inv. (pcs)</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="InvQty" id="invqty" required>
         </div>
@@ -100,7 +100,8 @@
         <div class="lotListHeader h5"><label>Mat.</label></div>
         <div class="lotListHeader h6"><label>App Check</label></div>
         <div class="lotListHeader h7"><label>Remark</label></div>
-        <div class="lotListHeader h8"><label>Delete</label></div>
+        <div class="lotListHeader h8"><label>Lot</label></div>
+        <div class="lotListHeader h9"><label>Delete</label></div>
         <div id="prodNameList" class="lotDataList"></div>
         <div id="woList" class="lotDataList"></div>
         <div id="boxNoList" class="lotDataList"></div>
