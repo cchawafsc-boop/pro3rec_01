@@ -329,6 +329,7 @@ form .form-pro3-proc2-g1 {
     border-radius: 8px;
     margin-top: 10px;
 	justify-content: center;             /* Center the grid horizontally */
+	justify-items: stretch;              /* Let items fill column width instead of centering */
 }
 .pro3-proc2-g1-it{
 	display: flex;                       /* Using flexbox for vertical alignment within each cell */
