@@ -210,7 +210,7 @@ label{
 }
 .pro3-proc1-lotList {
 	display: grid;
-	grid-template-columns: 100px 70px 40px 40px 40px 70px 110px 70px 70px;
+	grid-template-columns: 100px 70px 40px 40px 40px 70px 110px 70px;
 	gap: 5px;
 	width: fit-content;
 	border: 1px solid #ccc;
@@ -227,7 +227,6 @@ label{
 }
 .lotDataList,
 .appCheckList,
-#lotIDList,
 #DelItem {
 	display: flex;
 	flex-direction: column;
@@ -237,7 +236,6 @@ label{
 .dataRow,
 .appCheckRow,
 .remarkRow,
-.lotIDRow,
 .delRow {
 	display: flex;
 	align-items: center;
@@ -247,8 +245,7 @@ label{
 	white-space: nowrap;
 	font-family: monospace;
 }
-.appCheckRow select,
-.lotIDRow select {
+.appCheckRow select {
 	width: 100%;
 	box-sizing: border-box;
 }
@@ -290,6 +287,7 @@ label{
 .pro3-proc1-check-it text {
 	width: 100%;
 	box-sizing: border-box;
+	background-color: #F7F2C2;          /*pale cream khaki*/
 }
 
 /*==========================================================*/
