@@ -139,12 +139,12 @@
       var prodName = m[1], wo = m[2], boxNo = m[3], boxQty = m[4], material = m[5];
 
       var invQtyVal = parseFloat(document.getElementById('invqty').value) || 0;
-      var existingBoxNoSum = 0;
-      document.querySelectorAll('#boxNoList .dataRow').forEach(function (row) {
-        existingBoxNoSum += parseFloat(row.textContent) || 0;
+      var existingBoxQtySum = 0;
+      document.querySelectorAll('#boxQtyList .dataRow').forEach(function (row) {
+        existingBoxQtySum += parseFloat(row.textContent) || 0;
       });
-      var newBoxNoSum = existingBoxNoSum + (parseFloat(boxNo) || 0);
-      if (newBoxNoSum > invQtyVal) {
+      var newBoxQtySum = existingBoxQtySum + (parseFloat(boxQty) || 0);
+      if (newBoxQtySum > invQtyVal) {
         alert('the Box qty is over Invoice qty. Please recheck');
         return;
       }
