@@ -10,7 +10,7 @@
         $boxQtys   = $_POST['BoxQty'];
         $materials = $_POST['Materials'];
         $appChecks = $_POST['AppCheck'];
-        $lotIDs    = $_POST['LotID'];
+        $lotID     = $_POST['LotID'];
         $remarks   = $_POST['Remark'];
 
         $invNo    = $_POST['InvNo'];
@@ -34,7 +34,6 @@
             $material  = $materials[$i];
             $appCheck  = $appChecks[$i];
             $boxJudge  = $appChecks[$i];
-            $lotID     = $lotIDs[$i];
             $lotIDFull = $lotID."_".$date."_".$time;
             $remark    = $remarks[$i];
             $req = mysqli_stmt_execute($stmt) && $req;
@@ -100,8 +99,7 @@
         <div class="lotListHeader h5"><label>Mat.</label></div>
         <div class="lotListHeader h6"><label>App Check</label></div>
         <div class="lotListHeader h7"><label>Remark</label></div>
-        <div class="lotListHeader h8"><label>Lot</label></div>
-        <div class="lotListHeader h9"><label>Delete</label></div>
+        <div class="lotListHeader h8"><label>Delete</label></div>
         <div id="prodNameList" class="lotDataList"></div>
         <div id="woList" class="lotDataList"></div>
         <div id="boxNoList" class="lotDataList"></div>
@@ -109,21 +107,20 @@
         <div id="matList" class="lotDataList"></div>
         <div id="appCheckList" class="appCheckList"></div>
         <div id="remarkList" class="lotDataList"></div>
-        <div id="lotIDList"></div>
         <div id="DelItem"></div>
       </div>
 
       <div id="lotTagHidden" style="display:none"></div>
 
       <div class="pro3-proc1-check">
-        <div class="pro3-proc1-check-it"><lable>จำนวนรวม</lable></div>
+        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">จำนวนรวม (pcs)</lable></div>
         <div class="pro3-proc1-check-it"><text id="sumPcs" readonly></text></div>
-        <div class="pro3-proc1-check-it"><lable>ผลเช็คจำนวน</lable></div>
+        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ขาด/เกิน (pcs)</lable></div>
         <div class="pro3-proc1-check-it"><text id="sumJudge" readonly></text></div>
-        <div class="pro3-proc1-check-it"><lable>ระบุ Lot id</lable></div>
+        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ระบุ Lot id</lable></div>
         <div class="pro3-proc1-check-it">
-          <select id="LotID">
-            <option></option>
+          <select id="LotID" name="LotID">
+            <option>โปรดระบุ</option>
             <option value="A1">A1</option>
             <option value="A2">A2</option>
             <option value="A3">A3</option>
@@ -185,8 +182,7 @@
       });
       var newBoxQtySum = existingBoxQtySum + (parseFloat(boxQty) || 0);
       if (newBoxQtySum > invQtyVal) {
-        alert('the Box qty is over Invoice qty. Please recheck');
-        return;
+        alert('จำนวนชิ้นงานรวมจากกล่องเท่ากับหรือมากกว่าจำนวนตาม Inv.แล้ว\nโปรดตรวจสอบจำนวนชิ้นงานอีกครั้ง');
       }
 
       var hiddenDiv = document.createElement('div');
@@ -231,15 +227,6 @@
       remarkRow.appendChild(remarkTextarea);
       document.getElementById('remarkList').appendChild(remarkRow);
 
-      var lotIDRow = document.createElement('div');
-      lotIDRow.className = 'lotIDRow';
-      var lotIDOptions = '<option value="" selected disabled>โปรดระบุ</option>';
-      for (var n = 1; n <= 30; n++) {
-        lotIDOptions += '<option value="' + n + '">' + n + '</option>';
-      }
-      lotIDRow.innerHTML = '<select name="LotID[]" required>' + lotIDOptions + '</select>';
-      document.getElementById('lotIDList').appendChild(lotIDRow);
-
       var delRow = document.createElement('div');
       delRow.className = 'delRow';
       var delBtn = document.createElement('button');
@@ -254,9 +241,9 @@
         matRow.remove();
         appCheckRow.remove();
         remarkRow.remove();
-        lotIDRow.remove();
         delRow.remove();
         updateSumPcs();
+        updateSumJudge();
       });
       delRow.appendChild(delBtn);
       document.getElementById('DelItem').appendChild(delRow);
@@ -264,6 +251,7 @@
       this.value = '';
       this.focus();
       updateSumPcs();
+      updateSumJudge();
     });
 
     function updateSumPcs() {
@@ -272,6 +260,23 @@
         sum += parseFloat(row.textContent) || 0;
       });
       document.getElementById('sumPcs').textContent = sum;
+    }
+
+    function updateSumJudge() {
+      var sumPcsVal = parseFloat(document.getElementById('sumPcs').textContent) || 0;
+      var invQtyVal = parseFloat(document.getElementById('invqty').value) || 0;
+      var sumJudgeEl = document.getElementById('sumJudge');
+      sumJudgeEl.style.fontWeight = 'bold';
+      if (sumPcsVal === invQtyVal) {
+        sumJudgeEl.textContent = 'จำนวนรวมถูกต้อง';
+        sumJudgeEl.style.color = 'green';
+      } else if (sumPcsVal < invQtyVal) {
+        sumJudgeEl.textContent = 'จำนวนรวมขาด';
+        sumJudgeEl.style.color = 'red';
+      } else {
+        sumJudgeEl.textContent = 'จำนวนรวมเกิน';
+        sumJudgeEl.style.color = 'red';
+      }
     }
   </script>
 </body>
