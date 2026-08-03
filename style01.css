@@ -256,6 +256,20 @@ label{
 	height: 1.8em;
 	box-sizing: border-box;
 }
+.pro3-proc1-check {
+	display: grid;
+	grid-template-columns: 70px 80px 80px 80px;
+	gap: 0px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	margin: 4px auto;
+	padding: 5px;
+	box-sizing: border-box;
+	background-color: khaki;
+}
+.pro3-proc1-check-it {
+	display: flex;
+}
 
 /*==========================================================*/
 
