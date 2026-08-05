@@ -258,7 +258,7 @@
 
         <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">จำนวนชิ้นงานที่ถูกสุ่ม</label></div>
         <div class="pro3-proc2-qrset-it">
-          <input type="text" value="<?php echo $sampledQty; ?>" disabled>
+          <input type="text" value="<?php echo $sampledQty; ?>">
         </div>
 
         <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คชิ้นงาน</label></div>
