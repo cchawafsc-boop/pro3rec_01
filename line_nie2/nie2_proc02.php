@@ -96,7 +96,7 @@
         $date       = $_POST['Date'];
         $time       = date('H:i:s');
         $opr        = (int)($_SESSION['us_id'] ?? 0);
-        $boxCon     = $_POST['BoxCon'] ?? '';
+        $allboxCon     = $_POST['AllBoxCon'] ?? '';
         $remark     = $_POST['Remark'] ?? '';
         $ngTotal    = calcNGtotal($conn, $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $process);
 
@@ -111,11 +111,11 @@
         } else {
             $insStmt = mysqli_prepare($conn,
                 "INSERT INTO `tb_proc2`
-                 (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Remark`)
+                 (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`AllBoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Remark`)
                  VALUES (?,?,?,?,?,?,?,?,?,?,?)");
             mysqli_stmt_bind_param($insStmt, "sssssisiiis",
                 $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
-                $boxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $remark);
+                $allboxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $remark);
             if (mysqli_stmt_execute($insStmt)) {
                 $updStmt = mysqli_prepare($conn,
                     "UPDATE `tb_proc1` SET `Status` = 'waiting racking' WHERE `ProdName` = ? AND `InvNo` = ? AND `WO` = ?");
@@ -188,9 +188,9 @@
           <input type="time" id="hdrTime" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
-        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>สภาพกล่องทุกกล่อง</label></div>
+        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>สภาพกล่อง<span style="color:red">ทุกกล่อง</span></label></div>
         <div class="pro3-proc2-g1-it">
-          <select name="BoxCon" required>
+          <select name="AllBoxCon" required>
             <option value="" selected disabled>โปรดระบุ</option>
             <option value="ผ่าน">ผ่าน</option>
             <option value="ไม่ผ่าน">ไม่ผ่าน</option>
@@ -248,6 +248,11 @@
           <input type="hidden" class="qr-result-hidden" name="box_qrresult[]" value="">
         </div>
 
+        <div class="pro3-proc2-qrset-it"><label>จำนวนสุ่ม (pcs)</label></div>
+        <div class="pro3-proc2-qrset-it">
+          <input type="text" value="" disabled>
+        </div>
+
         <div class="pro3-proc2-qrset-it"><label>เช็คชิ้นงาน</label></div>
         <div class="pro3-proc2-qrset-it">
           <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)">
@@ -255,7 +260,7 @@
             <option value="ผ่าน">ผ่าน</option>
             <option value="ไม่ผ่าน">ไม่ผ่าน</option>
           </select>
-          <button type="button" class="ngTypeBtn" style="display:none;" onclick="goNGtype('<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">เลือก NG</button>
+          <button type="button" class="ngTypeBtn" style="display:none;">เลือก NG</button>
         </div>
 
         <div class="pro3-proc2-qrset-it"><label>NG รวมของกล่อง</label></div>
@@ -342,10 +347,6 @@
     function handleAppCheck(sel) {
       const btn = sel.parentElement.querySelector('.ngTypeBtn');
       btn.style.display = sel.value === 'ไม่ผ่าน' ? 'inline-block' : 'none';
-    }
-
-    function goNGtype(boxNo) {
-      window.location.href = './nie2_ng_input.php?process=' + encodeURIComponent('2. Incoming') + '&boxno=' + encodeURIComponent(boxNo);
     }
   </script>
 </body>
