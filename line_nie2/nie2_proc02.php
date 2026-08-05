@@ -73,6 +73,7 @@
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
 
     $lot_boxnos = [];
+    $lot_boxqty = [];
     if (!empty($lot_id_raw) && $lot_samplingsize > 0) {
         $bstmt = mysqli_prepare($conn,
             "SELECT BoxNo, BoxQty FROM tb_proc1 WHERE LotID = ? ORDER BY BoxNo ASC");
@@ -83,6 +84,7 @@
         $residual = $lot_samplingsize;
         while ($residual > 0 && ($brow = mysqli_fetch_assoc($bres))) {
             $lot_boxnos[] = $brow['BoxNo'];
+            $lot_boxqty[$brow['BoxNo']] = (int)$brow['BoxQty'];
             $residual -= (int)$brow['BoxQty'];
         }
     }
@@ -224,11 +226,17 @@
         sort($sorted_boxnos);
         $ngSumStmt = mysqli_prepare($conn,
             "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ?");
+        $sampleResidual = $lot_samplingsize;
         foreach ($sorted_boxnos as $boxNo):
           mysqli_stmt_bind_param($ngSumStmt, 'ssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $boxNo);
           mysqli_stmt_execute($ngSumStmt);
           $ngSumRow = mysqli_fetch_assoc(mysqli_stmt_get_result($ngSumStmt));
           $ngSum = $ngSumRow ? (int)$ngSumRow['ngSum'] : 0;
+
+          $boxQty = $lot_boxqty[$boxNo] ?? 0;
+          $diff = $sampleResidual - $boxQty;
+          $sampledQty = $diff <= 0 ? $sampleResidual : $boxQty;
+          $sampleResidual = $diff;
       ?>
       <div class="pro3-proc2-qrset">
         <div class="pro3-proc2-qrset-it"><label>Box no</label></div>
@@ -237,23 +245,23 @@
           <input type="hidden" name="box_subLot[]" value="<?php echo htmlspecialchars($boxNo); ?>">
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>ยิง QR ที่นี่</label></div>
+        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">ยิง QR ที่นี่</label></div>
         <div class="pro3-proc2-qrset-it">
           <input type="text" class="qr-scan-input" onkeydown="handleQrScan(event, '<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>เช็คการยิง</label></div>
+        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คการยิง</label></div>
         <div class="pro3-proc2-qrset-it">
           <input type="text" class="qr-result-input" disabled>
           <input type="hidden" class="qr-result-hidden" name="box_qrresult[]" value="">
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>จำนวนสุ่ม (pcs)</label></div>
+        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">จำนวนชิ้นงานที่ถูกสุ่ม</label></div>
         <div class="pro3-proc2-qrset-it">
-          <input type="text" value="" disabled>
+          <input type="text" value="<?php echo $sampledQty; ?>" disabled>
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>เช็คชิ้นงาน</label></div>
+        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คชิ้นงาน</label></div>
         <div class="pro3-proc2-qrset-it">
           <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)">
             <option value="" selected disabled>โปรดระบุ</option>
@@ -263,7 +271,7 @@
           <button type="button" class="ngTypeBtn" style="display:none;">เลือก NG</button>
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label>NG รวมของกล่อง</label></div>
+        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">NG รวมของกล่อง</label></div>
         <div class="pro3-proc2-qrset-it">
           <input type="text" value="<?php echo $ngSum; ?>" disabled>
         </div>
