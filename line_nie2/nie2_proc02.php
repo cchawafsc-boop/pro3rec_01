@@ -296,7 +296,7 @@
             <option value="ผ่าน">ผ่าน</option>
             <option value="ไม่ผ่าน">ไม่ผ่าน</option>
           </select>
-          <button type="button" class="ngTypeBtn" style="display:none;">เลือก NG</button>
+          <button type="button" class="ngTypeBtn" data-boxno="<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>" style="display:none;">เลือก NG</button>
         </div>
 
         <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">NG รวมของกล่อง</label></div>
@@ -384,6 +384,32 @@
       const btn = sel.parentElement.querySelector('.ngTypeBtn');
       btn.style.display = sel.value === 'ไม่ผ่าน' ? 'inline-block' : 'none';
     }
+
+    var ngRedirectLotID = "<?php echo htmlspecialchars($lot_id_raw, ENT_QUOTES); ?>";
+
+    document.querySelectorAll('.ngTypeBtn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var form = document.createElement('form');
+        form.method = 'post';
+        form.action = 'nie2_ng_input.php';
+
+        function addField(name, value) {
+          var inp = document.createElement('input');
+          inp.type = 'hidden';
+          inp.name = name;
+          inp.value = value;
+          form.appendChild(inp);
+        }
+
+        addField('sourcePathname', window.location.pathname);
+        addField('lot_id_raw', ngRedirectLotID);
+        addField('boxNo', btn.dataset.boxno);
+        addField('selected_process', '2. Incoming');
+
+        document.body.appendChild(form);
+        form.submit();
+      });
+    });
   </script>
 </body>
 </html>
