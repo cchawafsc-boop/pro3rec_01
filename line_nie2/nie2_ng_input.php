@@ -2,7 +2,6 @@
     session_start();
     require('../connect.php');
     require('../init_session.php');
-    require('./ngmode.php');
 
     // Entry POST from nie2_proc02.php ngTypeBtn: normalize to a GET URL (PRG
     // pattern) so lot_id_raw/process/boxno live in the query string, not in
@@ -67,6 +66,16 @@
     // Set by the "เลือกชนิด NG" button on nie2_proc02.php, carried via the query string.
     $pre_process = $_GET['process'] ?? '';
     $pre_boxno   = $_GET['boxno']   ?? '';
+
+    $ngModeList = [];
+    if ($pre_process === '2. Incoming') {
+        $nmStmt = mysqli_prepare($conn, "SELECT NGmode FROM tb_ng_list WHERE Process = 'Incoming'");
+        mysqli_stmt_execute($nmStmt);
+        $nmRes = mysqli_stmt_get_result($nmStmt);
+        while ($nmRow = mysqli_fetch_assoc($nmRes)) {
+            $ngModeList[] = $nmRow['NGmode'];
+        }
+    }
 
     // AJAX: update an existing tb_ng record, or delete it when NGqty = 0
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_edit'])) {
