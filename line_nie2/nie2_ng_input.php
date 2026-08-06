@@ -3,6 +3,28 @@
     require('../connect.php');
     require('../init_session.php');
 
+    // Same-origin guard for a URL taken from user input (the "backurl" query
+    // param) or the Referer header, to avoid an open-redirect / javascript:
+    // injection via a forged param or cross-site referrer. Applied to BOTH
+    // sources — $_GET is attacker-controlled just as much as the header.
+    function safeSameOriginUrl($url) {
+        if (empty($url)) return '';
+        $parts = parse_url($url);
+        if ($parts === false) return '';
+        if (isset($parts['scheme']) && !in_array(strtolower($parts['scheme']), ['http', 'https'], true)) return '';
+        if (isset($parts['host']) && $parts['host'] !== $_SERVER['HTTP_HOST']) return '';
+        return $url;
+    }
+
+    // The page that sent the user here (nie2_proc02.php, nie2_index.php, or
+    // any other referrer) — captured once from Referer, then carried through
+    // every reload/redirect via the "backurl" query param so "กลับหน้าก่อน"
+    // can do a real navigation back to it instead of relying on bfcache.
+    $backurl = safeSameOriginUrl($_GET['backurl'] ?? '');
+    if ($backurl === '') {
+        $backurl = safeSameOriginUrl($_SERVER['HTTP_REFERER'] ?? '');
+    }
+
     // Entry POST from nie2_proc02.php ngTypeBtn: normalize to a GET URL (PRG
     // pattern) so lot_id_raw/process/boxno live in the query string, not in
     // session — location.reload() below then just re-sends this same URL.
@@ -11,7 +33,17 @@
             'lot_id_raw' => $_POST['lot_id_raw'] ?? '',
             'process'    => $_POST['selected_process'] ?? '',
             'boxno'      => $_POST['boxNo'] ?? '',
+            'backurl'    => $backurl,
         ]));
+        exit;
+    }
+
+    // Bare GET entry (e.g. from nie2_index.php) with no backurl yet: inject it
+    // once so it survives every later self-navigation (Lot Tag scan, reload).
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_GET['backurl']) && $backurl !== '') {
+        $carry = $_GET;
+        $carry['backurl'] = $backurl;
+        header('Location: nie2_ng_input.php?' . http_build_query($carry));
         exit;
     }
 
@@ -331,7 +363,11 @@
     </table>
 
     <p style="display:flex; justify-content:center; padding:0 10px;">
+      <?php if ($backurl !== ''): ?>
+      <button type="button" id="backBtn" data-backurl="<?php echo htmlspecialchars($backurl, ENT_QUOTES); ?>">กลับหน้าก่อน</button>
+      <?php else: ?>
       <button type="button" onclick="window.history.back();">กลับหน้าก่อน</button>
+      <?php endif; ?>
     </p>
   </div>
 
@@ -473,6 +509,13 @@
     }
 
     newSubmitBtn.addEventListener('click', submitInsert);
+
+    var backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+      backBtn.addEventListener('click', function () {
+        window.location.href = backBtn.dataset.backurl;
+      });
+    }
   </script>
 
   <?php if (empty($_GET['lot_id_raw'])): ?>
