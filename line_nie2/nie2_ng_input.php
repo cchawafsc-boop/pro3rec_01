@@ -5,7 +5,7 @@
     require('./ngmode.php');
 
     // Lot ID from the referrer page (nie2_proc02.php ngTypeBtn POST), or from
-    // a Lot Tag scan resolved via ProdName+WO+BoxNo, else fall back to session.
+    // a Lot Tag scan resolved via ProdName+WO+BoxNo.
     $lot_id_raw = '';
     if (!empty($_POST['lot_id_raw'])) {
         $lot_id_raw = $_POST['lot_id_raw'];
@@ -21,14 +21,13 @@
             echo "<script>alert('Data from Lot Tag is error. Please re-check');</script>";
         }
     }
-    $lookupLotID = $lot_id_raw !== '' ? $lot_id_raw : ($_SESSION['lotid'] ?? '');
 
     $lot_prodname = $lot_invno = $lot_wo = '';
     $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
-    if (!empty($lookupLotID)) {
+    if (!empty($lot_id_raw)) {
         $lstmt = mysqli_prepare($conn,
             "SELECT ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
-        mysqli_stmt_bind_param($lstmt, 's', $lookupLotID);
+        mysqli_stmt_bind_param($lstmt, 's', $lot_id_raw);
         mysqli_stmt_execute($lstmt);
         $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
         if ($lrow) {
@@ -42,10 +41,10 @@
     }
 
     $lot_boxnos = [];
-    if (!empty($lookupLotID)) {
+    if (!empty($lot_id_raw)) {
         $bstmt = mysqli_prepare($conn,
             "SELECT BoxNo FROM tb_proc1 WHERE LotID = ? ORDER BY BoxNo");
-        mysqli_stmt_bind_param($bstmt, 's', $lookupLotID);
+        mysqli_stmt_bind_param($bstmt, 's', $lot_id_raw);
         mysqli_stmt_execute($bstmt);
         $bres = mysqli_stmt_get_result($bstmt);
         while ($brow = mysqli_fetch_assoc($bres)) {
