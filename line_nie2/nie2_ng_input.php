@@ -4,12 +4,31 @@
     require('../init_session.php');
     require('./ngmode.php');
 
+    // Lot ID from the referrer page (nie2_proc02.php ngTypeBtn POST), or from
+    // a Lot Tag scan resolved via ProdName+WO+BoxNo, else fall back to session.
+    $lot_id_raw = '';
+    if (!empty($_POST['lot_id_raw'])) {
+        $lot_id_raw = $_POST['lot_id_raw'];
+    } elseif (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
+        $fstmt = mysqli_prepare($conn,
+            "SELECT LotID FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
+        mysqli_stmt_bind_param($fstmt, 'sss', $_GET['prodName'], $_GET['wo'], $_GET['boxNo']);
+        mysqli_stmt_execute($fstmt);
+        $frow = mysqli_fetch_assoc(mysqli_stmt_get_result($fstmt));
+        if ($frow) {
+            $lot_id_raw = $frow['LotID'];
+        } else {
+            echo "<script>alert('Data from Lot Tag is error. Please re-check');</script>";
+        }
+    }
+    $lookupLotID = $lot_id_raw !== '' ? $lot_id_raw : ($_SESSION['lotid'] ?? '');
+
     $lot_prodname = $lot_invno = $lot_wo = '';
     $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
-    if (!empty($_SESSION['lotid'])) {
+    if (!empty($lookupLotID)) {
         $lstmt = mysqli_prepare($conn,
             "SELECT ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
-        mysqli_stmt_bind_param($lstmt, 's', $_SESSION['lotid']);
+        mysqli_stmt_bind_param($lstmt, 's', $lookupLotID);
         mysqli_stmt_execute($lstmt);
         $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
         if ($lrow) {
@@ -23,10 +42,10 @@
     }
 
     $lot_boxnos = [];
-    if (!empty($_SESSION['lotid'])) {
+    if (!empty($lookupLotID)) {
         $bstmt = mysqli_prepare($conn,
             "SELECT BoxNo FROM tb_proc1 WHERE LotID = ? ORDER BY BoxNo");
-        mysqli_stmt_bind_param($bstmt, 's', $_SESSION['lotid']);
+        mysqli_stmt_bind_param($bstmt, 's', $lookupLotID);
         mysqli_stmt_execute($bstmt);
         $bres = mysqli_stmt_get_result($bstmt);
         while ($brow = mysqli_fetch_assoc($bres)) {
@@ -35,8 +54,10 @@
     }
 
     // Set by the "เลือกชนิด NG" button on nie2_proc02.php
-    if (isset($_GET['process'])) { $_SESSION['process'] = $_GET['process']; }
-    if (isset($_GET['boxno']))   { $_SESSION['boxno']   = $_GET['boxno']; }
+    if (isset($_GET['process']))               { $_SESSION['process'] = $_GET['process']; }
+    elseif (isset($_POST['selected_process'])) { $_SESSION['process'] = $_POST['selected_process']; }
+    if (isset($_GET['boxno']))       { $_SESSION['boxno'] = $_GET['boxno']; }
+    elseif (isset($_POST['boxNo']))  { $_SESSION['boxno'] = $_POST['boxNo']; }
 
     $pre_process = $_SESSION['process'] ?? '';
     $pre_boxno   = $_SESSION['boxno']   ?? '';
@@ -184,18 +205,17 @@
 
   <div class="form-pro3-ngin">
     <h2>ระบุ NG — Ni-e Line 2</h2>
-
-    <?php if (!empty($_SESSION['lotid'])): ?>
-    <p style="color:#1a6e1a; font-weight:bold; font-size:0.95em;">
-      Lot ID : <?php echo htmlspecialchars($_SESSION['lotid']); ?>
-    </p>
-    <?php else: ?>
-    <p style="color:#b30000; font-weight:bold; font-size:0.95em;">
-      กรุณาเลือก Lot ID
-    </p>
-    <?php endif; ?>
-
     <div class="form-pro3-proc1-g">
+
+      <div class="pro3-proc1-g-it"><label>Operator</label></div>
+      <div class="pro3-proc1-g-it">
+        <input type="number" id="hdrOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled>
+      </div>
+
+      <div class="pro3-proc1-g-it"><label>Data from Lot Tag</label></div>
+        <div class="pro3-proc1-g-it">
+          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat" autofocus>
+        </div>
 
       <div class="pro3-proc1-g-it"><label>Product name</label></div>
       <div class="pro3-proc1-g-it">
@@ -240,11 +260,6 @@
       <div class="pro3-proc1-g-it"><label>Time</label></div>
       <div class="pro3-proc1-g-it">
         <input type="time" id="hdrTime" value="<?php echo date('H:i'); ?>" disabled>
-      </div>
-
-      <div class="pro3-proc1-g-it"><label>Operator</label></div>
-      <div class="pro3-proc1-g-it">
-        <input type="number" id="hdrOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled>
       </div>
 
       <div class="pro3-proc1-g-it"><label>Box no</label></div>
@@ -444,5 +459,31 @@
 
     newSubmitBtn.addEventListener('click', submitInsert);
   </script>
+
+  <?php if (empty($_POST['lot_id_raw'])): ?>
+  <script>
+    document.getElementById('lotTagData').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      var text = this.value.trim();
+      var parts = text.split('|');
+      if (parts.length !== 5) {
+        alert('Data from Lot Tag is error. Please re-check');
+        this.value = '';
+        this.focus();
+        return;
+      }
+
+      var prodName = parts[0].trim(), wo = parts[1].trim(), boxNo = parts[2].trim();
+
+      var url = new URL(window.location.href);
+      url.searchParams.set('prodName', prodName);
+      url.searchParams.set('wo', wo);
+      url.searchParams.set('boxNo', boxNo);
+      window.location.href = url.toString();
+    });
+  </script>
+  <?php endif; ?>
 </body>
 </html>
