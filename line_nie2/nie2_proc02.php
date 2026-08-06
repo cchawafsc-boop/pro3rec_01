@@ -41,7 +41,35 @@
     $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
     $lot_boxcount = 0;
     $lot_amountinv = 0;
-    if (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
+    if (!empty($_GET['selected_lotid'])) {
+        $gStmt = mysqli_prepare($conn,
+            "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
+        mysqli_stmt_bind_param($gStmt, 's', $_GET['selected_lotid']);
+        mysqli_stmt_execute($gStmt);
+        $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
+        if ($gRow) {
+            $lot_id_raw       = $gRow['LotID'];
+            $lot_id           = htmlspecialchars($gRow['LotID']);
+            $lot_prodname_raw = $gRow['ProdName'];
+            $lot_invno_raw    = $gRow['InvNo'];
+            $lot_wo_raw       = $gRow['WO'];
+            $lot_prodname     = htmlspecialchars($gRow['ProdName']);
+            $lot_invno        = htmlspecialchars($gRow['InvNo']);
+            $lot_wo           = htmlspecialchars($gRow['WO']);
+
+            $cstmt = mysqli_prepare($conn,
+                "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
+            mysqli_stmt_bind_param($cstmt, 's', $lot_id_raw);
+            mysqli_stmt_execute($cstmt);
+            $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
+            if ($crow) {
+                $lot_boxcount  = (int)$crow['boxCount'];
+                $lot_amountinv = (int)$crow['totalQty'];
+            }
+        } else {
+            echo "<script>alert('Not found the data');</script>";
+        }
+    } elseif (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
         $gStmt = mysqli_prepare($conn,
             "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
         mysqli_stmt_bind_param($gStmt, 'sss', $_GET['prodName'], $_GET['wo'], $_GET['boxNo']);
