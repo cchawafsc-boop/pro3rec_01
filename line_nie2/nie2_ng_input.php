@@ -4,11 +4,23 @@
     require('../init_session.php');
     require('./ngmode.php');
 
-    // Lot ID from the referrer page (nie2_proc02.php ngTypeBtn POST), or from
-    // a Lot Tag scan resolved via ProdName+WO+BoxNo.
+    // Entry POST from nie2_proc02.php ngTypeBtn: normalize to a GET URL (PRG
+    // pattern) so lot_id_raw/process/boxno live in the query string, not in
+    // session — location.reload() below then just re-sends this same URL.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax_edit']) && !isset($_POST['ajax_insert'])) {
+        header('Location: nie2_ng_input.php?' . http_build_query([
+            'lot_id_raw' => $_POST['lot_id_raw'] ?? '',
+            'process'    => $_POST['selected_process'] ?? '',
+            'boxno'      => $_POST['boxNo'] ?? '',
+        ]));
+        exit;
+    }
+
+    // Lot ID from the query string (set above, or by a Lot Tag scan resolved
+    // via ProdName+WO+BoxNo below).
     $lot_id_raw = '';
-    if (!empty($_POST['lot_id_raw'])) {
-        $lot_id_raw = $_POST['lot_id_raw'];
+    if (!empty($_GET['lot_id_raw'])) {
+        $lot_id_raw = $_GET['lot_id_raw'];
     } elseif (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
         $fstmt = mysqli_prepare($conn,
             "SELECT LotID FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
@@ -52,14 +64,9 @@
         }
     }
 
-    // Set by the "เลือกชนิด NG" button on nie2_proc02.php
-    if (isset($_GET['process']))               { $_SESSION['process'] = $_GET['process']; }
-    elseif (isset($_POST['selected_process'])) { $_SESSION['process'] = $_POST['selected_process']; }
-    if (isset($_GET['boxno']))       { $_SESSION['boxno'] = $_GET['boxno']; }
-    elseif (isset($_POST['boxNo']))  { $_SESSION['boxno'] = $_POST['boxNo']; }
-
-    $pre_process = $_SESSION['process'] ?? '';
-    $pre_boxno   = $_SESSION['boxno']   ?? '';
+    // Set by the "เลือกชนิด NG" button on nie2_proc02.php, carried via the query string.
+    $pre_process = $_GET['process'] ?? '';
+    $pre_boxno   = $_GET['boxno']   ?? '';
 
     // AJAX: update an existing tb_ng record, or delete it when NGqty = 0
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_edit'])) {
@@ -459,7 +466,7 @@
     newSubmitBtn.addEventListener('click', submitInsert);
   </script>
 
-  <?php if (empty($_POST['lot_id_raw'])): ?>
+  <?php if (empty($_GET['lot_id_raw'])): ?>
   <script>
     document.getElementById('lotTagData').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
