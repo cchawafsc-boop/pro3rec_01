@@ -2,7 +2,6 @@
     session_start();
     require('../connect.php');
     require('../init_session.php');
-    require('./ngmode.php');
 
     function calcNGtotal($conn, $prodName, $invNo, $wo, $process) {
       $stmt = mysqli_prepare($conn,
@@ -130,6 +129,9 @@
     $decision = decideResult($lot_amountinv, $ngTotal);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $lot_prodname_raw = $_POST['ProdName'] ?? $lot_prodname_raw;
+        $lot_invno_raw    = $_POST['InvNo'] ?? $lot_invno_raw;
+        $lot_wo_raw       = $_POST['WO'] ?? $lot_wo_raw;
         $date       = $_POST['Date'];
         $time       = date('H:i:s');
         $opr        = (int)($_SESSION['us_id'] ?? 0);
