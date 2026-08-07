@@ -159,6 +159,21 @@
                 mysqli_stmt_bind_param($updStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
                 mysqli_stmt_execute($updStmt);
 
+                $supBoxNos       = $_POST['box_subLot'] ?? [];
+                $supSampledQtys  = $_POST['box_sampledqty'] ?? [];
+                $supRemark       = 'sampled box';
+                $supStmt = mysqli_prepare($conn,
+                    "INSERT INTO `tb_proc2_sup`
+                     (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`SamplingSize`,`Remark`)
+                     VALUES (?,?,?,?,?,?,?,?,?)");
+                foreach ($supBoxNos as $supIdx => $supBoxNo) {
+                    $supSampledQty = (int)($supSampledQtys[$supIdx] ?? 0);
+                    mysqli_stmt_bind_param($supStmt, "sssssisis",
+                        $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
+                        $supBoxNo, $supSampledQty, $supRemark);
+                    mysqli_stmt_execute($supStmt);
+                }
+
                 echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
             } else {
                 echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
@@ -293,7 +308,7 @@
 
         <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">จำนวนชิ้นงานที่ถูกสุ่ม</label></div>
         <div class="pro3-proc2-qrset-it">
-          <input type="text" value="<?php echo $sampledQty; ?>">
+          <input type="text" name="box_sampledqty[]" value="<?php echo $sampledQty; ?>">
         </div>
 
         <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คชิ้นงาน</label></div>
@@ -321,13 +336,11 @@
         </div>
 
         <div class="pro3-proc2-summary-it"><label>จำนวน NG reject</label></div>
-        <div class="pro3-proc2-summary-it">
-          <input type="number" value="<?php echo rejectQty($lot_amountinv); ?>" disabled>
-        </div>
+        <div class="pro3-proc2-summary-it"><label><?php echo rejectQty($lot_amountinv); ?>"</label></div>
 
         <div class="pro3-proc2-summary-it"><label>ผลการตัดสินใจ</label></div>
         <div class="pro3-proc2-summary-it">
-          <select name="Decision">
+          <select name="Decision" id="decisionSelect" onchange="handleDecisionColor(this)">
             <option value="Accept" <?php echo $decision === 'Accept' ? 'selected' : ''; ?>>Accept</option>
             <option value="Reject" <?php echo $decision === 'Reject' ? 'selected' : ''; ?>>Reject</option>
             <option value="Special" <?php echo $decision === 'Special' ? 'selected' : ''; ?>>Special</option>
@@ -403,6 +416,12 @@
       const btn = sel.parentElement.querySelector('.ngTypeBtn');
       btn.style.display = sel.value === 'ไม่ผ่าน' ? 'inline-block' : 'none';
     }
+
+    function handleDecisionColor(sel) {
+      const colors = { Accept: 'green', Reject: 'red', Special: 'orange' };
+      sel.style.color = colors[sel.value] || '';
+    }
+    handleDecisionColor(document.getElementById('decisionSelect'));
 
     var ngRedirectLotID = "<?php echo htmlspecialchars($lot_id_raw, ENT_QUOTES); ?>";
 
