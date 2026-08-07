@@ -5,25 +5,32 @@
     require('./ngmode.php');
 
     function calcNGtotal($conn, $prodName, $invNo, $wo, $process) {
-        $stmt = mysqli_prepare($conn,
-            "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ?");
-        mysqli_stmt_bind_param($stmt, 'ssss', $prodName, $invNo, $wo, $process);
-        mysqli_stmt_execute($stmt);
-        $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
-        return $row ? (int)$row['ngSum'] : 0;
+      $stmt = mysqli_prepare($conn,
+        "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Process = ?");
+      mysqli_stmt_bind_param($stmt, 'ssss', $prodName, $invNo, $wo, $process);
+      mysqli_stmt_execute($stmt);
+      $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+      return $row ? (int)$row['ngSum'] : 0;
     }
 
+    function rejectQty($pcs){
+      if ($pcs <= 280) {return 1;}
+      if ($pcs >= 281 && $pcs <= 1200) {return 2;}
+      if ($pcs >= 1201 && $pcs <=3200) {return 3;}
+      return 'error';
+    }
+    
     function decideResult($pcs, $ngTotal) {
-        if ($pcs <= 280) {
-            return $ngTotal === 0 ? 'Accept' : 'Reject';
-        }
-        if ($pcs >= 281 && $pcs <= 1200) {
-            return $ngTotal < 2 ? 'Accept' : 'Reject';
-        }
-        if ($pcs >= 1201 && $pcs <=3200) {
-            return $ngTotal < 3 ? 'Accept' : 'Reject';
-        }
-        return 'error';
+      if ($pcs <= 280) {
+        return $ngTotal === 0 ? 'Accept' : 'Reject';
+      }
+      if ($pcs >= 281 && $pcs <= 1200) {
+        return $ngTotal < 2 ? 'Accept' : 'Reject';
+      }
+      if ($pcs >= 1201 && $pcs <=3200) {
+        return $ngTotal < 3 ? 'Accept' : 'Reject';
+      }
+      return 'error';
     }
 
     function calcSamplingSize($n) {
@@ -278,7 +285,7 @@
           <input type="text" class="qr-scan-input" onkeydown="handleQrScan(event, '<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">
         </div>
 
-        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คการยิง</label></div>
+        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คการยิง QR</label></div>
         <div class="pro3-proc2-qrset-it">
           <input type="text" class="qr-result-input" disabled>
           <input type="hidden" class="qr-result-hidden" name="box_qrresult[]" value="">
@@ -291,7 +298,7 @@
 
         <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คชิ้นงาน</label></div>
         <div class="pro3-proc2-qrset-it">
-          <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)">
+          <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)" disabled>
             <option value="" selected disabled>โปรดระบุ</option>
             <option value="ผ่าน">ผ่าน</option>
             <option value="ไม่ผ่าน">ไม่ผ่าน</option>
@@ -311,6 +318,11 @@
         <div class="pro3-proc2-summary-it"><label>NG รวม</label></div>
         <div class="pro3-proc2-summary-it">
           <input type="number" value="<?php echo $ngTotal; ?>" readonly>
+        </div>
+
+        <div class="pro3-proc2-summary-it"><label>จำนวน NG reject</label></div>
+        <div class="pro3-proc2-summary-it">
+          <input type="number" value="<?php echo rejectQty($lot_amountinv); ?>" disabled>
         </div>
 
         <div class="pro3-proc2-summary-it"><label>ผลการตัดสินใจ</label></div>
@@ -378,6 +390,13 @@
       resultInput.value = resultText;
       resultInput.style.color = ok ? 'green' : 'red';
       resultHidden.value = resultText;
+
+      const appCheckSelect = set.querySelector('.app-check-select');
+      appCheckSelect.disabled = !ok;
+      if (!ok) {
+        appCheckSelect.value = '';
+        handleAppCheck(appCheckSelect);
+      }
     }
 
     function handleAppCheck(sel) {
