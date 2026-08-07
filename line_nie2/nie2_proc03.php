@@ -69,15 +69,20 @@
 <body>
   <?php require('../topbar.php'); ?>
 
-  <div class="form-pro3-proc1">
+  <div class="form-pro3-proc3-g1">
     <h2>3 Racking — Ni-e Line 2</h2>
-    
-    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="form-pro3-proc1-g">
 
-        <div class="pro3-proc1-g-it"><label>Lot ID</label></div>
-        <div class="pro3-proc1-g-it" style="font-size:0.8em"><label>
-          <?php 
+    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+      <div class="form-pro3-proc3-g1">
+
+        <div class="pro3-proc3-g1-it"><label>Operator</label></div>
+        <div class="pro3-proc3-g1-it">
+          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" readonly required>
+        </div>
+
+        <div class="pro3-proc3-g1-it"><label>Lot ID</label></div>
+        <div class="pro3-proc3-g1-it" style="font-size:0.8em"><label>
+          <?php
             if (!empty($_SESSION['lotid'])):
               echo htmlspecialchars($_SESSION['lotid']);
             else:
@@ -85,61 +90,56 @@
             endif;
           ?></label>
         </div>
-          
-        <div class="pro3-proc1-g-it"><label>Product name</label></div>
-        <div class="pro3-proc1-g-it">
+
+        <div class="pro3-proc3-g1-it"><label>Product name</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" name="ProdName" value="<?php echo $pre_prodname; ?>"
             <?php if (!$from_submit) echo 'autofocus'; ?> required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Invoice no</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>Invoice no</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" name="InvNo" value="<?php echo $pre_invno; ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>WO</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>WO</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" name="WO" value="<?php echo $pre_wo; ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Sub lot no</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>Sub lot no</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" name="SubLot" value="<?php echo $pre_sublot; ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Date</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>Date</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Time</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>Time</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="time" name="Time" value="<?php echo date('H:i'); ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Operator</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" readonly required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>Box no</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>Box no</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" name="BoxNo" id="f_BoxNo"
             <?php if ($from_submit) echo 'autofocus'; ?> required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Plate no</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>Plate no</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="number" name="PlateNo" min="0" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Rack no</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>Rack no</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="number" name="RackNo" min="0" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Q'ty</label></div>
-        <div class="pro3-proc1-g-it">
+        <div class="pro3-proc3-g1-it"><label>Q'ty</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="number" name="Qty" min="0" required>
         </div>
 
