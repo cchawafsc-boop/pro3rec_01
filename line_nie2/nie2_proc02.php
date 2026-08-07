@@ -134,6 +134,7 @@
         $time       = date('H:i:s');
         $opr        = (int)($_SESSION['us_id'] ?? 0);
         $allboxCon     = $_POST['AllBoxCon'] ?? '';
+        $status     = $_POST['Decision'] ?? '';
         $remark     = $_POST['Remark'] ?? '';
         $ngTotal    = calcNGtotal($conn, $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $process);
 
@@ -148,11 +149,11 @@
         } else {
             $insStmt = mysqli_prepare($conn,
                 "INSERT INTO `tb_proc2`
-                 (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`AllBoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Remark`)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-            mysqli_stmt_bind_param($insStmt, "sssssisiiis",
+                 (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`AllBoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Status`,`Remark`)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($insStmt, "sssssisiiiss",
                 $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
-                $allboxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $remark);
+                $allboxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $status, $remark);
             if (mysqli_stmt_execute($insStmt)) {
                 $updStmt = mysqli_prepare($conn,
                     "UPDATE `tb_proc1` SET `Status` = 'waiting racking' WHERE `ProdName` = ? AND `InvNo` = ? AND `WO` = ?");
@@ -336,14 +337,15 @@
         </div>
 
         <div class="pro3-proc2-summary-it"><label>จำนวน NG reject</label></div>
-        <div class="pro3-proc2-summary-it"><label><?php echo rejectQty($lot_amountinv); ?>"</label></div>
+        <div class="pro3-proc2-summary-it"><label><?php echo rejectQty($lot_amountinv); ?></label></div>
 
         <div class="pro3-proc2-summary-it"><label>ผลการตัดสินใจ</label></div>
         <div class="pro3-proc2-summary-it">
           <select name="Decision" id="decisionSelect" onchange="handleDecisionColor(this)">
             <option value="Accept" <?php echo $decision === 'Accept' ? 'selected' : ''; ?>>Accept</option>
             <option value="Reject" <?php echo $decision === 'Reject' ? 'selected' : ''; ?>>Reject</option>
-            <option value="Special" <?php echo $decision === 'Special' ? 'selected' : ''; ?>>Special</option>
+            <option value="Hold" <?php echo $decision === 'Hold' ? 'selected' : ''; ?>>Special</option>
+            <option value="Special accept" <?php echo $decision === 'SpecialAccept' ? 'selected' : ''; ?>>Special</option>
           </select>
         </div>
 
@@ -418,7 +420,7 @@
     }
 
     function handleDecisionColor(sel) {
-      const colors = { Accept: 'green', Reject: 'red', Special: 'orange' };
+      const colors = { Accept: 'green', Reject: 'red', Hold: 'red' , SpecialAccept: 'orange' };
       sel.style.color = colors[sel.value] || '';
     }
     handleDecisionColor(document.getElementById('decisionSelect'));
