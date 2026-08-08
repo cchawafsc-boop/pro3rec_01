@@ -196,7 +196,7 @@
       </div>
 
       <p>
-        <button type="button" id="Nie2_homeBtn" onclick="<?php echo "window.location.href='"&$_SERVER['HTTP_REFERER']&"'?>">กลับหน้าก่อน<br>Ni-e line 2</button>
+        <button type="button" id="Nie2_homeBtn" onclick="window.location.href='<?php echo htmlspecialchars($_SERVER['HTTP_REFERER'] ?? '', ENT_QUOTES); ?>'">กลับหน้าก่อน<br>Ni-e line 2</button>
       </p>
     </form>
   </div>
