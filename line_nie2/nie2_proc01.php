@@ -19,7 +19,7 @@
 
         // Time removed from form; keep column filled for the table.
         $time   = date('H:i:s');
-        $status = empty($remarks) ? 'wait incoming' : $remarks;
+        $status = empty($remarks) ? 'wait incoming' : 'รอ QA ตัดสินใจ';
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`Status`,`Remark`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -148,6 +148,7 @@
 
   <?php if (!isset($req)) { mysqli_close($conn); } ?>
 
+  <script src="js/lotTagParser.js"></script>
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('invNo').focus();
@@ -157,14 +158,15 @@
       if (e.key !== 'Enter') return;
       e.preventDefault();
 
-      var text = this.value.trim();
-      var parts = text.split('|');
-      if (parts.length !== 5) {
-        alert('invalid format');
+      var lot = parseLotTagInput(this.value);
+      if (!lot) {
+        alert('Data from Lot Tag is error. Please re-check');
+        this.value = '';
+        this.focus();
         return;
       }
 
-      var prodName = parts[0].trim(), wo = parts[1].trim(), boxNo = parts[2].trim(), boxQty = parts[3].trim(), material = parts[4].trim();
+      var prodName = lot.prodName, wo = lot.wo, boxNo = lot.boxNo, boxQty = lot.boxQty, material = lot.material;
 
       var firstProdNameRow = document.querySelector('#prodNameList .dataRow');
       var firstWoRow = document.querySelector('#woList .dataRow');
