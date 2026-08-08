@@ -77,39 +77,35 @@
 
         <div class="pro3-proc3-g1-it"><label>Operator</label></div>
         <div class="pro3-proc3-g1-it">
-          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" readonly required>
+          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
         </div>
 
-        <div class="pro3-proc3-g1-it"><label>Lot ID</label></div>
-        <div class="pro3-proc3-g1-it" style="font-size:0.8em"><label>
-          <?php
-            if (!empty($_SESSION['lotid'])):
-              echo htmlspecialchars($_SESSION['lotid']);
-            else:
-              echo "กรุณาเลือก Lot ID";
-            endif;
-          ?></label>
+        <div class="pro3-proc2-g1-it"><label>Data from Lot Tag</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat" autofocus>
         </div>
 
-        <div class="pro3-proc3-g1-it"><label>Product name</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" name="ProdName" value="<?php echo $pre_prodname; ?>"
-            <?php if (!$from_submit) echo 'autofocus'; ?> required>
+        <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" value="<?php echo $lot_id; ?>" disabled>
+        </div>
+          
+        <div class="pro3-proc2-g1-it"><label>Product name</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" value="<?php echo $lot_prodname; ?>" disabled>
+          <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
         </div>
 
-        <div class="pro3-proc3-g1-it"><label>Invoice no</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" name="InvNo" value="<?php echo $pre_invno; ?>" required>
+        <div class="pro3-proc2-g1-it"><label>Invoice no</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" value="<?php echo $lot_invno; ?>" disabled>
+          <input type="hidden" name="InvNo" value="<?php echo $lot_invno; ?>">
         </div>
 
-        <div class="pro3-proc3-g1-it"><label>WO</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" name="WO" value="<?php echo $pre_wo; ?>" required>
-        </div>
-
-        <div class="pro3-proc3-g1-it"><label>Sub lot no</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" name="SubLot" value="<?php echo $pre_sublot; ?>" required>
+        <div class="pro3-proc2-g1-it"><label>WO</label></div>
+        <div class="pro3-proc2-g1-it">
+          <input type="text" value="<?php echo $lot_wo; ?>" disabled>
+          <input type="hidden" name="WO" value="<?php echo $lot_wo; ?>">
         </div>
 
         <div class="pro3-proc3-g1-it"><label>Date</label></div>
@@ -119,29 +115,12 @@
 
         <div class="pro3-proc3-g1-it"><label>Time</label></div>
         <div class="pro3-proc3-g1-it">
-          <input type="time" name="Time" value="<?php echo date('H:i'); ?>" required>
+          <input type="time" name="Time" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
-        <div class="pro3-proc3-g1-it"><label>Box no</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" name="BoxNo" id="f_BoxNo"
-            <?php if ($from_submit) echo 'autofocus'; ?> required>
-        </div>
+      </div>
 
-        <div class="pro3-proc3-g1-it"><label>Plate no</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="number" name="PlateNo" min="0" required>
-        </div>
-
-        <div class="pro3-proc3-g1-it"><label>Rack no</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="number" name="RackNo" min="0" required>
-        </div>
-
-        <div class="pro3-proc3-g1-it"><label>Q'ty</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="number" name="Qty" min="0" required>
-        </div>
+      <div id="input-racking">
 
       </div>
 
