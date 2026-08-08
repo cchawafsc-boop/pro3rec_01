@@ -36,26 +36,68 @@
         }
     }
 
-    $from_submit = isset($_GET['ProdName']);
-    if ($from_submit) {
-        $pre_prodname = htmlspecialchars($_GET['ProdName'] ?? '');
-        $pre_invno    = htmlspecialchars($_GET['InvNo']    ?? '');
-        $pre_wo       = htmlspecialchars($_GET['WO']       ?? '');
-        $pre_sublot   = htmlspecialchars($_GET['SubLot']   ?? '');
-    } else {
-        $pre_prodname = $pre_invno = $pre_wo = $pre_sublot = '';
-        if (!empty($_SESSION['lotid'])) {
-            $lstmt = mysqli_prepare($conn,
-                "SELECT ProdName, InvNo, WO, SubLot FROM tb_proc1 WHERE LotID = ? LIMIT 1");
-            mysqli_stmt_bind_param($lstmt, 's', $_SESSION['lotid']);
-            mysqli_stmt_execute($lstmt);
-            $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
-            if ($lrow) {
-                $pre_prodname = htmlspecialchars($lrow['ProdName']);
-                $pre_invno    = htmlspecialchars($lrow['InvNo']);
-                $pre_wo       = htmlspecialchars($lrow['WO']);
-                $pre_sublot   = htmlspecialchars($lrow['SubLot']);
-            }
+    // AJAX: delete one racking record from tb_proc3
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete_rack'])) {
+        header('Content-Type: application/json');
+
+        $dProdName = $_POST['ProdName'] ?? '';
+        $dInvNo    = $_POST['InvNo'] ?? '';
+        $dWo       = $_POST['WO'] ?? '';
+        $dSubLot   = $_POST['SubLot'] ?? '';
+        $dBoxNo    = $_POST['BoxNo'] ?? '';
+        $dPlateNo  = (int)($_POST['PlateNo'] ?? 0);
+        $dRackNo   = (int)($_POST['RackNo'] ?? 0);
+
+        $dstmt = mysqli_prepare($conn,
+            "DELETE FROM tb_proc3
+             WHERE ProdName=? AND InvNo=? AND WO=? AND SubLot=? AND BoxNo=? AND PlateNo=? AND RackNo=? LIMIT 1");
+        mysqli_stmt_bind_param($dstmt, 'sssssii',
+            $dProdName, $dInvNo, $dWo, $dSubLot, $dBoxNo, $dPlateNo, $dRackNo);
+        $dok = mysqli_stmt_execute($dstmt);
+        echo json_encode(['status' => $dok ? 'ok' : 'fail', 'message' => $dok ? '' : mysqli_error($conn)]);
+        mysqli_close($conn);
+        exit;
+    }
+
+    // Resolve the header (Lot ID / Product name / Invoice no / WO) from a Lot Tag
+    // scan (prodName+wo+boxNo), same pattern as nie2_proc02.php.
+    $lot_id = $lot_id_raw = '';
+    $lot_prodname = $lot_invno = $lot_wo = '';
+    $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
+
+    if (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
+        $gStmt = mysqli_prepare($conn,
+            "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
+        mysqli_stmt_bind_param($gStmt, 'sss', $_GET['prodName'], $_GET['wo'], $_GET['boxNo']);
+        mysqli_stmt_execute($gStmt);
+        $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
+        if ($gRow) {
+            $lot_id_raw       = $gRow['LotID'];
+            $lot_id           = htmlspecialchars($gRow['LotID']);
+            $lot_prodname_raw = $gRow['ProdName'];
+            $lot_invno_raw    = $gRow['InvNo'];
+            $lot_wo_raw       = $gRow['WO'];
+            $lot_prodname     = htmlspecialchars($gRow['ProdName']);
+            $lot_invno        = htmlspecialchars($gRow['InvNo']);
+            $lot_wo           = htmlspecialchars($gRow['WO']);
+        } else {
+            echo "<script>alert('Error in DataBase injection. Please contack Admin');</script>";
+        }
+    }
+
+    // Existing racking records for every box under this Lot ID.
+    $rackRows = [];
+    if (!empty($lot_id_raw)) {
+        $rstmt = mysqli_prepare($conn,
+            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.SubLot, p3.BoxNo, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Remark
+             FROM tb_proc3 p3
+             INNER JOIN tb_proc1 p1 ON p1.ProdName = p3.ProdName AND p1.WO = p3.WO AND p1.BoxNo = p3.BoxNo
+             WHERE p1.LotID = ?");
+        mysqli_stmt_bind_param($rstmt, 's', $lot_id_raw);
+        mysqli_stmt_execute($rstmt);
+        $rres = mysqli_stmt_get_result($rstmt);
+        while ($rrow = mysqli_fetch_assoc($rres)) {
+            $rackRows[] = $rrow;
         }
     }
 ?>
@@ -121,7 +163,40 @@
       </div>
 
       <div id="input-racking">
+        <div class="rack-h">Box-no</div>
+        <div class="rack-h">Plate-no</div>
+        <div class="rack-h">Rack-no</div>
+        <div class="rack-h">Qty</div>
+        <div class="rack-h">Operator</div>
+        <div class="rack-h">Remark</div>
+        <div class="rack-h">Action</div>
 
+        <?php foreach ($rackRows as $rrow): ?>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['BoxNo']); ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['PlateNo']; ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['RackNo']; ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['Qty']; ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['Opr']; ?></div>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['Remark']); ?></div>
+        <div class="rack-c">
+          <button type="button" class="rackDeleteBtn"
+            data-prodname="<?php echo htmlspecialchars($rrow['ProdName'], ENT_QUOTES); ?>"
+            data-invno="<?php echo htmlspecialchars($rrow['InvNo'], ENT_QUOTES); ?>"
+            data-wo="<?php echo htmlspecialchars($rrow['WO'], ENT_QUOTES); ?>"
+            data-sublot="<?php echo htmlspecialchars($rrow['SubLot'], ENT_QUOTES); ?>"
+            data-boxno="<?php echo htmlspecialchars($rrow['BoxNo'], ENT_QUOTES); ?>"
+            data-plateno="<?php echo (int)$rrow['PlateNo']; ?>"
+            data-rackno="<?php echo (int)$rrow['RackNo']; ?>">delete</button>
+        </div>
+        <?php endforeach; ?>
+
+        <div class="rack-c"><input type="text" id="newBoxNo" autocomplete="off"></div>
+        <div class="rack-c"><input type="text" id="newPlateNo" autocomplete="off"></div>
+        <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off"></div>
+        <div class="rack-c"><input type="number" id="newRackQty" min="0" value="0"></div>
+        <div class="rack-c"><input type="number" id="newRackOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
+        <div class="rack-c"><textarea id="newRackRemark" rows="2"></textarea></div>
+        <div class="rack-c"><button type="button" id="newRackSubmitBtn">บันทึกเข้าระบบ</button></div>
       </div>
 
       <p>
@@ -132,5 +207,68 @@
   </div>
 
   <?php mysqli_close($conn); ?>
+
+  <script src="js/lotTagParser.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('invNo').focus();
+    });
+
+    document.getElementById('lotTagData').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      var lot = parseLotTagInput(this.value);
+      if (!lot) {
+        alert('Data from Lot Tag is error. Please re-check');
+        this.value = '';
+        this.focus();
+        return;
+      }
+
+      var url = new URL(window.location.href);
+      url.searchParams.set('prodName', lot.prodName);
+      url.searchParams.set('wo', lot.wo);
+      url.searchParams.set('boxNo', lot.boxNo);
+      window.location.href = url.toString();
+    });
+
+    document.querySelectorAll('.rackDeleteBtn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!confirm('ต้องการลบรายการนี้หรือไม่')) return;
+
+        var payload = new URLSearchParams({
+          ajax_delete_rack: '1',
+          ProdName: btn.dataset.prodname,
+          InvNo:    btn.dataset.invno,
+          WO:       btn.dataset.wo,
+          SubLot:   btn.dataset.sublot,
+          BoxNo:    btn.dataset.boxno,
+          PlateNo:  btn.dataset.plateno,
+          RackNo:   btn.dataset.rackno
+        });
+
+        btn.disabled = true;
+        fetch(location.href, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: payload
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.status === 'ok') {
+              location.reload();
+            } else {
+              alert(data.message || 'ลบไม่สำเร็จ');
+              btn.disabled = false;
+            }
+          })
+          .catch(function () {
+            alert('เกิดข้อผิดพลาด');
+            btn.disabled = false;
+          });
+      });
+    });
+  </script>
 </body>
 </html>
