@@ -394,7 +394,7 @@ form .form-pro3-proc3-g1 {
 
 #input-racking {
 	display: grid;
-	grid-template-columns: 80px 80px 80px 80px 80px 80px 1fr 110px;
+	grid-template-columns: 80px 80px 80px 80px 40px 80px 1fr 110px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
