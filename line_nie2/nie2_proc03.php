@@ -183,7 +183,7 @@
         </div>
         <?php endforeach; ?>
 
-        <div class="rack-c"><input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat"></div>
+        <div class="rack-c"><input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>"></div>
         <div class="rack-c"><input type="text" id="newLotPlate" autocomplete="off"></div>
         <div class="rack-c"><input type="text" id="newPlateNo" autocomplete="off"></div>
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off"></div>
@@ -205,6 +205,10 @@
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('invNo').focus();
+
+      <?php if (isset($_GET['boxNo'])): ?>
+      document.getElementById('newLotPlate').focus();
+      <?php endif; ?>
     });
 
     document.getElementById('newBoxNo').addEventListener('keydown', function (e) {
