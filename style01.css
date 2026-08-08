@@ -392,6 +392,48 @@ form .form-pro3-proc3-g1 {
 	box-sizing: border-box;
 }
 
+#input-racking {
+	display: grid;
+	grid-template-columns: 100px 90px 90px 70px 90px 1fr 110px;
+	gap: 5px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	margin: 10px auto;
+	padding: 5px;
+	box-sizing: border-box;
+}
+.rack-h {
+	background: lightblue;
+	text-align: center;
+	box-sizing: border-box;
+	padding: 4px 0;
+}
+.rack-c {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	text-align: center;
+	font-family: monospace;
+}
+.rack-c input[type="text"],
+.rack-c input[type="number"] {
+	width: 100%;
+	box-sizing: border-box;
+}
+.rack-c textarea {
+	width: 100%;
+	height: 2.2em;
+	resize: vertical;
+	box-sizing: border-box;
+	font-family: inherit;
+}
+.rack-c button {
+	width: 100%;
+	height: 1.8em;
+	box-sizing: border-box;
+}
+
 .pro3-proc2-qrset {
 	display: grid;
 	grid-template-columns: 150px 160px;  /* Defines column width */
