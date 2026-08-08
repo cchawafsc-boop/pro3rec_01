@@ -68,16 +68,17 @@
         $iOpr      = (int)($_POST['Opr'] ?? 0);
         $iBoxNo    = $_POST['BoxNo'] ?? '';
         $iLotPlate = $_POST['LotPlate'] ?? '';
+        $iPlateNo  = (int)($_POST['PlateNo'] ?? 0);
         $iRackNo   = (int)($_POST['RackNo'] ?? 0);
         $iQty      = (int)($_POST['Qty'] ?? 0);
         $iStatus   = 'Accept';
         $iRemark   = $_POST['Remark'] ?? '';
 
         $istmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc3` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotPlate`,`RackNo`,`Qty`,`Status`,`Remark`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($istmt, 'sssssissiiss',
-            $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iBoxNo, $iLotPlate, $iRackNo, $iQty, $iStatus, $iRemark);
+            "INSERT INTO `tb_proc3` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotPlate`,`PlateNo`,`RackNo`,`Qty`,`Status`,`Remark`)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($istmt, 'sssssissiiiss',
+            $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iBoxNo, $iLotPlate, $iPlateNo, $iRackNo, $iQty, $iStatus, $iRemark);
         $iok = mysqli_stmt_execute($istmt);
         echo json_encode(['status' => $iok ? 'ok' : 'fail', 'message' => $iok ? '' : mysqli_error($conn)]);
         mysqli_close($conn);
@@ -293,6 +294,7 @@
         Opr:      document.getElementById('newRackOpr').value,
         BoxNo:    document.getElementById('newBoxNo').value,
         LotPlate: document.getElementById('newLotPlate').value,
+        PlateNo:  document.getElementById('newPlateNo').value,
         RackNo:   document.getElementById('newRackNo').value,
         Qty:      document.getElementById('newRackQty').value,
         Remark:   document.getElementById('newRackRemark').value
