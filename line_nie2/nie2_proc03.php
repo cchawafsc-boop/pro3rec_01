@@ -7,7 +7,6 @@
         $prodName = $_POST['ProdName'];
         $invNo    = $_POST['InvNo'];
         $wo       = $_POST['WO'];
-        $subLot   = $_POST['SubLot'];
         $date     = $_POST['Date'];
         $time     = $_POST['Time'];
         $opr      = (int)$_POST['Opr'];
@@ -17,9 +16,9 @@
         $qty      = (int)$_POST['Qty'];
 
         $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc3` (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,`BoxNo`,`PlateNo`,`RackNo`,`Qty`) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "ssssssisiii",
-            $prodName, $invNo, $wo, $subLot, $date, $time, $opr, $boxNo, $plateNo, $rackNo, $qty);
+            "INSERT INTO `tb_proc3` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`PlateNo`,`RackNo`,`Qty`) VALUES (?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "sssssisiii",
+            $prodName, $invNo, $wo, $date, $time, $opr, $boxNo, $plateNo, $rackNo, $qty);
         $req = mysqli_stmt_execute($stmt);
 
         if ($req) {
@@ -27,7 +26,6 @@
                 'ProdName' => $prodName,
                 'InvNo'    => $invNo,
                 'WO'       => $wo,
-                'SubLot'   => $subLot,
             ]);
             echo "<script>alert('บันทึกข้อมูลสำเร็จ'); window.location.href='./nie2_proc03.php?" . $qs . "';</script>";
             exit;
@@ -43,16 +41,15 @@
         $dProdName = $_POST['ProdName'] ?? '';
         $dInvNo    = $_POST['InvNo'] ?? '';
         $dWo       = $_POST['WO'] ?? '';
-        $dSubLot   = $_POST['SubLot'] ?? '';
         $dBoxNo    = $_POST['BoxNo'] ?? '';
         $dPlateNo  = (int)($_POST['PlateNo'] ?? 0);
         $dRackNo   = (int)($_POST['RackNo'] ?? 0);
 
         $dstmt = mysqli_prepare($conn,
             "DELETE FROM tb_proc3
-             WHERE ProdName=? AND InvNo=? AND WO=? AND SubLot=? AND BoxNo=? AND PlateNo=? AND RackNo=? LIMIT 1");
-        mysqli_stmt_bind_param($dstmt, 'sssssii',
-            $dProdName, $dInvNo, $dWo, $dSubLot, $dBoxNo, $dPlateNo, $dRackNo);
+             WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? AND PlateNo=? AND RackNo=? LIMIT 1");
+        mysqli_stmt_bind_param($dstmt, 'ssssii',
+            $dProdName, $dInvNo, $dWo, $dBoxNo, $dPlateNo, $dRackNo);
         $dok = mysqli_stmt_execute($dstmt);
         echo json_encode(['status' => $dok ? 'ok' : 'fail', 'message' => $dok ? '' : mysqli_error($conn)]);
         mysqli_close($conn);
@@ -89,7 +86,7 @@
     $rackRows = [];
     if (!empty($lot_id_raw)) {
         $rstmt = mysqli_prepare($conn,
-            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.SubLot, p3.BoxNo, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Remark
+            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Remark
              FROM tb_proc3 p3
              INNER JOIN tb_proc1 p1 ON p1.ProdName = p3.ProdName AND p1.WO = p3.WO AND p1.BoxNo = p3.BoxNo
              WHERE p1.LotID = ?");
@@ -183,7 +180,6 @@
             data-prodname="<?php echo htmlspecialchars($rrow['ProdName'], ENT_QUOTES); ?>"
             data-invno="<?php echo htmlspecialchars($rrow['InvNo'], ENT_QUOTES); ?>"
             data-wo="<?php echo htmlspecialchars($rrow['WO'], ENT_QUOTES); ?>"
-            data-sublot="<?php echo htmlspecialchars($rrow['SubLot'], ENT_QUOTES); ?>"
             data-boxno="<?php echo htmlspecialchars($rrow['BoxNo'], ENT_QUOTES); ?>"
             data-plateno="<?php echo (int)$rrow['PlateNo']; ?>"
             data-rackno="<?php echo (int)$rrow['RackNo']; ?>">delete</button>
@@ -242,7 +238,6 @@
           ProdName: btn.dataset.prodname,
           InvNo:    btn.dataset.invno,
           WO:       btn.dataset.wo,
-          SubLot:   btn.dataset.sublot,
           BoxNo:    btn.dataset.boxno,
           PlateNo:  btn.dataset.plateno,
           RackNo:   btn.dataset.rackno
