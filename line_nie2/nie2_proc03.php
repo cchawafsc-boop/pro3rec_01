@@ -43,12 +43,12 @@
         $dWo       = $_POST['WO'] ?? '';
         $dBoxNo    = $_POST['BoxNo'] ?? '';
         $dPlateNo  = (int)($_POST['PlateNo'] ?? 0);
-        $dRackNo   = (int)($_POST['RackNo'] ?? 0);
+        $dRackNo   = $_POST['RackNo'] ?? '';
 
         $dstmt = mysqli_prepare($conn,
             "DELETE FROM tb_proc3
              WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? AND PlateNo=? AND RackNo=? LIMIT 1");
-        mysqli_stmt_bind_param($dstmt, 'ssssii',
+        mysqli_stmt_bind_param($dstmt, 'ssssis',
             $dProdName, $dInvNo, $dWo, $dBoxNo, $dPlateNo, $dRackNo);
         $dok = mysqli_stmt_execute($dstmt);
         echo json_encode(['status' => $dok ? 'ok' : 'fail', 'message' => $dok ? '' : mysqli_error($conn)]);
@@ -69,7 +69,7 @@
         $iBoxNo    = $_POST['BoxNo'] ?? '';
         $iLotPlate = $_POST['LotPlate'] ?? '';
         $iPlateNo  = (int)($_POST['PlateNo'] ?? 0);
-        $iRackNo   = (int)($_POST['RackNo'] ?? 0);
+        $iRackNo   = $_POST['RackNo'] ?? '';
         $iQty      = (int)($_POST['Qty'] ?? 0);
         $iStatus   = 'Accept';
         $iRemark   = $_POST['Remark'] ?? '';
@@ -77,7 +77,7 @@
         $istmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc3` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotPlate`,`PlateNo`,`RackNo`,`Qty`,`Status`,`Remark`)
              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($istmt, 'sssssissiiiss',
+        mysqli_stmt_bind_param($istmt, 'sssssissisiss',
             $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iBoxNo, $iLotPlate, $iPlateNo, $iRackNo, $iQty, $iStatus, $iRemark);
         $iok = mysqli_stmt_execute($istmt);
         echo json_encode(['status' => $iok ? 'ok' : 'fail', 'message' => $iok ? '' : mysqli_error($conn)]);
@@ -197,7 +197,7 @@
         <div class="rack-c"><?php echo htmlspecialchars($rrow['BoxNo']); ?></div>
         <div class="rack-c"></div>
         <div class="rack-c"><?php echo (int)$rrow['PlateNo']; ?></div>
-        <div class="rack-c"><?php echo (int)$rrow['RackNo']; ?></div>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['RackNo']); ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Qty']; ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Opr']; ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['Remark']); ?></div>
@@ -208,7 +208,7 @@
             data-wo="<?php echo htmlspecialchars($rrow['WO'], ENT_QUOTES); ?>"
             data-boxno="<?php echo htmlspecialchars($rrow['BoxNo'], ENT_QUOTES); ?>"
             data-plateno="<?php echo (int)$rrow['PlateNo']; ?>"
-            data-rackno="<?php echo (int)$rrow['RackNo']; ?>">delete</button>
+            data-rackno="<?php echo htmlspecialchars($rrow['RackNo'], ENT_QUOTES); ?>">delete</button>
         </div>
         <?php endforeach; ?>
 
