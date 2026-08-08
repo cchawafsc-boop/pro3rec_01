@@ -228,6 +228,19 @@
       window.location.href = url.toString();
     });
 
+    var lotIdFirstPart = <?php echo json_encode(explode('_', $lot_id_raw)[0]); ?>;
+
+    document.getElementById('newLotPlate').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      if (this.value !== lotIdFirstPart) {
+        alert('Lot-plate does not match the Lot ID. Please re-check');
+        return;
+      }
+      document.getElementById('newPlateNo').focus();
+    });
+
     document.getElementById('newPlateNo').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
