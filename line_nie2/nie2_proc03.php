@@ -119,11 +119,6 @@
           <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
         </div>
 
-        <div class="pro3-proc2-g1-it"><label>Data from Lot Tag</label></div>
-        <div class="pro3-proc2-g1-it">
-          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat" autofocus>
-        </div>
-
         <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="text" value="<?php echo $lot_id; ?>" disabled>
@@ -161,6 +156,7 @@
 
       <div id="input-racking">
         <div class="rack-h">Box-no</div>
+        <div class="rack-h">Lot-plate</div>
         <div class="rack-h">Plate-no</div>
         <div class="rack-h">Rack-no</div>
         <div class="rack-h">Qty</div>
@@ -170,6 +166,7 @@
 
         <?php foreach ($rackRows as $rrow): ?>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['BoxNo']); ?></div>
+        <div class="rack-c"></div>
         <div class="rack-c"><?php echo (int)$rrow['PlateNo']; ?></div>
         <div class="rack-c"><?php echo (int)$rrow['RackNo']; ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Qty']; ?></div>
@@ -187,6 +184,7 @@
         <?php endforeach; ?>
 
         <div class="rack-c"><input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat"></div>
+        <div class="rack-c"><input type="text" id="newLotPlate" autocomplete="off"></div>
         <div class="rack-c"><input type="text" id="newPlateNo" autocomplete="off"></div>
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off"></div>
         <div class="rack-c"><input type="number" id="newRackQty" min="0" value="0"></div>
@@ -203,13 +201,13 @@
 
   <?php mysqli_close($conn); ?>
 
-  <script src="js/lotTagParser.js"></script>
+  <script src="js/supportfunction.js"></script>
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('invNo').focus();
     });
 
-    document.getElementById('lotTagData').addEventListener('keydown', function (e) {
+    document.getElementById('newBoxNo').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
 
@@ -226,19 +224,6 @@
       url.searchParams.set('wo', lot.wo);
       url.searchParams.set('boxNo', lot.boxNo);
       window.location.href = url.toString();
-    });
-
-    document.getElementById('newBoxNo').addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-
-      var lot = parseLotTagInput(this.value);
-      if (!lot) {
-        alert('Data from Lot Tag is error. Please re-check');
-        this.value = '';
-        this.focus();
-        return;
-      }
 
       this.value = lot.boxNo;
       document.getElementById('newPlateNo').focus();
