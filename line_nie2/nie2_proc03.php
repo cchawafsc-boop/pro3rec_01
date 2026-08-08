@@ -186,7 +186,7 @@
         </div>
         <?php endforeach; ?>
 
-        <div class="rack-c"><input type="text" id="newBoxNo" autocomplete="off"></div>
+        <div class="rack-c"><input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat"></div>
         <div class="rack-c"><input type="text" id="newPlateNo" autocomplete="off"></div>
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off"></div>
         <div class="rack-c"><input type="number" id="newRackQty" min="0" value="0"></div>
@@ -196,8 +196,7 @@
       </div>
 
       <p>
-        <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
-        <button type="submit" id="okBtn">บันทึกค่า<br>เข้าระบบ</button>
+        <button type="button" id="Nie2_homeBtn" onclick="<?php echo "window.location.href='"&$_SERVER['HTTP_REFERER']&"'?>">กลับหน้าก่อน<br>Ni-e line 2</button>
       </p>
     </form>
   </div>
@@ -227,6 +226,34 @@
       url.searchParams.set('wo', lot.wo);
       url.searchParams.set('boxNo', lot.boxNo);
       window.location.href = url.toString();
+    });
+
+    document.getElementById('newBoxNo').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      var lot = parseLotTagInput(this.value);
+      if (!lot) {
+        alert('Data from Lot Tag is error. Please re-check');
+        this.value = '';
+        this.focus();
+        return;
+      }
+
+      this.value = lot.boxNo;
+      document.getElementById('newPlateNo').focus();
+    });
+
+    document.getElementById('newPlateNo').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      document.getElementById('newRackNo').focus();
+    });
+
+    document.getElementById('newRackNo').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      document.getElementById('newRackQty').focus();
     });
 
     document.querySelectorAll('.rackDeleteBtn').forEach(function (btn) {
