@@ -56,6 +56,34 @@
         exit;
     }
 
+    // AJAX: insert a new racking record into tb_proc3
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_rack'])) {
+        header('Content-Type: application/json');
+
+        $iProdName = $_POST['ProdName'] ?? '';
+        $iInvNo    = $_POST['InvNo'] ?? '';
+        $iWo       = $_POST['WO'] ?? '';
+        $iDate     = $_POST['Date'] ?? '';
+        $iTime     = $_POST['Time'] ?? '';
+        $iOpr      = (int)($_POST['Opr'] ?? 0);
+        $iBoxNo    = $_POST['BoxNo'] ?? '';
+        $iLotPlate = $_POST['LotPlate'] ?? '';
+        $iRackNo   = (int)($_POST['RackNo'] ?? 0);
+        $iQty      = (int)($_POST['Qty'] ?? 0);
+        $iStatus   = 'Accept';
+        $iRemark   = $_POST['Remark'] ?? '';
+
+        $istmt = mysqli_prepare($conn,
+            "INSERT INTO `tb_proc3` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotPlate`,`RackNo`,`Qty`,`Status`,`Remark`)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($istmt, 'sssssissiiss',
+            $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iBoxNo, $iLotPlate, $iRackNo, $iQty, $iStatus, $iRemark);
+        $iok = mysqli_stmt_execute($istmt);
+        echo json_encode(['status' => $iok ? 'ok' : 'fail', 'message' => $iok ? '' : mysqli_error($conn)]);
+        mysqli_close($conn);
+        exit;
+    }
+
     // Resolve the header (Lot ID / Product name / Invoice no / WO) from a Lot Tag
     // scan (prodName+wo+boxNo), same pattern as nie2_proc02.php.
     $lot_id = $lot_id_raw = '';
@@ -144,12 +172,12 @@
 
         <div class="pro3-proc3-g1-it"><label>Date</label></div>
         <div class="pro3-proc3-g1-it">
-          <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
+          <input type="date" id="rackDate" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
         <div class="pro3-proc3-g1-it"><label>Time</label></div>
         <div class="pro3-proc3-g1-it">
-          <input type="time" name="Time" value="<?php echo date('H:i'); ?>" disabled>
+          <input type="time" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
       </div>
@@ -251,6 +279,44 @@
       if (e.key !== 'Enter') return;
       e.preventDefault();
       document.getElementById('newRackQty').focus();
+    });
+
+    document.getElementById('newRackSubmitBtn').addEventListener('click', function () {
+      var btn = this;
+      var payload = new URLSearchParams({
+        ajax_insert_rack: '1',
+        ProdName: document.querySelector('input[name="ProdName"]').value,
+        InvNo:    document.querySelector('input[name="InvNo"]').value,
+        WO:       document.querySelector('input[name="WO"]').value,
+        Date:     document.getElementById('rackDate').value,
+        Time:     document.getElementById('rackTime').value,
+        Opr:      document.getElementById('newRackOpr').value,
+        BoxNo:    document.getElementById('newBoxNo').value,
+        LotPlate: document.getElementById('newLotPlate').value,
+        RackNo:   document.getElementById('newRackNo').value,
+        Qty:      document.getElementById('newRackQty').value,
+        Remark:   document.getElementById('newRackRemark').value
+      });
+
+      btn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'ok') {
+            location.reload();
+          } else {
+            alert(data.message || 'บันทึกไม่สำเร็จ');
+            btn.disabled = false;
+          }
+        })
+        .catch(function () {
+          alert('เกิดข้อผิดพลาด');
+          btn.disabled = false;
+        });
     });
 
     document.querySelectorAll('.rackDeleteBtn').forEach(function (btn) {
