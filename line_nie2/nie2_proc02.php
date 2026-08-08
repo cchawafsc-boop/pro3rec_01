@@ -374,21 +374,21 @@
 
   <?php mysqli_close($conn); ?>
 
+  <script src="js/lotTagParser.js"></script>
   <script>
     document.getElementById('lotTagData').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
 
-      var text = this.value.trim();
-      var parts = text.split('|');
-      if (parts.length !== 5) {
+      var lot = parseLotTagInput(this.value);
+      if (!lot) {
         alert('Data from Lot Tag is error. Please re-check');
         this.value = '';
         this.focus();
         return;
       }
 
-      var prodName = parts[0].trim(), wo = parts[1].trim(), boxNo = parts[2].trim();
+      var prodName = lot.prodName, wo = lot.wo, boxNo = lot.boxNo;
 
       var url = new URL(window.location.href);
       url.searchParams.set('prodName', prodName);
