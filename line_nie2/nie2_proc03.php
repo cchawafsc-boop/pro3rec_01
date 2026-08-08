@@ -3,7 +3,7 @@
     require('../connect.php');
     require('../init_session.php');
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax_insert_rack']) && !isset($_POST['ajax_delete_rack'])) {
         $prodName = $_POST['ProdName'];
         $invNo    = $_POST['InvNo'];
         $wo       = $_POST['WO'];
