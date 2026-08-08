@@ -204,8 +204,6 @@
   <script src="js/supportfunction.js"></script>
   <script>
     window.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('invNo').focus();
-
       <?php if (isset($_GET['boxNo'])): ?>
       document.getElementById('newLotPlate').focus();
       <?php endif; ?>
