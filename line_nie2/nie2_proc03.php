@@ -231,6 +231,12 @@
       document.getElementById('newPlateNo').focus();
     });
 
+    document.getElementById('newLotPlate').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      document.getElementById('newPlateNo').focus();
+    });
+
     document.getElementById('newPlateNo').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
