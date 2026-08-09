@@ -499,11 +499,18 @@ form .form-pro3-proc3-g1 {
 	box-sizing: border-box;
 	text-align: center;
 	font-family: monospace;
+	min-width: 0;
 }
 .rack-c input[type="text"],
 .rack-c input[type="number"] {
 	width: 100%;
 	box-sizing: border-box;
+	min-width: 0;
+}
+.rack-c select {
+	width: 100%;
+	box-sizing: border-box;
+	min-width: 0;
 }
 .rack-c textarea {
 	width: 100%;
@@ -511,6 +518,7 @@ form .form-pro3-proc3-g1 {
 	resize: vertical;
 	box-sizing: border-box;
 	font-family: inherit;
+	min-width: 0;
 }
 .rack-c button {
 	width: 100%;
