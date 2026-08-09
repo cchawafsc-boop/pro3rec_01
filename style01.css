@@ -1,5 +1,4 @@
 /* CSS Document */
-
 body{        
 	padding-top: 28px;
 	left:0;
@@ -47,8 +46,44 @@ label{
 	clear: both;
 	display: table;
 }
-/*==========================================================*/
+.makeButton{
+	background:#555;
+	padding: 0px 8px;
+	margin: 1px 5px;
+	font-size:24px;
+	color:#FFF;
+}
+.makeButton:visited{
+	color:#FFF;
+}
+.makeButton:hover{
+	background:#aaa;
+}
 
+.cautionMsg{
+	text-align: center;
+	vertical-align: middle;
+}
+@media only screen and (min-width: 768px) {
+	body{
+		padding-top: 20px;
+	}
+	.topbar1{
+		height: 24px;
+	}
+	.topbar1 img{
+		height: 24px;
+	}
+	.topbar2{
+		top: 24px;
+		height: 24px;
+	}
+	.makeButton{
+		font-size:14px;
+	}
+}
+
+/*============================== form Log-in ==============================*/
 .form-lgin {
     display: none; /* Hidden by default */
     position: fixed;
@@ -99,8 +134,8 @@ label{
     background-color: #4CAF50;
     color: white;
 }
-/*==========================================================*/
-
+/*___________________________ End: form Log-in __________________________*/
+/*============================== main-menu ==============================*/
 .main-menu{
 	justify-items: center;
 	text-align: center;
@@ -125,8 +160,8 @@ label{
 	background-color: red;
 	width: 10em;
 }
-/*==========================================================*/
-
+/*___________________________ End: main-menu __________________________*/
+/*======================   pro1 Lot card History ======================*/
 .pro1LcardHis{
 	justify-items: center;
 	text-align: center;
@@ -158,8 +193,8 @@ label{
 .pro1LcardHis th{
 	background-color: lightskyblue ;
 } 
-/*=========================================================*/
-
+/*____________________ End: pro1 Lot card History __________________/
+/*========================= Pro3-Process1 =========================*/
 .form-pro3-proc1{
     justify-items: center;
     text-align: center;
@@ -294,9 +329,8 @@ label{
 	box-sizing: border-box;
 	background-color: #F7F2C2;          /*pale cream khaki*/
 }
-
-/*==========================================================*/
-
+/*____________________ End: Pro3-Process1 ____________________*/
+/*======================= Pro3-Process 2 =====================*/
 .pro1incoming {
 	justify-items: center;
     text-align: center;
@@ -346,7 +380,56 @@ form .form-pro3-proc2-g1 {
 	width: 140px;
 	box-sizing: border-box;
 }
+.pro3-proc2-qrset {
+	display: grid;
+	grid-template-columns: 150px 160px;  /* Defines column width */
+	gap: 0px;                            /* Sets a gap between grid items */
+	border: 1px solid #ccc;
+	padding: 3px;
+	border-radius: 8px;
+	margin: 6px auto;
+	justify-content: center;             /* Center the grid horizontally */
+	background-color: khaki;
+}
+.pro3-proc2-qrset-it {
+	display: flex;                       /* Using flexbox for vertical alignment within each cell */
+	align-items: center;
+	padding: 5px;
+	border-radius: 4px;
+}
+.pro3-proc2-qrset-it input[type="text"],
+.pro3-proc2-qrset-it select {
+	width: 140px;
+	box-sizing: border-box;
+}
+.pro3-proc2-qrset-it .ngTypeBtn {
+	margin-left: 6px;
+}
 
+.pro3-proc2-summary {
+	display: grid;
+	grid-template-columns: 150px 160px;  /* Defines column width */
+	gap: 0px;                            /* Sets a gap between grid items */
+	border: 2px solid lightblue;
+	padding: 3px;
+	border-radius: 8px;
+	margin: 6px auto;
+	justify-content: center;             /* Center the grid horizontally */
+}
+.pro3-proc2-summary-it {
+	display: flex;                       /* Using flexbox for vertical alignment within each cell */
+	align-items: center;
+	padding: 5px;
+	border-radius: 4px;
+}
+.pro3-proc2-summary-it input[type="number"],
+.pro3-proc2-summary-it select,
+.pro3-proc2-summary-it textarea {
+	width: 140px;
+	box-sizing: border-box;
+}
+/*____________________ End: Pro3-Process 2 ____________________*/
+/*======================= Pro3-Process 3 ======================*/
 .form-pro3-proc3-g1{
 	justify-items: center;
 	text-align: center;
@@ -434,56 +517,11 @@ form .form-pro3-proc3-g1 {
 	height: 1.8em;
 	box-sizing: border-box;
 }
+/*_________________________ End: Pro3-Process 3 _________________________*/
+/*============================ Pro3-Process 4 ===========================*/ 
 
-.pro3-proc2-qrset {
-	display: grid;
-	grid-template-columns: 150px 160px;  /* Defines column width */
-	gap: 0px;                            /* Sets a gap between grid items */
-	border: 1px solid #ccc;
-	padding: 3px;
-	border-radius: 8px;
-	margin: 6px auto;
-	justify-content: center;             /* Center the grid horizontally */
-	background-color: khaki;
-}
-.pro3-proc2-qrset-it {
-	display: flex;                       /* Using flexbox for vertical alignment within each cell */
-	align-items: center;
-	padding: 5px;
-	border-radius: 4px;
-}
-.pro3-proc2-qrset-it input[type="text"],
-.pro3-proc2-qrset-it select {
-	width: 140px;
-	box-sizing: border-box;
-}
-.pro3-proc2-qrset-it .ngTypeBtn {
-	margin-left: 6px;
-}
 
-.pro3-proc2-summary {
-	display: grid;
-	grid-template-columns: 150px 160px;  /* Defines column width */
-	gap: 0px;                            /* Sets a gap between grid items */
-	border: 2px solid lightblue;
-	padding: 3px;
-	border-radius: 8px;
-	margin: 6px auto;
-	justify-content: center;             /* Center the grid horizontally */
-}
-.pro3-proc2-summary-it {
-	display: flex;                       /* Using flexbox for vertical alignment within each cell */
-	align-items: center;
-	padding: 5px;
-	border-radius: 4px;
-}
-.pro3-proc2-summary-it input[type="number"],
-.pro3-proc2-summary-it select,
-.pro3-proc2-summary-it textarea {
-	width: 140px;
-	box-sizing: border-box;
-}
-
+/*============================== Class for unknown used ==============================*/
 .pro1incoming-g1 {
     display: grid;
     grid-template-columns: 140px 180px;        /* Defines 2 columns with equal width */
@@ -524,7 +562,6 @@ form .form-pro3-proc3-g1 {
     width: 200px;
 	background-color: red;
 	color: white;
-
 }
 .pro1incoming-tb th{
 	padding: 0px 4px;
@@ -621,10 +658,9 @@ form .form-pro3-proc3-g1 {
   padding: 3px 20px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-/*==========================================================*/
+/*_________________________ End: Class for unknown used ________________________*/
 
-/*==========================================================*/
-
+/*================================== ng input ==================================*/
 .form-pro3-ngin{
 	justify-items: center;
 	text-align: center;
@@ -722,43 +758,7 @@ form .form-pro3-proc3-g1 {
 .ngConfirmBox button#ngConfirmNo{
 	background-color: red;
 }
+/*_________________________ End: ng input _________________________*/
 /*==========================================================*/
 
-.makeButton{
-	background:#555;
-	padding: 0px 8px;
-	margin: 1px 5px;
-	font-size:24px;
-	color:#FFF;
-}
-.makeButton:visited{
-	color:#FFF;
-}
-.makeButton:hover{
-	background:#aaa;
-}
 
-
-.cautionMsg{
-	text-align: center;
-	vertical-align: middle;
-}
-@media only screen and (min-width: 768px) {
-	body{
-		padding-top: 20px;
-	}
-	.topbar1{
-		height: 24px;
-	}
-	.topbar1 img{
-		height: 24px;
-	}
-	.topbar2{
-		top: 24px;
-		height: 24px;
-	}
-	.makeButton{
-		font-size:14px;
-	}
-
-}
