@@ -36,16 +36,52 @@
         }
 
         if ($found) {
+            $records = [];
+            $rstmt = mysqli_prepare($conn,
+                "SELECT LotPlate, PlateNo, BoxNo, FGtotal, NGtotal, Opr, Status, Remark
+                 FROM tb_proc5 WHERE ProdName = ? AND InvNo = ? AND WO = ?");
+            mysqli_stmt_bind_param($rstmt, 'sss', $found['ProdName'], $found['InvNo'], $found['WO']);
+            mysqli_stmt_execute($rstmt);
+            $rres = mysqli_stmt_get_result($rstmt);
+            while ($rrow = mysqli_fetch_assoc($rres)) {
+                $records[] = $rrow;
+            }
+
             echo json_encode([
                 'status'   => 'ok',
                 'lot_id'   => $found['LotID'],
                 'prodname' => $found['ProdName'],
                 'invno'    => $found['InvNo'],
                 'wo'       => $found['WO'],
+                'records'  => $records,
             ]);
         } else {
             echo json_encode(['status' => 'fail']);
         }
+        mysqli_close($conn);
+        exit;
+    }
+
+    // AJAX: list existing tb_proc5 records for a ProdName+InvNo+WO.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_list_unrack'])) {
+        header('Content-Type: application/json');
+
+        $lProdName = $_POST['ProdName'] ?? '';
+        $lInvNo    = $_POST['InvNo'] ?? '';
+        $lWo       = $_POST['WO'] ?? '';
+
+        $records = [];
+        $lstmt = mysqli_prepare($conn,
+            "SELECT LotPlate, PlateNo, BoxNo, FGtotal, NGtotal, Opr, Status, Remark
+             FROM tb_proc5 WHERE ProdName = ? AND InvNo = ? AND WO = ?");
+        mysqli_stmt_bind_param($lstmt, 'sss', $lProdName, $lInvNo, $lWo);
+        mysqli_stmt_execute($lstmt);
+        $lres = mysqli_stmt_get_result($lstmt);
+        while ($lrow = mysqli_fetch_assoc($lres)) {
+            $records[] = $lrow;
+        }
+
+        echo json_encode(['status' => 'ok', 'records' => $records]);
         mysqli_close($conn);
         exit;
     }
@@ -185,7 +221,7 @@
         <div class="pro3-proc5-g2-h">Remark</div>
         <div class="pro3-proc5-g2-h">Action</div>
 
-        <div class="pro3-proc5-g2-c"><input type="text" id="newLotPlate" autocomplete="off"></div>
+        <div class="pro3-proc5-g2-c" id="entryRowAnchor"><input type="text" id="newLotPlate" autocomplete="off"></div>
         <div class="pro3-proc5-g2-c"><input type="text" id="newPlateNo" autocomplete="off"></div>
         <div class="pro3-proc5-g2-c"><input type="text" id="newBoxNo" autocomplete="off"></div>
         <div class="pro3-proc5-g2-c"><input type="number" id="newFGQty" min="0"></div>
@@ -225,6 +261,68 @@
       return yyyy + '-' + mm + '-' + dd;
     }
 
+    function buildRecordRow(rec) {
+      var wrap = document.createElement('div');
+      wrap.className = 'pro3-proc5-record-row';
+
+      [rec.LotPlate, rec.PlateNo, rec.BoxNo, rec.FGtotal, rec.NGtotal].forEach(function (val) {
+        var cell = document.createElement('div');
+        cell.className = 'pro3-proc5-g2-c';
+        cell.textContent = val;
+        wrap.appendChild(cell);
+      });
+
+      var blankCell = document.createElement('div');
+      blankCell.className = 'pro3-proc5-g2-c';
+      wrap.appendChild(blankCell);
+
+      [rec.Opr, rec.Status, rec.Remark].forEach(function (val) {
+        var cell = document.createElement('div');
+        cell.className = 'pro3-proc5-g2-c';
+        cell.textContent = val;
+        wrap.appendChild(cell);
+      });
+
+      var actionCell = document.createElement('div');
+      actionCell.className = 'pro3-proc5-g2-c';
+      wrap.appendChild(actionCell);
+
+      return wrap;
+    }
+
+    function renderRecords(records) {
+      document.querySelectorAll('.pro3-proc5-record-row').forEach(function (el) { el.remove(); });
+      var anchor = document.getElementById('entryRowAnchor');
+      records.forEach(function (rec) {
+        anchor.parentNode.insertBefore(buildRecordRow(rec), anchor);
+      });
+    }
+
+    function fetchAndRenderRecords(ctx) {
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          ajax_list_unrack: '1',
+          ProdName: ctx.prodname,
+          InvNo: ctx.invno,
+          WO: ctx.wo
+        })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'ok') renderRecords(data.records || []);
+        });
+    }
+
+    function currentLotCtx() {
+      return {
+        prodname: document.getElementById('lotProdnameHidden').value,
+        invno: document.getElementById('lotInvnoHidden').value,
+        wo: document.getElementById('lotWoHidden').value
+      };
+    }
+
     document.getElementById('newLotPlate').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
@@ -251,6 +349,7 @@
             document.getElementById('lotInvnoHidden').value = data.invno;
             document.getElementById('lotWoDisplay').value = data.wo;
             document.getElementById('lotWoHidden').value = data.wo;
+            renderRecords(data.records || []);
             document.getElementById('newPlateNo').focus();
           } else {
             alert('cannot file the LotID. Please input data Manually');
@@ -381,6 +480,7 @@
           document.getElementById('newNGQty').value = '';
           document.getElementById('newUnrackStatus').value = '';
           document.getElementById('newUnrackRemark').value = '';
+          fetchAndRenderRecords(currentLotCtx());
           document.getElementById('newLotPlate').focus();
         })
         .catch(function () {
