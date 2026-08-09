@@ -354,8 +354,8 @@
           <select name="Decision" id="decisionSelect" onchange="handleDecisionColor(this)">
             <option value="Accept" <?php echo $decision === 'Accept' ? 'selected' : ''; ?>>Accept</option>
             <option value="Reject" <?php echo $decision === 'Reject' ? 'selected' : ''; ?>>Reject</option>
-            <option value="Hold" <?php echo $decision === 'Hold' ? 'selected' : ''; ?>>Special</option>
-            <option value="Special accept" <?php echo $decision === 'SpecialAccept' ? 'selected' : ''; ?>>Special</option>
+            <option value="Hold" <?php echo $decision === 'Hold' ? 'selected' : ''; ?>>Hold</option>
+            <option value="SpecialAccept" <?php echo $decision === 'SpecialAccept' ? 'selected' : ''; ?>>SpecialAccept</option>
           </select>
         </div>
 
