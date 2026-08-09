@@ -99,14 +99,15 @@
         $iPlateNo  = (int)($_POST['PlateNo'] ?? 0);
         $iFGtotal  = (int)($_POST['FGtotal'] ?? 0);
         $iNGtotal  = (int)($_POST['NGtotal'] ?? 0);
+        $iFGNGtotal = $iFGtotal + $iNGtotal;
         $iStatus   = $_POST['Status'] ?? '';
         $iRemark   = $_POST['Remark'] ?? '';
 
         $istmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc5` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotPlate`,`PlateNo`,`FGtotal`,`NGtotal`,`Status`,`Remark`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($istmt, 'sssssisiiisss',
-            $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iBoxNo, $iLotPlate, $iPlateNo, $iFGtotal, $iNGtotal, $iStatus, $iRemark);
+            "INSERT INTO `tb_proc5` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotPlate`,`PlateNo`,`FGtotal`,`NGtotal`,`FGNGtotal`,`Status`,`Remark`)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($istmt, 'sssssissiiiiss',
+            $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iBoxNo, $iLotPlate, $iPlateNo, $iFGtotal, $iNGtotal, $iFGNGtotal, $iStatus, $iRemark);
         $iok = mysqli_stmt_execute($istmt);
         echo json_encode(['status' => $iok ? 'ok' : 'fail', 'message' => $iok ? '' : mysqli_error($conn)]);
         mysqli_close($conn);
