@@ -60,7 +60,12 @@
         $fPlateNo  = $_POST['PlateNo'] ?? '';
 
         $fstmt = mysqli_prepare($conn,
-            "SELECT BoxNo FROM tb_proc4 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND PlateNo = ?");
+            "SELECT DISTINCT p3.BoxNo
+             FROM tb_proc4 p4
+             INNER JOIN tb_proc3 p3
+                ON p3.ProdName = p4.ProdName AND p3.InvNo = p4.InvNo AND p3.WO = p4.WO
+               AND p3.PlateNo = p4.PlateNo AND p3.RackNo = p4.RackNo
+             WHERE p4.ProdName = ? AND p4.InvNo = ? AND p4.WO = ? AND p4.PlateNo = ?");
         mysqli_stmt_bind_param($fstmt, 'ssss', $fProdName, $fInvNo, $fWo, $fPlateNo);
         mysqli_stmt_execute($fstmt);
         $fres = mysqli_stmt_get_result($fstmt);
