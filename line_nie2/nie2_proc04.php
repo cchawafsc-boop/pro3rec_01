@@ -145,6 +145,8 @@
         <div class="pro3-proc4-summary-it pro3-proc4-summary-status"></div>
       </div>
 
+      <p id="testtest"></p>
+
       <p>
         <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้าหลัก<br>Ni-e line 2 </button>
       </p>
@@ -174,6 +176,8 @@
 
       var prepared_LotID = lotPlateVal + '_' + formatDateColon(new Date());
       var input = this;
+
+      document.getElementById('testtest').innertext = prepared_LotID;
 
       fetch(location.href, {
         method: 'POST',
