@@ -374,7 +374,7 @@
 
   <?php mysqli_close($conn); ?>
 
-  <script src="js/lotTagParser.js"></script>
+  <script src="js/supportfunction.js"></script>
   <script>
     document.getElementById('lotTagData').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
