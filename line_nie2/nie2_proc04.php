@@ -7,7 +7,7 @@
     // tb_proc1.LotID = "<text1>_<text2>_<text3>". prepared_LotID sent from
     // JS is "<LotPlate>_<yyyy:mm:dd>" (text1_text2). Match any LotID whose
     // first two underscore-segments equal prepared_LotID; if none, step the
-    // date back one day and retry, up to 3 attempts total.
+    // date back one day and retry, up to 7 attempts total.
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_resolve_lotid'])) {
         header('Content-Type: application/json');
 
@@ -20,7 +20,7 @@
             $dateObj  = DateTime::createFromFormat('Y:m:d', substr($prepared, $sep + 1));
 
             if ($dateObj) {
-                for ($i = 0; $i < 3; $i++) {
+                for ($i = 0; $i < 7; $i++) {
                     $candidate = $baseText . '_' . $dateObj->format('Y:m:d');
                     $likePattern = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $candidate) . '\\_%';
 
