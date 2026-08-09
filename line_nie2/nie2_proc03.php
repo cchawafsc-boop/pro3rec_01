@@ -126,6 +126,24 @@
             $rackRows[] = $rrow;
         }
     }
+
+    // Racking summary: unique Box-no racked vs total Box-no under this Lot ID.
+    $rackedBoxCount = count(array_unique(array_column($rackRows, 'BoxNo')));
+    $lotBoxCount = 0;
+    if (!empty($lot_id_raw)) {
+        $bStmt = mysqli_prepare($conn, "SELECT COUNT(*) AS boxCount FROM tb_proc1 WHERE LotID = ?");
+        mysqli_stmt_bind_param($bStmt, 's', $lot_id_raw);
+        mysqli_stmt_execute($bStmt);
+        $bRow = mysqli_fetch_assoc(mysqli_stmt_get_result($bStmt));
+        $lotBoxCount = (int)($bRow['boxCount'] ?? 0);
+    }
+    if ($rackedBoxCount < $lotBoxCount) {
+        $rackSummaryText = 'Not complete';
+    } elseif ($rackedBoxCount === $lotBoxCount) {
+        $rackSummaryText = 'Completed';
+    } else {
+        $rackSummaryText = 'ERROR';
+    }
 ?>
 
 <!doctype html>
@@ -231,6 +249,12 @@
         </div>
         <div class="rack-c"><textarea id="newRackRemark" rows="2"></textarea></div>
         <div class="rack-c"><button type="button" id="newRackSubmitBtn">บันทึกเข้าระบบ</button></div>
+      </div>
+
+      <div class="racking-summary">
+        <div class="racking-summary-it">Racked Box-no: <?php echo $rackedBoxCount; ?></div>
+        <div class="racking-summary-it">Lot Box-no: <?php echo $lotBoxCount; ?></div>
+        <div class="racking-summary-it racking-summary-status"><?php echo htmlspecialchars($rackSummaryText); ?></div>
       </div>
 
       <p>
