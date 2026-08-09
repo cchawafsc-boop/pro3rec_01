@@ -2,53 +2,6 @@
     session_start();
     require('../connect.php');
     require('../init_session.php');
-
-    $lot_prodname = $lot_invno = $lot_wo = $lot_sublot = '';
-    if (!empty($_SESSION['lotid'])) {
-        $lstmt = mysqli_prepare($conn,
-            "SELECT ProdName, InvNo, WO, SubLot FROM tb_proc1 WHERE LotID = ? LIMIT 1");
-        mysqli_stmt_bind_param($lstmt, 's', $_SESSION['lotid']);
-        mysqli_stmt_execute($lstmt);
-        $lrow = mysqli_fetch_assoc(mysqli_stmt_get_result($lstmt));
-        if ($lrow) {
-            $lot_prodname = htmlspecialchars($lrow['ProdName']);
-            $lot_invno    = htmlspecialchars($lrow['InvNo']);
-            $lot_wo       = htmlspecialchars($lrow['WO']);
-            $lot_sublot   = htmlspecialchars($lrow['SubLot']);
-        }
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $prodName = $_POST['ProdName'];
-        $invNo    = $_POST['InvNo'];
-        $wo       = $_POST['WO'];
-        $subLot   = $_POST['SubLot'];
-        $date     = $_POST['Date'];
-        $time     = $_POST['Time'];
-        $opr      = (int)$_POST['Opr'];
-        $plateNo  = (int)$_POST['PlateNo'];
-        $rackNo   = (int)$_POST['RackNo'];
-        $qty      = (int)$_POST['Qty'];
-        $tankNo   = $_POST['TankNo'];
-        $remark   = $_POST['Remark'];
-
-        $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc4`
-             (`ProdName`,`InvNo`,`WO`,`SubLot`,`Date`,`Time`,`Opr`,
-              `PlateNo`,`RackNo`,`Qty`,`TankNO`,`Remark`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "ssssssiiiiss",
-            $prodName, $invNo, $wo, $subLot, $date, $time, $opr,
-            $plateNo, $rackNo, $qty, $tankNo, $remark);
-        $req = mysqli_stmt_execute($stmt);
-        mysqli_close($conn);
-
-        if ($req) {
-            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_proc04.php';</script>";
-        } else {
-            echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
-        }
-    }
 ?>
 
 <!doctype html>
@@ -60,94 +13,95 @@
 <body>
   <?php require('../topbar.php'); ?>
 
-  <div class="form-pro3-proc1">
+  <div class="form-pro3-proc4-g1">
     <h2>4 Plating — Ni-e Line 2</h2>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="form-pro3-proc1-g">
+      <div>
 
-        <div class="pro3-proc1-g-it"><label>Lot ID</label></div>
-        <div class="pro3-proc1-g-it" style="font-size:0.8em"><label>
-          <?php 
-            if (!empty($_SESSION['lotid'])):
-              echo htmlspecialchars($_SESSION['lotid']);
-            else:
-              echo "กรุณาเลือก Lot ID";
-            endif;
-          ?></label>
+        <div class="pro3-proc4-g1-it"><label>Operator</label></div>
+        <div class="pro3-proc4-g1-it">
+          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
+        </div>
+
+        <div class="pro3-proc4-g1-it"><label>Lot ID</label></div>
+        <div class="pro3-proc4-g1-it">
+          <input type="text" value="<?php echo $lot_id; ?>" disabled>
         </div>
           
-        <div class="pro3-proc1-g-it"><label>Product name</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="text" name="ProdName" value="<?php echo $lot_prodname; ?>" autofocus required>
+        <div class="pro3-proc4-g1-it"><label>Product name</label></div>
+        <div class="pro3-proc4-g1-it">
+          <input type="text" value="<?php echo $lot_prodname; ?>" disabled>
+          <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Invoice no</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="text" name="InvNo" value="<?php echo $lot_invno; ?>" required>
+        <div class="pro3-proc4-g1-it"><label>Invoice no</label></div>
+        <div class="pro3-proc4-g1-it">
+          <input type="text" value="<?php echo $lot_invno; ?>" disabled>
+          <input type="hidden" name="InvNo" value="<?php echo $lot_invno; ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label>WO</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="text" name="WO" value="<?php echo $lot_wo; ?>" required>
+        <div class="pro3-proc4-g1-it"><label>WO</label></div>
+        <div class="pro3-proc4-g1-it">
+          <input type="text" value="<?php echo $lot_wo; ?>" disabled>
+          <input type="hidden" name="WO" value="<?php echo $lot_wo; ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Sub lot no</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="text" name="SubLot" value="<?php echo $lot_sublot; ?>" required>
+        <div class="pro3-proc4-g1-it"><label>Date</label></div>
+        <div class="pro3-proc4-g1-it">
+          <input type="date" id="rackDate" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Date</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>Time</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="time" name="Time" value="<?php echo date('H:i'); ?>" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>Operator</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" readonly required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>Plate no</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="PlateNo" min="0" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>Rack no</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="RackNo" min="0" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>Q'ty</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="Qty" min="0" required>
-        </div>
-
-        <div class="pro3-proc1-g-it"><label>Tank no</label></div>
-        <div class="pro3-proc1-g-it">
-          <input type="number" name="TankNo" min="1" max="3" required>
-        </div>
-
-        <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center; margin-top:6px;">
-          <label>หมายเหตุ</label>
-        </div>
-        <div class="pro3-proc1-g-it" style="grid-column:1/span 2; justify-content:center;">
-          <textarea name="Remark" rows="3" style="width:270px;"></textarea>
+        <div class="pro3-proc4-g1-it"><label>Time</label></div>
+        <div class="pro3-proc4-g1-it">
+          <input type="time" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
       </div>
 
-      <p style="display:flex; justify-content:space-between; padding:0 10px;">
-        <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
-        <button type="submit" id="okBtn">บันทึกค่า<br>เข้าระบบ</button>
+      <div id="input-plating" class="pro3-proc4-g2">
+        <div class="pro3-proc4-g2-h">Box-no</div>
+        <div class="pro3-proc4-g2-h">Lot-plate</div>
+        <div class="pro3-proc4-g2-h">Plate-no</div>
+        <div class="pro3-proc4-g2-h">Rack-no</div>
+        <div class="pro3-proc4-g2-h">Qty</div>
+        <div class="pro3-proc4-g2-h">Operator</div>
+        <div class="pro3-proc4-g2-h">Status</div>
+        <div class="pro3-proc4-g2-h">Remark</div>
+        <div class="pro3-proc4-g2-h">Action</div>
+
+        <div class="pro3-proc4-g2-c"><input type="text"></div>
+        <div class="pro3-proc4-g2-c"><input type="text" ></div>
+        <div class="pro3-proc4-g2-c"><input type="text" ></div>
+        <div class="pro3-proc4-g2-c"><input type="text"></div>
+        <div class="pro3-proc4-g2-c"><input type="number"></div>
+        <div class="pro3-proc4-g2-c"><input type="number"></div>
+        <div class="pro3-proc4-g2-c">
+          <select>
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="Accept">Accept</option>
+            <option value="Reject">Reject</option>
+            <option value="Hold">Hold</option>
+            <option value="SpecialAccept">SpecialAccept</option>
+          </select>
+        </div>
+        <div class="pro3-proc4-g2-c"><textarea rows="2"></textarea></div>
+        <div class="pro3-proc4-g2-c"><button type="button">บันทึกเข้าระบบ</button></div>
+      </div>
+
+      <div class="pro3-proc4-summary">
+        <div class="pro3-proc4-summary-it">Racked Box-no:</div>
+        <div class="pro3-proc4-summary-it">Lot Box-no:</div>
+        <div class="pro3-proc4-summary-it racking-summary-status"></div>
+      </div>
+
+      <p>
+        <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้าหลัก<br>Ni-e line 2 </button>
       </p>
     </form>
   </div>
 
-  <?php if (!isset($req)) { mysqli_close($conn); } ?>
+  <?php mysqli_close($conn); ?>
+
 </body>
 </html>
