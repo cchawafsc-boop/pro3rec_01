@@ -149,7 +149,7 @@
         $dupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($dupStmt));
 
         if ($dupRow) {
-            echo "<script>alert('There is redundant Product name, Invoice and WO in database. Please check the data intry');</script>";
+            echo "<script>alert('There is redundant Product name, Invoice and WO in database. \\nPlease check the data intry');</script>";
         } else {
             $insStmt = mysqli_prepare($conn,
                 "INSERT INTO `tb_proc2`
