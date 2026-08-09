@@ -107,7 +107,7 @@
             $lot_invno        = htmlspecialchars($gRow['InvNo']);
             $lot_wo           = htmlspecialchars($gRow['WO']);
         } else {
-            echo "<script>alert('Error in DataBase injection. Please contack Admin');</script>";
+            echo "<script>alert('Error in DataBase injection. Please contack Admin\\n or Invalid lot tag. Please re-check lot tag.');</script>";
         }
     }
 
@@ -115,7 +115,7 @@
     $rackRows = [];
     if (!empty($lot_id_raw)) {
         $rstmt = mysqli_prepare($conn,
-            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Status, p3.Remark
+            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.LotPlate, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Status, p3.Remark
              FROM tb_proc3 p3
              INNER JOIN tb_proc1 p1 ON p1.ProdName = p3.ProdName AND p1.WO = p3.WO AND p1.BoxNo = p3.BoxNo
              WHERE p1.LotID = ?");
@@ -196,7 +196,7 @@
 
         <?php foreach ($rackRows as $rrow): ?>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['BoxNo']); ?></div>
-        <div class="rack-c"></div>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['LotPlate']); ?></div>
         <div class="rack-c"><?php echo (int)$rrow['PlateNo']; ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['RackNo']); ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Qty']; ?></div>
