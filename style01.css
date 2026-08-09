@@ -727,6 +727,9 @@ form .form-pro3-proc5-g1 {
 	padding: 5px;
 	box-sizing: border-box;
 }
+.pro3-proc5-record-row {
+	display: contents;
+}
 .pro3-proc5-g2-h {
 	background: lightblue;
 	text-align: center;
