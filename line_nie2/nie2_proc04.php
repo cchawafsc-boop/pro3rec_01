@@ -17,7 +17,7 @@
     <h2>4 Plating — Ni-e Line 2</h2>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div>
+      <div class="form-pro3-proc4-g1">
 
         <div class="pro3-proc4-g1-it"><label>Operator</label></div>
         <div class="pro3-proc4-g1-it">
@@ -92,7 +92,7 @@
       <div class="pro3-proc4-summary">
         <div class="pro3-proc4-summary-it">Racked Box-no:</div>
         <div class="pro3-proc4-summary-it">Lot Box-no:</div>
-        <div class="pro3-proc4-summary-it racking-summary-status"></div>
+        <div class="pro3-proc4-summary-it pro3-proc4-summary-status"></div>
       </div>
 
       <p>
