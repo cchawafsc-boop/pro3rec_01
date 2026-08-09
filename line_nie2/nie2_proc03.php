@@ -71,7 +71,7 @@
         $iPlateNo  = (int)($_POST['PlateNo'] ?? 0);
         $iRackNo   = $_POST['RackNo'] ?? '';
         $iQty      = (int)($_POST['Qty'] ?? 0);
-        $iStatus   = 'Accept';
+        $iStatus   = $_POST['Status'] ?? 'Accept';
         $iRemark   = $_POST['Remark'] ?? '';
 
         $istmt = mysqli_prepare($conn,
@@ -115,7 +115,7 @@
     $rackRows = [];
     if (!empty($lot_id_raw)) {
         $rstmt = mysqli_prepare($conn,
-            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Remark
+            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Status, p3.Remark
              FROM tb_proc3 p3
              INNER JOIN tb_proc1 p1 ON p1.ProdName = p3.ProdName AND p1.WO = p3.WO AND p1.BoxNo = p3.BoxNo
              WHERE p1.LotID = ?");
@@ -190,6 +190,7 @@
         <div class="rack-h">Rack-no</div>
         <div class="rack-h">Qty</div>
         <div class="rack-h">Operator</div>
+        <div class="rack-h">Status</div>
         <div class="rack-h">Remark</div>
         <div class="rack-h">Action</div>
 
@@ -200,6 +201,7 @@
         <div class="rack-c"><?php echo htmlspecialchars($rrow['RackNo']); ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Qty']; ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Opr']; ?></div>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['Status']); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['Remark']); ?></div>
         <div class="rack-c">
           <button type="button" class="rackDeleteBtn"
@@ -218,12 +220,21 @@
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off"></div>
         <div class="rack-c"><input type="number" id="newRackQty" min="0" value="0"></div>
         <div class="rack-c"><input type="number" id="newRackOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
+        <div class="rack-c">
+          <select id="newRackStatus">
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="Accept">Accept</option>
+            <option value="Reject">Reject</option>
+            <option value="Hold">Hold</option>
+            <option value="SpecialAccept">SpecialAccept</option>
+          </select>
+        </div>
         <div class="rack-c"><textarea id="newRackRemark" rows="2"></textarea></div>
         <div class="rack-c"><button type="button" id="newRackSubmitBtn">บันทึกเข้าระบบ</button></div>
       </div>
 
       <p>
-        <button type="button" id="Nie2_homeBtn" onclick="window.location.href='<?php echo htmlspecialchars($_SERVER['HTTP_REFERER'] ?? '', ENT_QUOTES); ?>'">กลับหน้าก่อน<br>Ni-e line 2</button>
+        <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้าหลัก<br>Ni-e line 2 </button>
       </p>
     </form>
   </div>
@@ -297,6 +308,7 @@
         PlateNo:  document.getElementById('newPlateNo').value,
         RackNo:   document.getElementById('newRackNo').value,
         Qty:      document.getElementById('newRackQty').value,
+        Status:   document.getElementById('newRackStatus').value,
         Remark:   document.getElementById('newRackRemark').value
       });
 
