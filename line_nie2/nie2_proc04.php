@@ -39,6 +39,7 @@
         }
 
         $records = [];
+        $rackPlateCount = 0;
         if ($found) {
             $rstmt = mysqli_prepare($conn,
                 "SELECT LotPlate, PlateNo, RackNo, Qty, PltTankNo, Opr, Status, Remark
@@ -49,16 +50,28 @@
             while ($rrow = mysqli_fetch_assoc($rres)) {
                 $records[] = $rrow;
             }
+
+            // tb_proc3 has no LotID column; bridge through tb_proc1 via ProdName+WO+BoxNo.
+            $rkstmt = mysqli_prepare($conn,
+                "SELECT COUNT(DISTINCT p3.PlateNo) AS cnt
+                 FROM tb_proc3 p3
+                 INNER JOIN tb_proc1 p1 ON p1.ProdName = p3.ProdName AND p1.WO = p3.WO AND p1.BoxNo = p3.BoxNo
+                 WHERE p1.LotID = ?");
+            mysqli_stmt_bind_param($rkstmt, 's', $found['LotID']);
+            mysqli_stmt_execute($rkstmt);
+            $rkrow = mysqli_fetch_assoc(mysqli_stmt_get_result($rkstmt));
+            $rackPlateCount = (int)($rkrow['cnt'] ?? 0);
         }
 
         if ($found) {
             echo json_encode([
-                'status'   => 'ok',
-                'lot_id'   => $found['LotID'],
-                'prodname' => $found['ProdName'],
-                'invno'    => $found['InvNo'],
-                'wo'       => $found['WO'],
-                'records'  => $records,
+                'status'          => 'ok',
+                'lot_id'          => $found['LotID'],
+                'prodname'        => $found['ProdName'],
+                'invno'           => $found['InvNo'],
+                'wo'              => $found['WO'],
+                'records'         => $records,
+                'rack_platecount' => $rackPlateCount,
             ]);
         } else {
             echo json_encode(['status' => 'fail']);
@@ -217,9 +230,9 @@
       </div>
 
       <div class="pro3-proc4-summary">
-        <div class="pro3-proc4-summary-it">Racked Box-no:</div>
-        <div class="pro3-proc4-summary-it">Lot Box-no:</div>
-        <div class="pro3-proc4-summary-it pro3-proc4-summary-status"></div>
+        <div class="pro3-proc4-summary-it">จำนวนแร็กที่ plating: <span id="platingPlateCount">0</span></div>
+        <div class="pro3-proc4-summary-it">จำนวนแร็กที่ racking: <span id="rackingPlateCount">0</span></div>
+        <div class="pro3-proc4-summary-it pro3-proc4-summary-status" id="pltSummaryStatus"></div>
       </div>
 
       <p>
@@ -289,6 +302,21 @@
       records.forEach(function (rec) { addRecordRow(rec, ctx); });
     }
 
+    var rackPlateCount = 0;
+
+    function updateSummary() {
+      var plateSet = new Set();
+      document.querySelectorAll('.pro3-proc4-record-row').forEach(function (row) {
+        plateSet.add(row.dataset.plateno);
+      });
+      var platingCount = plateSet.size;
+
+      document.getElementById('platingPlateCount').textContent = platingCount;
+      document.getElementById('rackingPlateCount').textContent = rackPlateCount;
+      document.getElementById('pltSummaryStatus').textContent =
+        platingCount < rackPlateCount ? 'INCOMPLETE' : 'COMPLETE';
+    }
+
     document.getElementById('newLotPlate').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
@@ -315,6 +343,8 @@
             document.getElementById('lotWoDisplay').value = data.wo;
             document.getElementById('lotWoHidden').value = data.wo;
             renderRecords(data.records || [], { prodname: data.prodname, invno: data.invno, wo: data.wo });
+            rackPlateCount = data.rack_platecount || 0;
+            updateSummary();
             document.getElementById('newPlateNo').focus();
           } else {
             alert('cannot file the LotID. Please input data Manually');
@@ -391,6 +421,7 @@
             LotPlate: lotPlate, PlateNo: plateNo, RackNo: rackNo, Qty: qty,
             PltTankNo: tankNo, Opr: opr, Status: status, Remark: remark
           }, ctx);
+          updateSummary();
 
           document.getElementById('newLotPlate').value = '';
           document.getElementById('newPlateNo').value = '';
@@ -434,6 +465,7 @@
         .then(function (data) {
           if (data.status === 'ok') {
             row.remove();
+            updateSummary();
           } else {
             alert(data.message || 'ลบไม่สำเร็จ');
             delBtn.disabled = false;
