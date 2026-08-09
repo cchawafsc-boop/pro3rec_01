@@ -107,6 +107,13 @@
         while ($nmRow = mysqli_fetch_assoc($nmRes)) {
             $ngModeList[] = $nmRow['NGmode'];
         }
+    } elseif ($pre_process === '5. Unracking') {
+        $nmStmt = mysqli_prepare($conn, "SELECT NGmode FROM tb_ng_list WHERE Process = 'Unracking'");
+        mysqli_stmt_execute($nmStmt);
+        $nmRes = mysqli_stmt_get_result($nmStmt);
+        while ($nmRow = mysqli_fetch_assoc($nmRes)) {
+            $ngModeList[] = $nmRow['NGmode'];
+        }
     }
 
     // AJAX: update an existing tb_ng record, or delete it when NGqty = 0
@@ -289,8 +296,9 @@
                 '2. Incoming'   => '2. Incoming',
                 '3. Racking'    => '3. Racking',
                 '4. Plating'    => '4. Plating',
-                '5. Inspection' => '5. Inspection',
-                '6. QAoutgoing' => '6. QAoutgoing',
+                '5. Unracking'  => '5. Unracking',
+                '6. Inspection' => '6. Inspection',
+                '7. QAoutgoing' => '7. QAoutgoing',
             ];
             foreach ($processOptions as $val => $label):
           ?>
