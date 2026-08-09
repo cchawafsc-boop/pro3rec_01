@@ -594,13 +594,16 @@ form .form-pro3-proc4-g1 {
 
 #input-plating {
 	display: grid;
-	grid-template-columns: 80px 80px 70px 70px 40px 70px 70px 1fr 110px;
+	grid-template-columns: 90px 90px 80px 60px 90px 70px 90px 1fr 100px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
 	margin: 10px auto;
 	padding: 5px;
 	box-sizing: border-box;
+}
+.pro3-proc4-record-row {
+	display: contents;
 }
 .pro3-proc4-g2-h {
 	background: lightblue;
