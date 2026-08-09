@@ -100,7 +100,7 @@
         $istmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc4` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`LotPlate`,`PlateNo`,`RackNo`,`Qty`,`PltTankNo`,`Status`,`Remark`)
              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($istmt, 'sssssisssiss',
+        mysqli_stmt_bind_param($istmt, 'sssssisssiiss',
             $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iLotPlate, $iPlateNo, $iRackNo, $iQty, $iTankNo, $iStatus, $iRemark);
         $iok = mysqli_stmt_execute($istmt);
         echo json_encode(['status' => $iok ? 'ok' : 'fail', 'message' => $iok ? '' : mysqli_error($conn)]);
