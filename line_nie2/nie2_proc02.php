@@ -132,6 +132,8 @@
         $lot_prodname_raw = $_POST['ProdName'] ?? $lot_prodname_raw;
         $lot_invno_raw    = $_POST['InvNo'] ?? $lot_invno_raw;
         $lot_wo_raw       = $_POST['WO'] ?? $lot_wo_raw;
+        $lot_amountinv    = (int)($_POST['AmountInv'] ?? $lot_amountinv);
+        $lot_samplingsize = (int)($_POST['SamplingSize'] ?? $lot_samplingsize);
         $date       = $_POST['Date'];
         $time       = date('H:i:s');
         $opr        = (int)($_SESSION['us_id'] ?? 0);
@@ -267,12 +269,14 @@
             
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนชิ้นงานตาม Inv</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="number" name="AmountInv" value="<?php echo $lot_amountinv; ?>" min="0" disabled required>
+          <input type="number" value="<?php echo $lot_amountinv; ?>" min="0" disabled required>
+          <input type="hidden" name="AmountInv" value="<?php echo $lot_amountinv; ?>">
         </div>
 
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนชิ้นงานที่ถูกสุ่ม</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="number" name="SamplingSize" value="<?php echo $lot_samplingsize; ?>" min="0" disabled required>
+          <input type="number" value="<?php echo $lot_samplingsize; ?>" min="0" disabled required>
+          <input type="hidden" name="SamplingSize" value="<?php echo $lot_samplingsize; ?>">
         </div>
 
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนกล่องที่ถูกสุ่ม</label></div>
