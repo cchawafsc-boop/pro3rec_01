@@ -478,7 +478,7 @@ form .form-pro3-proc3-g1 {
 
 #input-racking {
 	display: grid;
-	grid-template-columns: 80px 80px 70px 70px 40px 70px 70px 1fr 110px;
+	grid-template-columns: 80px 80px 70px 70px 40px 70px 70px 1fr 80px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
@@ -594,7 +594,7 @@ form .form-pro3-proc4-g1 {
 
 #input-plating {
 	display: grid;
-	grid-template-columns: 90px 90px 80px 60px 90px 70px 90px 1fr 100px;
+	grid-template-columns: 90px 90px 80px 60px 90px 70px 90px 1fr 80px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
@@ -719,7 +719,7 @@ form .form-pro3-proc5-g1 {
 
 #input-unracking {
 	display: grid;
-	grid-template-columns: 90px 80px 90px 60px 60px 70px 70px 90px 1fr 110px;
+	grid-template-columns: 70px 60px 60px 60px 60px 70px 70px 90px 1fr 80px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
@@ -770,6 +770,9 @@ form .form-pro3-proc5-g1 {
 	box-sizing: border-box;
 }
 /*_________________________ End: Pro3-Process 5 _________________________*/
+/*============================ Pro3-Process 6 ===========================*/
+
+/*_________________________ End: Pro3-Process 6 _________________________*/
 /*================================== ng input ==================================*/
 .form-pro3-ngin{
 	justify-items: center;
