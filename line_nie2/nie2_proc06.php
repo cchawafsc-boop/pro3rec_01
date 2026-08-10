@@ -2,6 +2,45 @@
     session_start();
     require('../connect.php');
     require('../init_session.php');
+
+    // AJAX: resolve Lot ID / Product name / Invoice no from a Box Tag scan
+    // (prodName+wo+boxNo), same pattern as nie2_proc03.php's GET lookup.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_resolve_lot'])) {
+        header('Content-Type: application/json');
+
+        $rProdName = $_POST['ProdName'] ?? '';
+        $rWo       = $_POST['WO'] ?? '';
+        $rBoxNo    = $_POST['BoxNo'] ?? '';
+
+        $rstmt = mysqli_prepare($conn,
+            "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
+        mysqli_stmt_bind_param($rstmt, 'sss', $rProdName, $rWo, $rBoxNo);
+        mysqli_stmt_execute($rstmt);
+        $rrow = mysqli_fetch_assoc(mysqli_stmt_get_result($rstmt));
+
+        if ($rrow) {
+            echo json_encode([
+                'status'   => 'ok',
+                'lot_id'   => $rrow['LotID'],
+                'prodname' => $rrow['ProdName'],
+                'invno'    => $rrow['InvNo'],
+                'wo'       => $rrow['WO'],
+            ]);
+        } else {
+            echo json_encode(['status' => 'fail']);
+        }
+        mysqli_close($conn);
+        exit;
+    }
+
+    // NG mode options for inspection
+    $ngModeList = [];
+    $nmStmt = mysqli_prepare($conn, "SELECT NGmode FROM tb_ng_list WHERE Process = 'All'");
+    mysqli_stmt_execute($nmStmt);
+    $nmRes = mysqli_stmt_get_result($nmStmt);
+    while ($nmRow = mysqli_fetch_assoc($nmRes)) {
+        $ngModeList[] = $nmRow['NGmode'];
+    }
 ?>
 
 <!doctype html>
@@ -57,7 +96,7 @@
           <input type="time" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
-        <div class="pro3-proc6-g1-it"><label>จำนวนสุ่มต่อแร็ก</label></div>
+        <div class="pro3-proc6-g1-it"><label style="font-size:0.8em;">จำนวนสุ่มต่อแร็ก</label></div>
         <div class="pro3-proc6-g1-it">
           <input type="number" id="samplingSize" name="samplingSize" value="" disabled>
         </div>
@@ -79,7 +118,14 @@
         <div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="Box-no"></div>
         <div class="pro3-proc6-g2-c"><input type="text"   id="newPlateNo" placeholder="Plate-no"></div>
         <div class="pro3-proc6-g2-c"><input type="number" id="newFGqty"   placeholder="FG-qty"></div>
-        <div class="pro3-proc6-g2-c"><input type="text"   id="newNGmode"  placeholder="NG-mode"></div>
+        <div class="pro3-proc6-g2-c">
+          <select id="newNGmode">
+            <option value="" selected disabled>โปรดระบุ</option>
+            <?php foreach ($ngModeList as $mode): ?>
+            <option value="<?php echo htmlspecialchars($mode); ?>"><?php echo htmlspecialchars($mode); ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
         <div class="pro3-proc6-g2-c"><input type="number" id="newNGqty"   placeholder="NG-qty"></div>
         <div class="pro3-proc6-g2-c"><input type="number" id="newShrOvr"  placeholder="ShrOvr"></div>
         <div class="pro3-proc6-g2-c"><input type="number" id="newOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
@@ -109,8 +155,62 @@
   </div>
 
   <?php mysqli_close($conn); ?>
+  <script src="js/supportfunction.js"></script>
   <script>
-    
+    document.getElementById('newBoxNo').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      var lot = parseLotTagInput(this.value);
+      if (!lot) {
+        alert('Data from Lot Tag is error. Please re-check');
+        this.value = '';
+        this.focus();
+        return;
+      }
+
+      var input = this;
+      var payload = new URLSearchParams({
+        ajax_resolve_lot: '1',
+        ProdName: lot.prodName,
+        WO: lot.wo,
+        BoxNo: lot.boxNo
+      });
+
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'ok') {
+            document.getElementById('lotIdDisplay').value = data.lot_id;
+            document.getElementById('lotProdnameDisplay').value = data.prodname;
+            document.getElementById('lotProdnameHidden').value = data.prodname;
+            document.getElementById('lotInvnoDisplay').value = data.invno;
+            document.getElementById('lotInvnoHidden').value = data.invno;
+            document.getElementById('lotWoDisplay').value = data.wo;
+            document.getElementById('lotWoHidden').value = data.wo;
+            input.value = lot.boxNo;
+            document.getElementById('newPlateNo').focus();
+          } else {
+            alert('ไม่พบ Box-no ในฐานข้อมูล โปรดตรวจสอบอีกครั้ง');
+            input.value = '';
+            input.focus();
+          }
+        })
+        .catch(function () {
+          alert('เกิดข้อผิดพลาด');
+          input.focus();
+        });
+    });
+
+    document.getElementById('newPlateNo').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      document.getElementById('newFGqty').focus();
+    });
   </script>
 </body>
 </html>
