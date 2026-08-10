@@ -221,11 +221,11 @@
         <div class="pro3-proc5-g2-h">Remark</div>
         <div class="pro3-proc5-g2-h">Action</div>
 
-        <div class="pro3-proc5-g2-c" id="entryRowAnchor"><input type="text" id="newLotPlate" autocomplete="off"></div>
-        <div class="pro3-proc5-g2-c"><input type="text" id="newPlateNo" autocomplete="off"></div>
-        <div class="pro3-proc5-g2-c"><input type="text" id="newBoxNo" autocomplete="off"></div>
-        <div class="pro3-proc5-g2-c"><input type="number" id="newFGQty" min="0"></div>
-        <div class="pro3-proc5-g2-c"><input type="number" id="newNGQty" min="0"></div>
+        <div class="pro3-proc5-g2-c" id="entryRowAnchor"><input type="text" id="newLotPlate" autocomplete="off" placeholder="Lot-plate"></div>
+        <div class="pro3-proc5-g2-c"><input type="text" id="newPlateNo" autocomplete="off" placeholder="Plate-no"></div>
+        <div class="pro3-proc5-g2-c"><input type="text" id="newBoxNo" autocomplete="off" placeholder="Box-no"></div>
+        <div class="pro3-proc5-g2-c"><input type="number" id="newFGQty" min="0" placeholder="FGqty"></div>
+        <div class="pro3-proc5-g2-c"><input type="number" id="newNGQty" min="0" placeholder="NGqty"></div>
         <div class="pro3-proc5-g2-c"><button type="button" id="newNgBtn">ลง NG</button></div>
         <div class="pro3-proc5-g2-c"><input type="number" id="newUnrackOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
         <div class="pro3-proc5-g2-c">
