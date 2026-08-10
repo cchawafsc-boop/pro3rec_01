@@ -109,7 +109,7 @@
         <!-- 3 --><div class="pro3-proc6-g2-h">FG-qty</div>
         <!-- 4 --><div class="pro3-proc6-g2-h">NG-mode</div>
         <!-- 5 --><div class="pro3-proc6-g2-h">NG-qty</div>
-        <!-- 6 --><div class="pro3-proc6-g2-h" style="font-size:0.8em;">ShrOvr</div>
+        <!-- 6 --><div class="pro3-proc6-g2-h" style="font-size:0.8em;">ขาด/เกิน</div>
         <!-- 7 --><div class="pro3-proc6-g2-h">Oper.</div>
         <!-- 8 --><div class="pro3-proc6-g2-h">Status</div> 
         <!-- 9 --><div class="pro3-proc6-g2-h">Remark</div>
