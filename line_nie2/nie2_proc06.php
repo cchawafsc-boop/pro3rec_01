@@ -115,7 +115,7 @@
         <!-- 9 --><div class="pro3-proc6-g2-h">Remark</div>
         <!--10 --><div class="pro3-proc6-g2-h">Action</div>
 
-        <div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="Box-no"></div>
+        <div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="ProdName|WO|BoxNo|Qty|Mat"></div>
         <div class="pro3-proc6-g2-c"><input type="text"   id="newPlateNo" placeholder="Plate-no"></div>
         <div class="pro3-proc6-g2-c"><input type="number" id="newFGqty"   placeholder="FG-qty"></div>
         <div class="pro3-proc6-g2-c">
