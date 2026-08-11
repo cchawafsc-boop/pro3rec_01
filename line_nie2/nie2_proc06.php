@@ -127,7 +127,7 @@
           </select>
         </div>
         <div class="pro3-proc6-g2-c"><input type="number" id="newNGqty"   placeholder="NG-qty"></div>
-        <div class="pro3-proc6-g2-c"><input type="number" id="newShrOvr"  placeholder="ShrOvr"></div>
+        <div class="pro3-proc6-g2-c"><input type="number" id="newShrOvr"  placeholder="ขาด/เกิน" min="0"></div>
         <div class="pro3-proc6-g2-c"><input type="number" id="newOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
         <div class="pro3-proc6-g2-c">
           <select id="newStatus">
@@ -152,6 +152,11 @@
         <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้าหลัก<br>Ni-e line 2 </button>
       </p>
     </form>
+    <div id="์page-note">
+      <span>หมายเหตุ</span>
+      <p>NG ของ QC inspection ต้องถูกตัดสินใหม่จาก QC/QA แยกจาก NG ของ Production</p>
+      <p>ต้อง<span style="color: red;"><strong>ไม่</strong></span>เอา NG ของ Production มาลงโดยทันที</p>
+    </div>
   </div>
 
   <?php mysqli_close($conn); ?>
