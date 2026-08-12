@@ -262,7 +262,7 @@
         <div class="amtbox-h" style="font-size: small;">จำนวนชิ้นตาม LotTag</div>
         <div class="amtbox-h" style="font-size: small;">จำนวนชิ้นที่นับจริงที่ racking</div>
         <div class="amtbox-h" style="font-size: small;">จำนวนชิ้นที่นับจริงที่ inspect</div>
-        <div class="amtbox-h">ShortOver</div>
+        <div class="amtbox-h" style="font-size: small;">จำนวนขาด / เกิน</div>
         <div class="amtbox-h">Remark</div>
         <div class="amtbox-h">Action</div>
 
