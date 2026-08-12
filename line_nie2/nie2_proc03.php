@@ -85,6 +85,43 @@
         exit;
     }
 
+    // AJAX: insert a new box-qty record into tb_proc3_box
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_qtybox'])) {
+        header('Content-Type: application/json');
+
+        $qProdName   = $_POST['ProdName'] ?? '';
+        $qInvNo      = $_POST['InvNo'] ?? '';
+        $qWo         = $_POST['WO'] ?? '';
+        $qDate       = $_POST['Date'] ?? '';
+        $qTime       = $_POST['Time'] ?? '';
+        $qOpr        = (int)($_POST['Opr'] ?? 0);
+        $qBoxNo      = $_POST['BoxNo'] ?? '';
+        $qLotTagQty  = (int)($_POST['LotTagQty'] ?? 0);
+        $qActualQty  = (int)($_POST['ActualQty'] ?? 0);
+        $qShortOver  = (int)($_POST['ShortOver'] ?? 0);
+        $qRemark     = $_POST['Remark'] ?? '';
+
+        $qDupStmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=? LIMIT 1");
+        mysqli_stmt_bind_param($qDupStmt, 'sss', $qProdName, $qInvNo, $qWo);
+        mysqli_stmt_execute($qDupStmt);
+        $qDupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($qDupStmt));
+
+        if ($qDupRow) {
+            echo json_encode(['status' => 'dup', 'message' => 'มีข้อมูลซ้ำซ้อนในฐานข้อมูล กรุณาตรวจสอบ']);
+        } else {
+            $qStmt = mysqli_prepare($conn,
+                "INSERT INTO `tb_proc3_box` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotTagQty`,`ActualQty`,`ShortOver`,`Remark`)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($qStmt, 'sssssisiiis',
+                $qProdName, $qInvNo, $qWo, $qDate, $qTime, $qOpr, $qBoxNo, $qLotTagQty, $qActualQty, $qShortOver, $qRemark);
+            $qok = mysqli_stmt_execute($qStmt);
+            echo json_encode(['status' => $qok ? 'ok' : 'fail', 'message' => $qok ? '' : mysqli_error($conn)]);
+        }
+        mysqli_close($conn);
+        exit;
+    }
+
     // Resolve the header (Lot ID / Product name / Invoice no / WO) from a Lot Tag
     // scan (prodName+wo+boxNo), same pattern as nie2_proc02.php.
     $lot_id = $lot_id_raw = '';
@@ -124,6 +161,19 @@
         $rres = mysqli_stmt_get_result($rstmt);
         while ($rrow = mysqli_fetch_assoc($rres)) {
             $rackRows[] = $rrow;
+        }
+    }
+
+    // Existing box-qty records for this lot.
+    $qtyBoxRows = [];
+    if (!empty($lot_prodname_raw)) {
+        $qbStmt = mysqli_prepare($conn,
+            "SELECT BoxNo, LotTagQty, ActualQty, ShortOver, Remark FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=?");
+        mysqli_stmt_bind_param($qbStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+        mysqli_stmt_execute($qbStmt);
+        $qbRes = mysqli_stmt_get_result($qbStmt);
+        while ($qbRow = mysqli_fetch_assoc($qbRes)) {
+            $qtyBoxRows[] = $qbRow;
         }
     }
 
@@ -199,6 +249,31 @@
           <input type="time" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
+      </div>
+
+      <div id="input-qty">
+        <div class="qtybox-h">Box-no</div>
+        <div class="qtybox-h">LotTag-qty</div>
+        <div class="qtybox-h">Actual-qty</div>
+        <div class="qtybox-h">Short/Over</div>
+        <div class="qtybox-h">Remark</div>
+        <div class="qtybox-h">Action</div>
+
+        <?php foreach ($qtyBoxRows as $qbRow): ?>
+        <div class="qtybox-c"><?php echo htmlspecialchars($qbRow['BoxNo']); ?></div>
+        <div class="qtybox-c"><?php echo (int)$qbRow['LotTagQty']; ?></div>
+        <div class="qtybox-c"><?php echo (int)$qbRow['ActualQty']; ?></div>
+        <div class="qtybox-c"><?php echo (int)$qbRow['ShortOver']; ?></div>
+        <div class="qtybox-c"><?php echo htmlspecialchars($qbRow['Remark']); ?></div>
+        <div class="qtybox-c"></div>
+        <?php endforeach; ?>
+
+        <div class="qtybox-c"><input type="text" id="newQtyBoxNo" disabled value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>"></div>
+        <div class="qtybox-c"><input type="number" id="newLotTagQty" placeholder="LotTag-qty" min="0"></div>
+        <div class="qtybox-c"><input type="number" id="newActualQty" placeholder="Actual-qty" min="0"></div>
+        <div class="qtybox-c"><input type="number" id="newQtyShortOver" readonly></div>
+        <div class="qtybox-c"><textarea id="newQtyRemark" rows="2"></textarea></div>
+        <div class="qtybox-c"><button type="button" id="newQtyBoxSubmitBtn">บันทึก</button></div>
       </div>
 
       <div id="input-racking">
@@ -290,6 +365,57 @@
       url.searchParams.set('wo', lot.wo);
       url.searchParams.set('boxNo', lot.boxNo);
       window.location.href = url.toString();
+    });
+
+    function updateQtyShortOver() {
+      var lotTagQty = parseInt(document.getElementById('newLotTagQty').value, 10);
+      var actualQty = parseInt(document.getElementById('newActualQty').value, 10);
+      var shortOverField = document.getElementById('newQtyShortOver');
+      if (isNaN(lotTagQty) || isNaN(actualQty)) {
+        shortOverField.value = '';
+        return;
+      }
+      shortOverField.value = lotTagQty - actualQty;
+    }
+    document.getElementById('newLotTagQty').addEventListener('input', updateQtyShortOver);
+    document.getElementById('newActualQty').addEventListener('input', updateQtyShortOver);
+
+    document.getElementById('newQtyBoxSubmitBtn').addEventListener('click', function () {
+      var btn = this;
+      var payload = new URLSearchParams({
+        ajax_insert_qtybox: '1',
+        ProdName:   document.querySelector('input[name="ProdName"]').value,
+        InvNo:      document.querySelector('input[name="InvNo"]').value,
+        WO:         document.querySelector('input[name="WO"]').value,
+        Date:       document.getElementById('rackDate').value,
+        Time:       document.getElementById('rackTime').value,
+        Opr:        document.getElementById('newRackOpr').value,
+        BoxNo:      document.getElementById('newQtyBoxNo').value,
+        LotTagQty:  document.getElementById('newLotTagQty').value,
+        ActualQty:  document.getElementById('newActualQty').value,
+        ShortOver:  document.getElementById('newQtyShortOver').value,
+        Remark:     document.getElementById('newQtyRemark').value
+      });
+
+      btn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'ok') {
+            location.reload();
+          } else {
+            alert(data.message || 'บันทึกไม่สำเร็จ');
+            btn.disabled = false;
+          }
+        })
+        .catch(function () {
+          alert('เกิดข้อผิดพลาด');
+          btn.disabled = false;
+        });
     });
 
     var lotIdFirstPart = <?php echo json_encode(explode('_', $lot_id_raw)[0]); ?>;
