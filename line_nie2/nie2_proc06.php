@@ -488,6 +488,7 @@
 
       if (!lotId || !pcsPerRack) {
         smpField.value = '';
+        document.getElementById('newSmpQty').value = '';
         return;
       }
 
@@ -505,6 +506,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           smpField.value = data.status === 'ok' ? data.smpPerRack : '';
+          document.getElementById('newSmpQty').value = smpField.value;
         })
         .catch(function () {
           alert('เกิดข้อผิดพลาด');
