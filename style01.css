@@ -476,6 +476,12 @@ form .form-pro3-proc3-g1 {
 	box-sizing: border-box;
 }
 
+.grid-title {
+	grid-column: 1 / -1;
+	text-align: center;
+	font-weight: bold;
+}
+
 #input-qty {
 	display: grid;
 	grid-template-columns: 80px 90px 90px 90px 1fr 80px;
