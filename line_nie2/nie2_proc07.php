@@ -16,23 +16,17 @@
   <div class="form-pro3-proc1">
     <h2>7 QA Outgoing — Ni-e Line 2</h2>
 
-    <?php if (!empty($_SESSION['lotid'])): ?>
-    <p style="color:#1a6e1a; font-weight:bold; font-size:0.95em;">
-      Lot ID : <?php echo htmlspecialchars($_SESSION['lotid']); ?>
-    </p>
-    <?php endif; ?>
-
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="form-pro3-proc7-g">
 
         <div class="pro3-proc7-g-it"><label>Operator</label></div>
         <div class="pro3-proc7-g-it">
-          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" readonly required>
+          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
         </div>
 
         <div class="pro3-proc7-g-it"><label>Lot tag</label></div>
         <div class="pro3-proc7-g-it">
-          <input placeholder="ProdName|WO|BoxNo|BoxQty|Material">
+          <input placeholder="Scan Lot tag ที่นี่">
         </div>
 
         <div class="pro3-proc7-g-it"><label>Lot ID</label></div>
@@ -65,40 +59,47 @@
 
         <div class="pro3-proc7-g-it"><label>Time</label></div>
         <div class="pro3-proc7-g-it">
-          <input type="time" name="Time" value="<?php echo date('H:i'); ?>" required>
+          <input type="time" name="Time" value="<?php echo date('H:i'); ?>" disabled required>
         </div>
 
-        <div class="pro3-proc7-g-it"><label>สุ่มวัดความหนา (pcs)</label></div>
         <div class="pro3-proc7-g-it">
-          <input type="number" name="ThickSamplingSize" required>
+          <label style="font-size: 0.8em;">App.<span style="font-size: 0.5em;"> AQL 0.65 Lv.II</span>
+          </label>
         </div>
-
-        <div class="pro3-proc7-g-it"><label>ผลวัดความหนา</label></div>
         <div class="pro3-proc7-g-it">
-          <select name="ThickJudge" id="f_ThickJudge" onchange="updateQAJudge()" required>
+          <select name="AppAQLCheck" required>
             <option value="" selected disabled>โปรดระบุ</option>
-            <option value="PASS">PASS</option>
-            <option value="FAIL">FAIL</option>
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
           </select>
         </div>
 
-        <div class="pro3-proc7-g-it"><label>สุ่มวัด gloss (pcs)</label></div>
+        <div class="pro3-proc7-g-it"><label style="font-size: 0.8em;">สุ่มวัดความหนา (pcs)</label></div>
         <div class="pro3-proc7-g-it">
-          <input type="number" name="GlossSamplingSize" required>
+          <input type="number" name="ThickSmpSize" required>
         </div>
 
-        <div class="pro3-proc7-g-it"><label>ผลวัด gloss</label></div>
+        <div class="pro3-proc7-g-it"><label style="font-size: 0.8em;">ผลวัดความหนา</label></div>
         <div class="pro3-proc7-g-it">
-          <select name="GlossJudge" id="f_GlossJudge" onchange="updateQAJudge()" required>
+          <select name="ThickJudge" id="ThickJudge" required>
             <option value="" selected disabled>โปรดระบุ</option>
-            <option value="PASS">PASS</option>
-            <option value="FAIL">FAIL</option>
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
           </select>
         </div>
 
-        <div class="pro3-proc7-g-it"><label>สรุปการตัดสินใจ</label></div>
+        <div class="pro3-proc7-g-it"><label style="font-size: 0.8em;">สุ่มวัด gloss (pcs)</label></div>
         <div class="pro3-proc7-g-it">
-          <input type="text" name="QAJudge" id="f_QAJudge" readonly required>
+          <input type="number" name="GlossSmpSize" required>
+        </div>
+
+        <div class="pro3-proc7-g-it"><label style="font-size: 0.8em;">ผลวัด gloss</label></div>
+        <div class="pro3-proc7-g-it">
+          <select name="GlossJudge" id="GlossJudge" required>
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
+          </select>
         </div>
 
         <!-- Remark -->
