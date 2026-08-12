@@ -33,6 +33,47 @@
         exit;
     }
 
+    function calcSamplingSize($n) {
+        /* This calculation is from AQL level II 0.65 */
+        if ($n >= 1    && $n <= 20)   return $n;
+        if ($n >= 21   && $n <= 280)  return 20;
+        if ($n >= 281  && $n <= 1200) return 80;
+        if ($n >= 1201 && $n <= 3200) return 125;
+        return 0;
+    }
+
+    // AJAX: calc smpPerRack from pcsPerRack input, based on total PcsFromInv for lot
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_calc_smp'])) {
+        header('Content-Type: application/json');
+
+        $cLotId      = $_POST['lot_id'] ?? '';
+        $cPcsPerRack = (int)($_POST['pcsPerRack'] ?? 0);
+
+        $cStmt = mysqli_prepare($conn,
+            "SELECT ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
+        mysqli_stmt_bind_param($cStmt, 's', $cLotId);
+        mysqli_stmt_execute($cStmt);
+        $cRow = mysqli_fetch_assoc(mysqli_stmt_get_result($cStmt));
+
+        if ($cRow && $cPcsPerRack > 0) {
+            $sumStmt = mysqli_prepare($conn,
+                "SELECT COALESCE(SUM(PcsFromInv),0) AS totalPcs FROM tb_proc2 WHERE ProdName = ? AND InvNo = ? AND WO = ?");
+            mysqli_stmt_bind_param($sumStmt, 'sss', $cRow['ProdName'], $cRow['InvNo'], $cRow['WO']);
+            mysqli_stmt_execute($sumStmt);
+            $sumRow = mysqli_fetch_assoc(mysqli_stmt_get_result($sumStmt));
+            $totalPcs = (int)$sumRow['totalPcs'];
+
+            $smpSizeFromInv = calcSamplingSize($totalPcs);
+            $smpPerRack = (int)ceil($smpSizeFromInv / $cPcsPerRack);
+
+            echo json_encode(['status' => 'ok', 'smpPerRack' => $smpPerRack]);
+        } else {
+            echo json_encode(['status' => 'ok', 'smpPerRack' => 0]);
+        }
+        mysqli_close($conn);
+        exit;
+    }
+
     // NG mode options for inspection
     $ngModeList = [];
     $nmStmt = mysqli_prepare($conn, "SELECT NGmode FROM tb_ng_list WHERE Process = 'All'");
@@ -103,7 +144,7 @@
 
         <div class="pro3-proc6-g1-it"><label style="font-size:0.8em;">จำนวนสุ่มต่อแร็ก</label></div>
         <div class="pro3-proc6-g1-it">
-          <input type="number" id="smpPerRack" name="smpPerRack" value="" disabled>
+          <input type="number" id="smpPerRack_F" name="smpPerRack_F" value="" disabled>
         </div>
 
       </div>
@@ -160,9 +201,9 @@
       </p>
     </form>
     <div id="์page-note">
-      <span>หมายเหตุ</span>
-      <p>NG ของ QC inspection ต้องถูกตัดสินใหม่จาก QC/QA แยกจาก NG ของ Production</p>
-      <p>ต้อง<span style="color: red;"><strong>ไม่</strong></span>เอา NG ของ Production มาลงโดยทันที</p>
+      <span>หมายเหตุ</span><br>
+      <span style="font-size: small;">NG ของ QC inspection ต้องถูกตัดสินใหม่จาก QC/QA แยกจาก NG ของ Production</span><br>
+      <span style="font-size: small;">ต้อง<span style="color: red;"><strong>ไม่</strong></span>เอา NG ของ Production มาลงโดยทันที</span>
     </div>
   </div>
 
@@ -215,6 +256,36 @@
         .catch(function () {
           alert('เกิดข้อผิดพลาด');
           input.focus();
+        });
+    });
+
+    document.getElementById('pcsPerRack').addEventListener('change', function () {
+      var lotId = document.getElementById('lotIdDisplay').value;
+      var pcsPerRack = this.value;
+      var smpField = document.getElementById('smpPerRack_F');
+
+      if (!lotId || !pcsPerRack) {
+        smpField.value = '';
+        return;
+      }
+
+      var payload = new URLSearchParams({
+        ajax_calc_smp: '1',
+        lot_id: lotId,
+        pcsPerRack: pcsPerRack
+      });
+
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          smpField.value = data.status === 'ok' ? data.smpPerRack : '';
+        })
+        .catch(function () {
+          alert('เกิดข้อผิดพลาด');
         });
     });
 
