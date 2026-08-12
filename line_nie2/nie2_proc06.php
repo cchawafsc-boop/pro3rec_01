@@ -74,6 +74,113 @@
         exit;
     }
 
+    // AJAX: list existing tb_proc6_box records for a ProdName+InvNo+WO,
+    // with each row's Racking-Act-qty pulled live from tb_proc3_box.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_list_amount'])) {
+        header('Content-Type: application/json');
+
+        $lProdName = $_POST['ProdName'] ?? '';
+        $lInvNo    = $_POST['InvNo'] ?? '';
+        $lWo       = $_POST['WO'] ?? '';
+
+        $records = [];
+        $lstmt = mysqli_prepare($conn,
+            "SELECT p6.BoxNo, p6.LotTagQty, p3b.ActualQty AS RackActQty, p6.ActualQty AS QCActQty, p6.ShortOver, p6.Remark
+             FROM tb_proc6_box p6
+             LEFT JOIN tb_proc3_box p3b
+                ON p3b.ProdName = p6.ProdName AND p3b.InvNo = p6.InvNo AND p3b.WO = p6.WO AND p3b.BoxNo = p6.BoxNo
+             WHERE p6.ProdName = ? AND p6.InvNo = ? AND p6.WO = ?");
+        mysqli_stmt_bind_param($lstmt, 'sss', $lProdName, $lInvNo, $lWo);
+        mysqli_stmt_execute($lstmt);
+        $lres = mysqli_stmt_get_result($lstmt);
+        while ($lrow = mysqli_fetch_assoc($lres)) {
+            $records[] = $lrow;
+        }
+
+        echo json_encode(['status' => 'ok', 'records' => $records]);
+        mysqli_close($conn);
+        exit;
+    }
+
+    // AJAX: fetch Racking-Act-qty (tb_proc3_box.ActualQty) for a given box.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_get_rackactqty'])) {
+        header('Content-Type: application/json');
+
+        $gProdName = $_POST['ProdName'] ?? '';
+        $gInvNo    = $_POST['InvNo'] ?? '';
+        $gWo       = $_POST['WO'] ?? '';
+        $gBoxNo    = $_POST['BoxNo'] ?? '';
+
+        $gstmt = mysqli_prepare($conn,
+            "SELECT ActualQty FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
+        mysqli_stmt_bind_param($gstmt, 'ssss', $gProdName, $gInvNo, $gWo, $gBoxNo);
+        mysqli_stmt_execute($gstmt);
+        $grow = mysqli_fetch_assoc(mysqli_stmt_get_result($gstmt));
+
+        if ($grow) {
+            echo json_encode(['status' => 'ok', 'rackActQty' => (int)$grow['ActualQty']]);
+        } else {
+            echo json_encode(['status' => 'fail']);
+        }
+        mysqli_close($conn);
+        exit;
+    }
+
+    // AJAX: insert a new box-amount record into tb_proc6_box
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_amount'])) {
+        header('Content-Type: application/json');
+
+        $aProdName   = $_POST['ProdName'] ?? '';
+        $aInvNo      = $_POST['InvNo'] ?? '';
+        $aWo         = $_POST['WO'] ?? '';
+        $aDate       = $_POST['Date'] ?? '';
+        $aTime       = $_POST['Time'] ?? '';
+        $aOpr        = (int)($_POST['Opr'] ?? 0);
+        $aBoxNo      = $_POST['BoxNo'] ?? '';
+        $aLotTagQty  = (int)($_POST['LotTagQty'] ?? 0);
+        $aActualQty  = (int)($_POST['ActualQty'] ?? 0);
+        $aShortOver  = (int)($_POST['ShortOver'] ?? 0);
+        $aRemark     = $_POST['Remark'] ?? '';
+
+        $aDupStmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_proc6_box WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
+        mysqli_stmt_bind_param($aDupStmt, 'ssss', $aProdName, $aInvNo, $aWo, $aBoxNo);
+        mysqli_stmt_execute($aDupStmt);
+        $aDupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($aDupStmt));
+
+        if ($aDupRow) {
+            echo json_encode(['status' => 'dup', 'message' => 'มีข้อมูลซ้ำซ้อนในฐานข้อมูล กรุณาตรวจสอบ']);
+        } else {
+            $aStmt = mysqli_prepare($conn,
+                "INSERT INTO `tb_proc6_box` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotTagQty`,`ActualQty`,`ShortOver`,`Remark`)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($aStmt, 'sssssisiiis',
+                $aProdName, $aInvNo, $aWo, $aDate, $aTime, $aOpr, $aBoxNo, $aLotTagQty, $aActualQty, $aShortOver, $aRemark);
+            $aok = mysqli_stmt_execute($aStmt);
+            echo json_encode(['status' => $aok ? 'ok' : 'fail', 'message' => $aok ? '' : mysqli_error($conn)]);
+        }
+        mysqli_close($conn);
+        exit;
+    }
+
+    // AJAX: delete one box-amount record from tb_proc6_box
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete_amount'])) {
+        header('Content-Type: application/json');
+
+        $xProdName = $_POST['ProdName'] ?? '';
+        $xInvNo    = $_POST['InvNo'] ?? '';
+        $xWo       = $_POST['WO'] ?? '';
+        $xBoxNo    = $_POST['BoxNo'] ?? '';
+
+        $xstmt = mysqli_prepare($conn,
+            "DELETE FROM tb_proc6_box WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
+        mysqli_stmt_bind_param($xstmt, 'ssss', $xProdName, $xInvNo, $xWo, $xBoxNo);
+        $xok = mysqli_stmt_execute($xstmt);
+        echo json_encode(['status' => $xok ? 'ok' : 'fail', 'message' => $xok ? '' : mysqli_error($conn)]);
+        mysqli_close($conn);
+        exit;
+    }
+
     // NG mode options for inspection
     $ngModeList = [];
     $nmStmt = mysqli_prepare($conn, "SELECT NGmode FROM tb_ng_list WHERE Process = 'All'");
@@ -149,7 +256,26 @@
 
       </div>
 
-      <div id="input-plating" class="pro3-proc6-g2">
+      <div id="input-amount">
+        <div class="grid-title">ข้อมูลจำนวนของกล่อง</div>
+        <div class="amtbox-h">Box-no</div>
+        <div class="amtbox-h">LotTag-qty</div>
+        <div class="amtbox-h">Racking-Act-qty</div>
+        <div class="amtbox-h">QC-Act-qty</div>
+        <div class="amtbox-h">ShortOver</div>
+        <div class="amtbox-h">Remark</div>
+        <div class="amtbox-h">Action</div>
+
+        <div class="amtbox-c" id="amtEntryRowAnchor"><input type="text" id="newAmtBoxNo" disabled></div>
+        <div class="amtbox-c"><input type="number" id="newAmtLotTagQty" placeholder="LotTag-qty" min="0"></div>
+        <div class="amtbox-c"><input type="number" id="newAmtRackActQty" readonly></div>
+        <div class="amtbox-c"><input type="number" id="newAmtQCActQty" placeholder="QC-Act-qty" min="0"></div>
+        <div class="amtbox-c"><input type="number" id="newAmtShortOver" readonly></div>
+        <div class="amtbox-c"><textarea id="newAmtRemark" rows="2"></textarea></div>
+        <div class="amtbox-c"><button type="button" id="newAmtSubmitBtn">บันทึก</button></div>
+      </div>
+
+      <div id="input-inspect" class="pro3-proc6-g2">
         <!-- 1 --><div class="pro3-proc6-g2-h">Box-no</div>
         <!-- 2 --><div class="pro3-proc6-g2-h">Plate-no</div>
         <!-- 3 --><div class="pro3-proc6-g2-h">FG-qty</div>
@@ -246,6 +372,11 @@
             document.getElementById('lotWoDisplay').value = data.wo;
             document.getElementById('lotWoHidden').value = data.wo;
             input.value = lot.boxNo;
+
+            document.getElementById('newAmtBoxNo').value = lot.boxNo;
+            fetchRackActQty(data.prodname, data.invno, data.wo, lot.boxNo);
+            fetchAndRenderAmountRows(data.prodname, data.invno, data.wo);
+
             document.getElementById('newPlateNo').focus();
           } else {
             alert('ไม่พบ Box-no ในฐานข้อมูล โปรดตรวจสอบอีกครั้ง');
@@ -293,6 +424,167 @@
       if (e.key !== 'Enter') return;
       e.preventDefault();
       document.getElementById('newFGqty').focus();
+    });
+
+    function fetchRackActQty(prodname, invno, wo, boxNo) {
+      var field = document.getElementById('newAmtRackActQty');
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          ajax_get_rackactqty: '1',
+          ProdName: prodname,
+          InvNo: invno,
+          WO: wo,
+          BoxNo: boxNo
+        })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          field.value = data.status === 'ok' ? data.rackActQty : '';
+        })
+        .catch(function () {
+          field.value = '';
+        });
+    }
+
+    function buildAmountRow(rec) {
+      var wrap = document.createDocumentFragment();
+      [rec.BoxNo, rec.LotTagQty, rec.RackActQty, rec.QCActQty, rec.ShortOver, rec.Remark].forEach(function (val) {
+        var cell = document.createElement('div');
+        cell.className = 'amtbox-c pro3-amtbox-record-row';
+        cell.textContent = val;
+        wrap.appendChild(cell);
+      });
+
+      var actionCell = document.createElement('div');
+      actionCell.className = 'amtbox-c pro3-amtbox-record-row';
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.textContent = 'delete';
+      delBtn.addEventListener('click', function () {
+        if (!confirm('ต้องการลบรายการนี้หรือไม่')) return;
+
+        var ctx = currentAmtLotCtx();
+        delBtn.disabled = true;
+        fetch(location.href, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            ajax_delete_amount: '1',
+            ProdName: ctx.prodname,
+            InvNo: ctx.invno,
+            WO: ctx.wo,
+            BoxNo: rec.BoxNo
+          })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.status === 'ok') {
+              fetchAndRenderAmountRows(ctx.prodname, ctx.invno, ctx.wo);
+            } else {
+              alert(data.message || 'ลบไม่สำเร็จ');
+              delBtn.disabled = false;
+            }
+          })
+          .catch(function () {
+            alert('เกิดข้อผิดพลาด');
+            delBtn.disabled = false;
+          });
+      });
+      actionCell.appendChild(delBtn);
+      wrap.appendChild(actionCell);
+
+      return wrap;
+    }
+
+    function renderAmountRows(records) {
+      document.querySelectorAll('.pro3-amtbox-record-row').forEach(function (el) { el.remove(); });
+      var anchor = document.getElementById('amtEntryRowAnchor');
+      records.forEach(function (rec) {
+        anchor.parentNode.insertBefore(buildAmountRow(rec), anchor);
+      });
+    }
+
+    function fetchAndRenderAmountRows(prodname, invno, wo) {
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          ajax_list_amount: '1',
+          ProdName: prodname,
+          InvNo: invno,
+          WO: wo
+        })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'ok') renderAmountRows(data.records || []);
+        });
+    }
+
+    function currentAmtLotCtx() {
+      return {
+        prodname: document.getElementById('lotProdnameHidden').value,
+        invno: document.getElementById('lotInvnoHidden').value,
+        wo: document.getElementById('lotWoHidden').value
+      };
+    }
+
+    function updateAmtShortOver() {
+      var lotTagQty = parseInt(document.getElementById('newAmtLotTagQty').value, 10);
+      var qcActQty = parseInt(document.getElementById('newAmtQCActQty').value, 10);
+      var shortOverField = document.getElementById('newAmtShortOver');
+      if (isNaN(lotTagQty) || isNaN(qcActQty)) {
+        shortOverField.value = '';
+        return;
+      }
+      shortOverField.value = lotTagQty - qcActQty;
+    }
+    document.getElementById('newAmtLotTagQty').addEventListener('input', updateAmtShortOver);
+    document.getElementById('newAmtQCActQty').addEventListener('input', updateAmtShortOver);
+
+    document.getElementById('newAmtSubmitBtn').addEventListener('click', function () {
+      var btn = this;
+      var ctx = currentAmtLotCtx();
+      var payload = new URLSearchParams({
+        ajax_insert_amount: '1',
+        ProdName:  ctx.prodname,
+        InvNo:     ctx.invno,
+        WO:        ctx.wo,
+        Date:      document.getElementById('rackDate').value,
+        Time:      document.getElementById('rackTime').value,
+        Opr:       document.querySelector('input[name="Opr"]').value,
+        BoxNo:     document.getElementById('newAmtBoxNo').value,
+        LotTagQty: document.getElementById('newAmtLotTagQty').value,
+        ActualQty: document.getElementById('newAmtQCActQty').value,
+        ShortOver: document.getElementById('newAmtShortOver').value,
+        Remark:    document.getElementById('newAmtRemark').value
+      });
+
+      btn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'ok') {
+            document.getElementById('newAmtLotTagQty').value = '';
+            document.getElementById('newAmtQCActQty').value = '';
+            document.getElementById('newAmtShortOver').value = '';
+            document.getElementById('newAmtRemark').value = '';
+            fetchAndRenderAmountRows(ctx.prodname, ctx.invno, ctx.wo);
+          } else {
+            alert(data.message || 'บันทึกไม่สำเร็จ');
+          }
+          btn.disabled = false;
+        })
+        .catch(function () {
+          alert('เกิดข้อผิดพลาด');
+          btn.disabled = false;
+        });
     });
   </script>
 </body>
