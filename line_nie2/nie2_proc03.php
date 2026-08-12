@@ -254,9 +254,9 @@
       <div id="input-qty">
         <div class="grid-title">ข้อมูลจำนวนของกล่อง</div>
         <div class="qtybox-h">Box-no</div>
-        <div class="qtybox-h">LotTag-qty</div>
-        <div class="qtybox-h">Actual-qty</div>
-        <div class="qtybox-h">Short/Over</div>
+        <div class="qtybox-h">จำนวนชิ้นตาม LotTag</div>
+        <div class="qtybox-h">จำนวนชิ้นงานที่นับจริง</div>
+        <div class="qtybox-h">ขาด / เกิน</div>
         <div class="qtybox-h">Remark</div>
         <div class="qtybox-h">Action</div>
 
