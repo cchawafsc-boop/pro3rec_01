@@ -259,9 +259,9 @@
       <div id="input-amount">
         <div class="grid-title">ข้อมูลจำนวนของกล่อง</div>
         <div class="amtbox-h">Box-no</div>
-        <div class="amtbox-h">LotTag-qty</div>
-        <div class="amtbox-h">Racking-Act-qty</div>
-        <div class="amtbox-h">QC-Act-qty</div>
+        <div class="amtbox-h" style="font-size: small;">จำนวนชิ้นตาม LotTag</div>
+        <div class="amtbox-h" style="font-size: small;">จำนวนชิ้นที่นับจริงที่ racking</div>
+        <div class="amtbox-h" style="font-size: small;">จำนวนชิ้นที่นับจริงที่ inspect</div>
         <div class="amtbox-h">ShortOver</div>
         <div class="amtbox-h">Remark</div>
         <div class="amtbox-h">Action</div>
