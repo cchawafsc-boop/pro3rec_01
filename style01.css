@@ -962,11 +962,15 @@ form .form-pro3-proc6-g1 {
 	background-color: #4CAF50;
 }
 .pro3-proc6-summary {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: center;
-	gap: 10px 24px;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(180px, 1fr));
+	grid-template-areas:
+		"title    title    title"
+		"lottag   fg       amtjudge"
+		".        ng       qcjudge"
+		"rack     total    status"
+		".        short    submit";
+	gap: 8px 24px;
 	background-color: khaki;
 	border-radius: 8px;
 	margin: 8px auto;
@@ -974,32 +978,44 @@ form .form-pro3-proc6-g1 {
 	box-sizing: border-box;
 	font-family: monospace;
 	font-weight: bold;
-	max-width: 900px;
+	max-width: 700px;
+}
+.pro3-proc6-summary-title {
+	grid-area: title;
+	text-align: center;
+	font-size: 1.1em;
+	margin-bottom: 4px;
 }
 .pro3-proc6-summary-it {
 	display: flex;
-	align-items: center;
-	gap: 6px;
-	white-space: nowrap;
+	flex-direction: column;
+	gap: 2px;
 }
-.pro3-proc6-summary-it input[type="number"] {
-	width: 80px;
+.pro3-proc6-summary-it .gs-label {
+	font-size: 0.8em;
+}
+.pro3-proc6-summary-it input[type="number"],
+.pro3-proc6-summary-it select {
+	width: 100%;
 	box-sizing: border-box;
 	font-family: inherit;
 	font-weight: normal;
 	text-align: center;
 }
-.pro3-proc6-summary-it.summary-status,
-.pro3-proc6-summary-it:last-child {
-	flex-basis: 100%;
+.gs-lottag    { grid-area: lottag; }
+.gs-rack      { grid-area: rack; }
+.gs-fg        { grid-area: fg; }
+.gs-ng        { grid-area: ng; }
+.gs-total     { grid-area: total; }
+.gs-shortover { grid-area: short; }
+.gs-amtjudge  { grid-area: amtjudge; }
+.gs-qcjudge   { grid-area: qcjudge; }
+.gs-status    { grid-area: status; }
+.gs-submit {
+	grid-area: submit;
 	justify-content: center;
 }
-.pro3-proc6-summary .summary-status {
-	text-transform: uppercase;
-	letter-spacing: 1px;
-	font-size: 1.1em;
-}
-.pro3-proc6-summary-it:last-child button {
+.gs-submit button {
 	padding: 6px 24px;
 	border-style: none;
 	border-radius: 4px;
@@ -1082,3 +1098,33 @@ form .form-pro3-proc6-g1 {
 	top: 0;
 	left: 0;
 	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.5);
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+.ngConfirmBox{
+	background: white;
+	padding: 20px 25px;
+	border-radius: 6px;
+	text-align: center;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.ngConfirmBox button{
+	padding: 6px 18px;
+	margin: 8px 6px 0;
+	border-style: none;
+	border-radius: 4px;
+	cursor: pointer;
+	color: white;
+}
+.ngConfirmBox button#ngConfirmYes{
+	background-color: #4CAF50;
+}
+.ngConfirmBox button#ngConfirmNo{
+	background-color: red;
+}
+/*__________________________ End: ng input __________________________*/
+
+/*=========================== CSS file ==============================*/
