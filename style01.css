@@ -907,7 +907,7 @@ form .form-pro3-proc6-g1 {
 
 #input-inspect.pro3-proc6-g2 {
 	display: grid;
-	grid-template-columns: 70px 70px 60px 80px 60px 60px 60px 90px 1fr 80px;
+	grid-template-columns: 70px 70px 60px 60px 60px 60px 100px 90px 1fr 80px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
