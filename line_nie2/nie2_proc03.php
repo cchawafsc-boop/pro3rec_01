@@ -375,7 +375,7 @@
         shortOverField.value = '';
         return;
       }
-      shortOverField.value = lotTagQty - actualQty;
+      shortOverField.value = actualQty - lotTagQty;
     }
     document.getElementById('newLotTagQty').addEventListener('input', updateQtyShortOver);
     document.getElementById('newActualQty').addEventListener('input', updateQtyShortOver);
