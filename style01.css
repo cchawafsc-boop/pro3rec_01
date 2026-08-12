@@ -905,7 +905,7 @@ form .form-pro3-proc6-g1 {
 	box-sizing: border-box;
 }
 
-#input-plating.pro3-proc6-g2 {
+#input-inspect.pro3-proc6-g2 {
 	display: grid;
 	grid-template-columns: 70px 70px 60px 80px 60px 60px 60px 90px 1fr 80px;
 	gap: 5px;
