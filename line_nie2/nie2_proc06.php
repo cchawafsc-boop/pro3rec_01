@@ -96,9 +96,14 @@
           <input type="time" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
+        <div class="pro3-proc6-g1-it"><label style="font-size:0.8em;">จำนวนชิ้นต่อแร็ก</label></div>
+        <div class="pro3-proc6-g1-it">
+          <input type="number" id="pcsPerRack" name="pcsPerRack" placeholder="โปรดระบุ" min="0">
+        </div>
+
         <div class="pro3-proc6-g1-it"><label style="font-size:0.8em;">จำนวนสุ่มต่อแร็ก</label></div>
         <div class="pro3-proc6-g1-it">
-          <input type="number" id="samplingSize" name="samplingSize" value="" disabled>
+          <input type="number" id="smpPerRack" name="smpPerRack" value="" disabled>
         </div>
 
       </div>
@@ -115,7 +120,7 @@
         <!-- 9 --><div class="pro3-proc6-g2-h">Remark</div>
         <!--10 --><div class="pro3-proc6-g2-h">Action</div>
 
-        <div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="ProdName|WO|BoxNo|Qty|Mat"></div>
+        <div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="Lot Tag"></div>
         <div class="pro3-proc6-g2-c"><input type="text"   id="newPlateNo" placeholder="Plate-no"></div>
         <div class="pro3-proc6-g2-c"><input type="number" id="newFGqty"   placeholder="FG-qty"></div>
         <div class="pro3-proc6-g2-c">
@@ -143,8 +148,10 @@
       </div>
 
       <div class="pro3-proc6-summary">
-        <div class="pro3-proc6-summary-it">จำนวนแร็กที่ plating: <span id="platingPlateCount">0</span></div>
-        <div class="pro3-proc6-summary-it">จำนวนแร็กที่ racking: <span id="rackingPlateCount">0</span></div>
+        <div class="pro3-proc6-summary-it">จำนวนงานดี (pcs) :</div>
+        <div class="pro3-proc6-summary-it">จำนวน NG (pcs) :</div>
+        <div class="pro3-proc6-summary-it">รวม (pcs) :</div>
+        <div class="pro3-proc6-summary-it">ขาด/เกิน (pcs) :</div>
         <div class="pro3-proc6-summary-it summary-status" id="pltSummaryStatus"></div>
       </div>
 
