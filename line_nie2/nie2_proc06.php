@@ -276,6 +276,7 @@
       </div>
 
       <div id="input-inspect" class="pro3-proc6-g2">
+        <div class="grid-title">ข้อมูลการ Inspection ของ QC</div>
         <!-- 1 --><div class="pro3-proc6-g2-h">Box-no</div>
         <!-- 2 --><div class="pro3-proc6-g2-h">Plate-no</div>
         <!-- 3 --><div class="pro3-proc6-g2-h">FG-qty</div>
@@ -311,7 +312,7 @@
           </select>
         </div>
         <div class="pro3-proc6-g2-c"><textarea id="newPltRemark" rows="2"></textarea></div>
-        <div class="pro3-proc6-g2-c"><button type="button" id="newInspSubmitBtn">บันทึกเข้าระบบ</button></div>
+        <div class="pro3-proc6-g2-c"><button type="button" id="newInspSubmitBtn">บันทึก</button></div>
       </div>
 
       <div class="pro3-proc6-summary">
@@ -374,6 +375,8 @@
             input.value = lot.boxNo;
 
             document.getElementById('newAmtBoxNo').value = lot.boxNo;
+            document.getElementById('newAmtLotTagQty').value = lot.boxQty;
+            updateAmtShortOver();
             fetchRackActQty(data.prodname, data.invno, data.wo, lot.boxNo);
             fetchAndRenderAmountRows(data.prodname, data.invno, data.wo);
 
