@@ -122,6 +122,24 @@
         exit;
     }
 
+    // AJAX: delete one box-qty record from tb_proc3_box
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete_qtybox'])) {
+        header('Content-Type: application/json');
+
+        $xProdName = $_POST['ProdName'] ?? '';
+        $xInvNo    = $_POST['InvNo'] ?? '';
+        $xWo       = $_POST['WO'] ?? '';
+        $xBoxNo    = $_POST['BoxNo'] ?? '';
+
+        $xstmt = mysqli_prepare($conn,
+            "DELETE FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
+        mysqli_stmt_bind_param($xstmt, 'ssss', $xProdName, $xInvNo, $xWo, $xBoxNo);
+        $xok = mysqli_stmt_execute($xstmt);
+        echo json_encode(['status' => $xok ? 'ok' : 'fail', 'message' => $xok ? '' : mysqli_error($conn)]);
+        mysqli_close($conn);
+        exit;
+    }
+
     // Resolve the header (Lot ID / Product name / Invoice no / WO) from a Lot Tag
     // scan (prodName+wo+boxNo), same pattern as nie2_proc02.php.
     $lot_id = $lot_id_raw = '';
@@ -266,7 +284,13 @@
         <div class="qtybox-c"><?php echo (int)$qbRow['ActualQty']; ?></div>
         <div class="qtybox-c"><?php echo (int)$qbRow['ShortOver']; ?></div>
         <div class="qtybox-c"><?php echo htmlspecialchars($qbRow['Remark']); ?></div>
-        <div class="qtybox-c"></div>
+        <div class="qtybox-c">
+          <button type="button" class="qtyBoxDeleteBtn"
+            data-prodname="<?php echo htmlspecialchars($lot_prodname_raw, ENT_QUOTES); ?>"
+            data-invno="<?php echo htmlspecialchars($lot_invno_raw, ENT_QUOTES); ?>"
+            data-wo="<?php echo htmlspecialchars($lot_wo_raw, ENT_QUOTES); ?>"
+            data-boxno="<?php echo htmlspecialchars($qbRow['BoxNo'], ENT_QUOTES); ?>">delete</button>
+        </div>
         <?php endforeach; ?>
 
         <div class="qtybox-c"><input type="text" id="newQtyBoxNo" disabled value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>"></div>
@@ -483,6 +507,40 @@
           alert('เกิดข้อผิดพลาด');
           btn.disabled = false;
         });
+    });
+
+    document.querySelectorAll('.qtyBoxDeleteBtn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!confirm('ต้องการลบรายการนี้หรือไม่')) return;
+
+        var payload = new URLSearchParams({
+          ajax_delete_qtybox: '1',
+          ProdName: btn.dataset.prodname,
+          InvNo:    btn.dataset.invno,
+          WO:       btn.dataset.wo,
+          BoxNo:    btn.dataset.boxno
+        });
+
+        btn.disabled = true;
+        fetch(location.href, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: payload
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.status === 'ok') {
+              location.reload();
+            } else {
+              alert(data.message || 'ลบไม่สำเร็จ');
+              btn.disabled = false;
+            }
+          })
+          .catch(function () {
+            alert('เกิดข้อผิดพลาด');
+            btn.disabled = false;
+          });
+      });
     });
 
     document.querySelectorAll('.rackDeleteBtn').forEach(function (btn) {
