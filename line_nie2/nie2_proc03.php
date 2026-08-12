@@ -3,7 +3,7 @@
     require('../connect.php');
     require('../init_session.php');
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax_insert_rack']) && !isset($_POST['ajax_delete_rack']) && !isset($_POST['ajax_insert_qtybox'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax_insert_rack']) && !isset($_POST['ajax_delete_rack']) && !isset($_POST['ajax_insert_qtybox']) && !isset($_POST['ajax_delete_qtybox'])) {
         $prodName = $_POST['ProdName'];
         $invNo    = $_POST['InvNo'];
         $wo       = $_POST['WO'];
@@ -273,8 +273,8 @@
         <div class="grid-title">ข้อมูลจำนวนของกล่อง</div>
         <div class="qtybox-h">Box-no</div>
         <div class="qtybox-h" style="font-size: small">จำนวนชิ้นตาม LotTag</div>
-        <div class="qtybox-h" style="font-size: small">จำนวนชิ้นงานที่นับจริง</div>
-        <div class="qtybox-h" style="font-size: small"">ขาด / เกิน</div>
+        <div class="qtybox-h" style="font-size: small">จำนวนชิ้นที่นับจริง</div>
+        <div class="qtybox-h" style="font-size: small">ขาด / เกิน</div>
         <div class="qtybox-h">Remark</div>
         <div class="qtybox-h">Action</div>
 
