@@ -181,6 +181,91 @@
         exit;
     }
 
+    // AJAX: list existing tb_proc6 inspect records for a ProdName+InvNo+WO
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_list_inspect'])) {
+        header('Content-Type: application/json');
+
+        $liProdName = $_POST['ProdName'] ?? '';
+        $liInvNo    = $_POST['InvNo'] ?? '';
+        $liWo       = $_POST['WO'] ?? '';
+
+        $records = [];
+        $listmt = mysqli_prepare($conn,
+            "SELECT BoxNo, PlateNo, ActualQty, SmpPerRack, InspFGqty, inspNGqty, inspNGmode, Status, Remark
+             FROM tb_proc6 WHERE ProdName = ? AND InvNo = ? AND WO = ?");
+        mysqli_stmt_bind_param($listmt, 'sss', $liProdName, $liInvNo, $liWo);
+        mysqli_stmt_execute($listmt);
+        $lires = mysqli_stmt_get_result($listmt);
+        while ($lirow = mysqli_fetch_assoc($lires)) {
+            $records[] = $lirow;
+        }
+
+        echo json_encode(['status' => 'ok', 'records' => $records]);
+        mysqli_close($conn);
+        exit;
+    }
+
+    // AJAX: insert a new inspection record into tb_proc6
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_inspect'])) {
+        header('Content-Type: application/json');
+
+        $iProdName    = $_POST['ProdName'] ?? '';
+        $iInvNo       = $_POST['InvNo'] ?? '';
+        $iWo          = $_POST['WO'] ?? '';
+        $iDate        = $_POST['Date'] ?? '';
+        $iTime        = $_POST['Time'] ?? '';
+        $iOpr         = (int)($_POST['Opr'] ?? 0);
+        $iBoxNo       = $_POST['BoxNo'] ?? '';
+        $iPlateNo     = (int)($_POST['PlateNo'] ?? 0);
+        $iActualQty   = (int)($_POST['ActualQty'] ?? 0);
+        $iSmpPerRack  = (int)($_POST['SmpPerRack'] ?? 0);
+        $iInspFGqty   = (int)($_POST['InspFGqty'] ?? 0);
+        $iInspNGqty   = (int)($_POST['inspNGqty'] ?? 0);
+        $iInspNGmode  = $_POST['inspNGmode'] ?? '';
+        $iStatus      = $_POST['Status'] ?? '';
+        $iRemark      = $_POST['Remark'] ?? '';
+
+        $iDupStmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_proc6 WHERE ProdName=? AND InvNo=? AND WO=? AND PlateNo=? LIMIT 1");
+        mysqli_stmt_bind_param($iDupStmt, 'sssi', $iProdName, $iInvNo, $iWo, $iPlateNo);
+        mysqli_stmt_execute($iDupStmt);
+        $iDupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($iDupStmt));
+
+        if ($iDupRow) {
+            echo json_encode(['status' => 'dup', 'message' => 'มีข้อมูลซ้ำในฐานข้อมูล โปรดตรวจสอบความถูกต้อง']);
+        } else {
+            $iStmt = mysqli_prepare($conn,
+                "INSERT INTO `tb_proc6`
+                    (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`PlateNo`,`ActualQty`,`SmpPerRack`,`InspFGqty`,`inspNGqty`,`inspNGmode`,`Status`,`Remark`)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($iStmt, 'sssssisiiiiisss',
+                $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iBoxNo, $iPlateNo,
+                $iActualQty, $iSmpPerRack, $iInspFGqty, $iInspNGqty, $iInspNGmode, $iStatus, $iRemark);
+            $iok = mysqli_stmt_execute($iStmt);
+            echo json_encode(['status' => $iok ? 'ok' : 'fail', 'message' => $iok ? '' : mysqli_error($conn)]);
+        }
+        mysqli_close($conn);
+        exit;
+    }
+
+    // AJAX: delete one inspection record from tb_proc6
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete_inspect'])) {
+        header('Content-Type: application/json');
+
+        $diProdName = $_POST['ProdName'] ?? '';
+        $diInvNo    = $_POST['InvNo'] ?? '';
+        $diWo       = $_POST['WO'] ?? '';
+        $diPlateNo  = (int)($_POST['PlateNo'] ?? 0);
+
+        $distmt = mysqli_prepare($conn,
+            "DELETE FROM tb_proc6 WHERE ProdName=? AND InvNo=? AND WO=? AND PlateNo=? LIMIT 1");
+        mysqli_stmt_bind_param($distmt, 'sssi', $diProdName, $diInvNo, $diWo, $diPlateNo);
+        $diok = mysqli_stmt_execute($distmt);
+        echo json_encode(['status' => $diok ? 'ok' : 'fail', 'message' => $diok ? '' : mysqli_error($conn)]);
+        mysqli_close($conn);
+        exit;
+    }
+
     // NG mode options for inspection
     $ngModeList = [];
     $nmStmt = mysqli_prepare($conn, "SELECT NGmode FROM tb_ng_list WHERE Process = 'All'");
@@ -289,12 +374,12 @@
         <!-- 9 --><div class="pro3-proc6-g2-h">Remark</div>
         <!--10 --><div class="pro3-proc6-g2-h">Action</div>
 
-        <!-- 1 --><div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="Lot Tag"></div>
-        <!-- 2 --><div class="pro3-proc6-g2-c"><input type="text"   id="newPlateNo" placeholder="Plate-no"></div>
-        <!-- 3 --><div class="pro3-proc6-g2-c"><input type="number" id="newActQty"  placeholder="จำนวนจริง"></div>
-        <!-- 4 --><div class="pro3-proc6-g2-c"><input type="number" id="newSmpQty"  placeholder="จำนวนสุ่ม"></div>
-        <!-- 5 --><div class="pro3-proc6-g2-c"><input type="number" id="newFGQty"  placeholder="จำนวน FG"></div>
-        <!-- 6 --><div class="pro3-proc6-g2-c"><input type="number" id="newNGQty"  placeholder="จำนวน NG"></div>
+        <!-- 1 --><div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="Lot Tag" required></div>
+        <!-- 2 --><div class="pro3-proc6-g2-c"><input type="text"   id="newPlateNo" placeholder="Plate-no" required></div>
+        <!-- 3 --><div class="pro3-proc6-g2-c"><input type="number" id="newActQty"  placeholder="จำนวนจริง" min="0" required></div>
+        <!-- 4 --><div class="pro3-proc6-g2-c"><input type="number" id="newSmpQty"  placeholder="จำนวนสุ่ม" min="0" required></div>
+        <!-- 5 --><div class="pro3-proc6-g2-c"><input type="number" id="newFGQty"  placeholder="จำนวน FG" min="0" required></div>
+        <!-- 6 --><div class="pro3-proc6-g2-c"><input type="number" id="newNGQty"  placeholder="จำนวน NG" min="0" required></div>
         <!-- 7 --><div class="pro3-proc6-g2-c">
           <select id="newNGmode">
             <option value="No NG" selected disabled>ไม่พบ NG</option>
@@ -312,7 +397,7 @@
             <option value="SpecialAccept">SpecialAccept</option>
           </select>
         </div>
-        <!-- 9 --><div class="pro3-proc6-g2-c"><textarea id="newPltRemark" rows="2"></textarea></div>
+        <!-- 9 --><div class="pro3-proc6-g2-c"><textarea id="newRemark" rows="2"></textarea></div>
         <!--10 --><div class="pro3-proc6-g2-c"><button type="button" id="newInspSubmitBtn">บันทึก</button></div>
       </div>
 
@@ -381,6 +466,7 @@
             updateAmtShortOver();
             fetchRackActQty(data.prodname, data.invno, data.wo, lot.boxNo);
             fetchAndRenderAmountRows(data.prodname, data.invno, data.wo);
+            fetchAndRenderInspectRows(data.prodname, data.invno, data.wo);
 
             document.getElementById('newPlateNo').focus();
           } else {
@@ -428,7 +514,27 @@
     document.getElementById('newPlateNo').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
-      document.getElementById('newFGqty').focus();
+      document.getElementById('newActQty').focus();
+    });
+
+    document.getElementById('newActQty').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      var smpField = document.getElementById('newSmpQty');
+      smpField.value = document.getElementById('smpPerRack_F').value;
+      smpField.focus();
+    });
+
+    document.getElementById('newSmpQty').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      document.getElementById('newFGQty').focus();
+    });
+
+    document.getElementById('newFGQty').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      document.getElementById('newNGQty').focus();
     });
 
     function fetchRackActQty(prodname, invno, wo, boxNo) {
@@ -585,6 +691,127 @@
             alert(data.message || 'บันทึกไม่สำเร็จ');
           }
           btn.disabled = false;
+        })
+        .catch(function () {
+          alert('เกิดข้อผิดพลาด');
+          btn.disabled = false;
+        });
+    });
+
+    function buildInspectRow(rec) {
+      var wrap = document.createDocumentFragment();
+      [rec.BoxNo, rec.PlateNo, rec.ActualQty, rec.SmpPerRack, rec.InspFGqty, rec.inspNGqty, rec.inspNGmode, rec.Status, rec.Remark].forEach(function (val) {
+        var cell = document.createElement('div');
+        cell.className = 'pro3-proc6-g2-c pro3-insp-record-row';
+        cell.textContent = val;
+        wrap.appendChild(cell);
+      });
+
+      var actionCell = document.createElement('div');
+      actionCell.className = 'pro3-proc6-g2-c pro3-insp-record-row';
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.textContent = 'delete';
+      delBtn.addEventListener('click', function () {
+        if (!confirm('ต้องการลบรายการนี้หรือไม่')) return;
+
+        var ctx = currentAmtLotCtx();
+        delBtn.disabled = true;
+        fetch(location.href, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            ajax_delete_inspect: '1',
+            ProdName: ctx.prodname,
+            InvNo: ctx.invno,
+            WO: ctx.wo,
+            PlateNo: rec.PlateNo
+          })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.status === 'ok') {
+              fetchAndRenderInspectRows(ctx.prodname, ctx.invno, ctx.wo);
+            } else {
+              alert(data.message || 'ลบไม่สำเร็จ');
+              delBtn.disabled = false;
+            }
+          })
+          .catch(function () {
+            alert('เกิดข้อผิดพลาด');
+            delBtn.disabled = false;
+          });
+      });
+      actionCell.appendChild(delBtn);
+      wrap.appendChild(actionCell);
+
+      return wrap;
+    }
+
+    function renderInspectRows(records) {
+      document.querySelectorAll('.pro3-insp-record-row').forEach(function (el) { el.remove(); });
+      var anchor = document.getElementById('entryRowAnchor');
+      records.forEach(function (rec) {
+        anchor.parentNode.insertBefore(buildInspectRow(rec), anchor);
+      });
+    }
+
+    function fetchAndRenderInspectRows(prodname, invno, wo) {
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          ajax_list_inspect: '1',
+          ProdName: prodname,
+          InvNo: invno,
+          WO: wo
+        })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'ok') renderInspectRows(data.records || []);
+        });
+    }
+
+    document.getElementById('newInspSubmitBtn').addEventListener('click', function () {
+      var btn = this;
+      var ctx = currentAmtLotCtx();
+      var payload = new URLSearchParams({
+        ajax_insert_inspect: '1',
+        ProdName:    ctx.prodname,
+        InvNo:       ctx.invno,
+        WO:          ctx.wo,
+        Date:        document.getElementById('rackDate').value,
+        Time:        document.getElementById('rackTime').value,
+        Opr:         document.querySelector('input[name="Opr"]').value,
+        BoxNo:       document.getElementById('newBoxNo').value,
+        PlateNo:     document.getElementById('newPlateNo').value,
+        ActualQty:   document.getElementById('newActQty').value,
+        SmpPerRack:  document.getElementById('newSmpQty').value,
+        InspFGqty:   document.getElementById('newFGQty').value,
+        inspNGqty:   document.getElementById('newNGQty').value,
+        inspNGmode:  document.getElementById('newNGmode').value,
+        Status:      document.getElementById('newStatus').value,
+        Remark:      document.getElementById('newRemark').value
+      });
+
+      btn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'ok') {
+            location.reload();
+          } else if (data.status === 'dup') {
+            alert(data.message);
+            btn.disabled = false;
+          } else {
+            alert(data.message || 'บันทึกไม่สำเร็จ');
+            btn.disabled = false;
+          }
         })
         .catch(function () {
           alert('เกิดข้อผิดพลาด');
