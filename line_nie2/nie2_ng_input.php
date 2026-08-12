@@ -300,8 +300,7 @@
             ];
             foreach ($processOptions as $val => $label):
           ?>
-          <option value="<?php echo $val; ?>" <?php echo (
-             === $val) ? 'selected' : ''; ?>><?php echo $label; ?></option>
+          <option value="<?php echo $val; ?>" <?php echo ($pre_process === $val) ? 'selected' : ''; ?>><?php echo $label; ?></option>
           <?php endforeach; ?>
         </select>
       </div>
