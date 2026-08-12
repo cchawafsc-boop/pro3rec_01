@@ -350,10 +350,10 @@
       <div id="input-amount">
         <div class="grid-title">ข้อมูลจำนวนของกล่อง</div>
         <div class="amtbox-h">Box-no</div>
-        <div class="amtbox-h">LotTag-qty</div>
-        <div class="amtbox-h">Racking-Act-qty</div>
-        <div class="amtbox-h">QC-Act-qty</div>
-        <div class="amtbox-h">ShortOver</div>
+        <div class="amtbox-h" style="font-size:0.8em;">จำนวนชิ้นตาม Lot tag</div>
+        <div class="amtbox-h" style="font-size:0.8em;">จำนวนชิ้นที่นับจริงที่ Racking</div>
+        <div class="amtbox-h" style="font-size:0.8em;">จำนวนชิ้นที่นับจริงที่ Inspect</div>
+        <div class="amtbox-h" style="font-size:0.8em;">จำนวนขาด / เกิน</div>
         <div class="amtbox-h">Remark</div>
         <div class="amtbox-h">Action</div>
 
@@ -409,11 +409,43 @@
 
 
       <div class="pro3-proc6-summary">
-        <div class="pro3-proc6-summary-it">จำนวนงานดี (pcs) :</div>
-        <div class="pro3-proc6-summary-it">จำนวน NG (pcs) :</div>
-        <div class="pro3-proc6-summary-it">รวม (pcs) :</div>
-        <div class="pro3-proc6-summary-it">ขาด/เกิน (pcs) :</div>
-        <div class="pro3-proc6-summary-it summary-status" id="pltSummaryStatus"></div>
+        <div class="pro3-proc6-summary-it">จำนวนชิ้นตาม Lot tag :</div>
+        <div class="pro3-proc6-summary-it">
+          <input type="number" name="sum_LotTagQty" id="sum_LotTagQty">
+        </div>
+
+        <div class="pro3-proc6-summary-it">จำนวนชิ้นที่นับจริงที่ Racking :</div>
+        <div class="pro3-proc6-summary-it">
+          <input type="number" name="sum_RackingQty" id="sum_RackingQty">
+        </div>
+
+        <div class="pro3-proc6-summary-it">จำนวน FG ที่ Inspect :</div>
+        <div class="pro3-proc6-summary-it">
+          <input type="number" name="sum_InspFGQty" id="sum_InspFGQty">
+        </div>
+
+        <div class="pro3-proc6-summary-it">จำนวน NG ที่ Inspect :</div>
+        <div class="pro3-proc6-summary-it">
+          <input type="number" name="sum_InspNGQty" id="sum_InspNGQty">
+        </div>
+
+        <div class="pro3-proc6-summary-it">รวม :</div>
+        <div class="pro3-proc6-summary-it">
+          <input type="number" name="sum_InpspQty" id="sum_InspQty">
+        </div>
+
+        <div class="pro3-proc6-summary-it">ขาด/เกิน :</div>
+        <div class="pro3-proc6-summary-it">
+          <input type="number" name="sum_ShortOver" id="sum_ShortOver">
+        </div>
+
+        <div class="pro3-proc6-summary-it summary-status" id="inspSummaryStatus"></div>
+        <div class="pro3-proc6-summary-it">
+          <input type="number" name="sum_inspStatus" id="sum_inspStatus">
+        </div>
+
+        <div class="pro3-proc6-summary-it"><button type="button" id="newSumInspSubmitBtn">บันทึก</button></div>
+        
       </div>
 
       <p>
