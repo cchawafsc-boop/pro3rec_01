@@ -409,43 +409,68 @@
 
 
       <div class="pro3-proc6-summary">
-        <div class="pro3-proc6-summary-it">จำนวนชิ้นตาม Lot tag :</div>
-        <div class="pro3-proc6-summary-it">
+        <div class="pro3-proc6-summary-title">สรุปข้อมูล Inspection</div>
+
+        <div class="pro3-proc6-summary-it gs-lottag">
+          <span class="gs-label">จำนวนชิ้นตาม Lot tag</span>
           <input type="number" name="sum_LotTagQty" id="sum_LotTagQty">
         </div>
 
-        <div class="pro3-proc6-summary-it">จำนวนชิ้นที่นับจริงที่ Racking :</div>
-        <div class="pro3-proc6-summary-it">
+        <div class="pro3-proc6-summary-it gs-rack">
+          <span class="gs-label">จำนวนชิ้นที่นับจริงที่ Racking</span>
           <input type="number" name="sum_RackingQty" id="sum_RackingQty">
         </div>
 
-        <div class="pro3-proc6-summary-it">จำนวน FG ที่ Inspect :</div>
-        <div class="pro3-proc6-summary-it">
+        <div class="pro3-proc6-summary-it gs-fg">
+          <span class="gs-label">จำนวน FG ที่ Inspect</span>
           <input type="number" name="sum_InspFGQty" id="sum_InspFGQty">
         </div>
 
-        <div class="pro3-proc6-summary-it">จำนวน NG ที่ Inspect :</div>
-        <div class="pro3-proc6-summary-it">
+        <div class="pro3-proc6-summary-it gs-ng">
+          <span class="gs-label">จำนวน NG ที่ Inspect</span>
           <input type="number" name="sum_InspNGQty" id="sum_InspNGQty">
         </div>
 
-        <div class="pro3-proc6-summary-it">รวม :</div>
-        <div class="pro3-proc6-summary-it">
+        <div class="pro3-proc6-summary-it gs-total">
+          <span class="gs-label">จำนวนชิ้นรวมที่ Inspect</span>
           <input type="number" name="sum_InpspQty" id="sum_InspQty">
         </div>
 
-        <div class="pro3-proc6-summary-it">ขาด/เกิน :</div>
-        <div class="pro3-proc6-summary-it">
+        <div class="pro3-proc6-summary-it gs-shortover">
+          <span class="gs-label">ขาด/เกิน เทียบ Lot tag</span>
           <input type="number" name="sum_ShortOver" id="sum_ShortOver">
         </div>
 
-        <div class="pro3-proc6-summary-it summary-status" id="inspSummaryStatus"></div>
-        <div class="pro3-proc6-summary-it">
-          <input type="number" name="sum_inspStatus" id="sum_inspStatus">
+        <div class="pro3-proc6-summary-it gs-amtjudge">
+          <span class="gs-label">ความถูกต้องของจำนวน</span>
+          <select name="inspAmountJudge" id="inspAmountJudge">
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
+          </select>
         </div>
 
-        <div class="pro3-proc6-summary-it"><button type="button" id="newSumInspSubmitBtn">บันทึก</button></div>
-        
+        <div class="pro3-proc6-summary-it gs-qcjudge">
+          <span class="gs-label">ความถูกต้องของ QC</span>
+          <select name="inspQCJudge" id="inspQCJudge">
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
+          </select>
+        </div>
+
+        <div class="pro3-proc6-summary-it gs-status">
+          <span class="gs-label">สถานะของ Inspection</span>
+          <select name="inspStatus" id="inspStatus">
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="Pass">QC Pass</option>
+            <option value="Hold">QC Hold</option>
+            <option value="Reject">QC Reject</option>
+          </select>
+        </div>
+
+        <div class="pro3-proc6-summary-it gs-submit"><button type="button" id="submitInspProcessBtn">บันทึก</button></div>
+
       </div>
 
       <p>
