@@ -525,6 +525,10 @@ form .form-pro3-proc3-g1 {
 	height: 1.8em;
 	box-sizing: border-box;
 }
+.rack-c button#newRackSubmitBtn{
+	color: white;
+	background-color: #4CAF50;
+}
 .racking-summary {
 	display: flex;
 	justify-content: center;
