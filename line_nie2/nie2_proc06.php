@@ -542,7 +542,7 @@
         shortOverField.value = '';
         return;
       }
-      shortOverField.value = lotTagQty - qcActQty;
+      shortOverField.value = qcActQty - lotTagQty;
     }
     document.getElementById('newAmtLotTagQty').addEventListener('input', updateAmtShortOver);
     document.getElementById('newAmtQCActQty').addEventListener('input', updateAmtShortOver);
