@@ -102,8 +102,8 @@
         $qRemark     = $_POST['Remark'] ?? '';
 
         $qDupStmt = mysqli_prepare($conn,
-            "SELECT 1 FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=? LIMIT 1");
-        mysqli_stmt_bind_param($qDupStmt, 'sss', $qProdName, $qInvNo, $qWo);
+            "SELECT 1 FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
+        mysqli_stmt_bind_param($qDupStmt, 'ssss', $qProdName, $qInvNo, $qWo, $qBoxNo);
         mysqli_stmt_execute($qDupStmt);
         $qDupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($qDupStmt));
 
