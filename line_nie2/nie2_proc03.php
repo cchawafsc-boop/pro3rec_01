@@ -274,7 +274,7 @@
         <div class="qtybox-h">Box-no</div>
         <div class="qtybox-h" style="font-size: small">จำนวนชิ้นตาม LotTag</div>
         <div class="qtybox-h" style="font-size: small">จำนวนชิ้นที่นับจริง</div>
-        <div class="qtybox-h" style="font-size: small">ขาด / เกิน</div>
+        <div class="qtybox-h" style="font-size: small">จำนวนขาด / เกิน</div>
         <div class="qtybox-h">Remark</div>
         <div class="qtybox-h">Action</div>
 
@@ -294,7 +294,7 @@
         <?php endforeach; ?>
 
         <div class="qtybox-c"><input type="text" id="newQtyBoxNo" disabled value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>"></div>
-        <div class="qtybox-c"><input type="number" id="newLotTagQty" placeholder="LotTag-qty" min="0"></div>
+        <div class="qtybox-c"><input type="number" id="newLotTagQty" placeholder="LotTag-qty" min="0" readonly value="<?php echo htmlspecialchars($_GET['boxQty'] ?? ''); ?>"></div>
         <div class="qtybox-c"><input type="number" id="newActualQty" placeholder="Actual-qty" min="0"></div>
         <div class="qtybox-c"><input type="number" id="newQtyShortOver" readonly></div>
         <div class="qtybox-c"><textarea id="newQtyRemark" rows="2"></textarea></div>
@@ -307,7 +307,7 @@
         <div class="rack-h">Lot-plate</div>
         <div class="rack-h">Plate-no</div>
         <div class="rack-h">Rack-no</div>
-        <div class="rack-h">Qty</div>
+        <div class="rack-h">Rack-Qty</div>
         <div class="rack-h">Operator</div>
         <div class="rack-h">Status</div>
         <div class="rack-h">Remark</div>
@@ -390,6 +390,7 @@
       url.searchParams.set('prodName', lot.prodName);
       url.searchParams.set('wo', lot.wo);
       url.searchParams.set('boxNo', lot.boxNo);
+      url.searchParams.set('boxQty', lot.boxQty);
       window.location.href = url.toString();
     });
 
