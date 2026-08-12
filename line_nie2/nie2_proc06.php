@@ -971,9 +971,11 @@
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          if (data.status === 'dup') {
+          if (data.status === 'ok') {
+            alert('ข้อมูลบันทึกลงใน tb_proc6_sum สำเร็จ');
+          } else if (data.status === 'dup') {
             alert(data.message);
-          } else if (data.status !== 'ok') {
+          } else {
             alert(data.message || 'บันทึกไม่สำเร็จ');
           }
           btn.disabled = false;
