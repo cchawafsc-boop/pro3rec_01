@@ -245,7 +245,7 @@
         });
     });
 
-    document.getElementById('okBtn').addEventListener('click', function () {
+    document.querySelector('.form-pro3-proc1 button#okBtn').addEventListener('click', function () {
       var btn = this;
       var payload = new URLSearchParams({
         ajax_insert_proc7: '1',
@@ -288,4 +288,5 @@
   </script>
 </body>
 </html>
+
 
