@@ -957,6 +957,10 @@ form .form-pro3-proc6-g1 {
 	height: 1.8em;
 	box-sizing: border-box;
 }
+.pro3-proc6-g2-c button#newInspSubmitBtn {
+	color: white;
+	background-color: #4CAF50;
+}
 .pro3-proc6-summary {
 	display: flex;
 	justify-content: center;
