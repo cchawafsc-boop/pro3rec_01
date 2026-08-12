@@ -988,15 +988,17 @@ form .form-pro3-proc6-g1 {
 }
 .pro3-proc6-summary-it {
 	display: flex;
-	flex-direction: column;
-	gap: 2px;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
 }
 .pro3-proc6-summary-it .gs-label {
 	font-size: 0.8em;
 }
 .pro3-proc6-summary-it input[type="number"],
 .pro3-proc6-summary-it select {
-	width: 100%;
+	flex: 1;
+	min-width: 0;
 	box-sizing: border-box;
 	font-family: inherit;
 	font-weight: normal;
