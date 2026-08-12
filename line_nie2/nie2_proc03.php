@@ -248,7 +248,7 @@
           </select>
         </div>
         <div class="rack-c"><textarea id="newRackRemark" rows="2"></textarea></div>
-        <div class="rack-c"><button type="button" id="newRackSubmitBtn">บันทึกเข้าระบบ</button></div>
+        <div class="rack-c"><button type="button" id="newRackSubmitBtn">บันทึก</button></div>
       </div>
 
       <div class="racking-summary">
