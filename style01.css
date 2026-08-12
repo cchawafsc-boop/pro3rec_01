@@ -1029,6 +1029,45 @@ form .form-pro3-proc6-g1 {
 	font-weight: bold;
 }
 /*_________________________ End: Pro3-Process 6 _________________________*/
+/*============================ Pro3-Process 7 ===========================*/
+.form-pro3-proc7-g {
+	display: grid;
+	grid-template-columns: 150px 160px;
+	gap: 0px;
+	border: 1px solid #ccc;
+	padding: 3px;
+	border-radius: 8px;
+	margin-top: 10px;
+	justify-content: center;
+}
+.pro3-proc7-g-it {
+	display: flex;
+	align-items: center;
+	padding: 5px;
+	border-radius: 4px;
+}
+.pro3-proc7-g-it select,
+.pro3-proc7-g-it input[type="text"],
+.pro3-proc7-g-it input[type="number"],
+.pro3-proc7-g-it input[type="date"],
+.pro3-proc7-g-it input[type="time"] {
+	width: 100%;
+	box-sizing: border-box;
+}
+#f_QAJudge {
+	font-weight: bold;
+}
+.pro3-proc7-g-it.full-row {
+	grid-column: 1 / -1;
+	justify-content: center;
+}
+.pro3-proc7-g-it.full-row textarea {
+	width: 270px;
+	resize: vertical;
+	box-sizing: border-box;
+	font-family: inherit;
+}
+/*_________________________ End: Pro3-Process 7 _________________________*/
 /*================================== ng input ==================================*/
 .form-pro3-ngin{
 	justify-items: center;
