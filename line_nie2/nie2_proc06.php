@@ -958,7 +958,7 @@
         InspNGqty:   document.getElementById('sum_InspNGQty').value,
         InspFGNGqty: document.getElementById('sum_InspQty').value,
         ShortOver:   document.getElementById('sum_ShortOver').value,
-        AmountChk:   document.getElementById('inspAmountJudge').value,
+        AmountChk:   document.getElementById('inspAmountChk').value,
         QCchk:       document.getElementById('inspQCJudge').value,
         QCdone:      document.getElementById('inspStatus').value
       });
