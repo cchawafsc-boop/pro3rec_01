@@ -26,7 +26,7 @@
 
         <div class="pro3-proc7-g-it"><label>Lot tag</label></div>
         <div class="pro3-proc7-g-it">
-          <input placeholder="Scan Lot tag ที่นี่">
+          <input type="text" placeholder="Scan Lot tag ที่นี่">
         </div>
 
         <div class="pro3-proc7-g-it"><label>Lot ID</label></div>
