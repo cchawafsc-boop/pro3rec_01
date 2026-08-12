@@ -259,10 +259,10 @@
       <div id="input-amount">
         <div class="grid-title">ข้อมูลจำนวนของกล่อง</div>
         <div class="amtbox-h">Box-no</div>
-        <div class="amtbox-h" style="font-size: small;">จำนวนชิ้น<br>ตาม LotTag</div>
-        <div class="amtbox-h" style="font-size: small;">จำนวนชิ้น<br>ที่นับจริงที่ racking</div>
-        <div class="amtbox-h" style="font-size: small;">จำนวนชิ้น<br>ที่นับจริงที่ inspect</div>
-        <div class="amtbox-h" style="font-size: small;">จำนวนชิ้น<br>ขาด / เกิน</div>
+        <div class="amtbox-h">LotTag-qty</div>
+        <div class="amtbox-h">Racking-Act-qty</div>
+        <div class="amtbox-h">QC-Act-qty</div>
+        <div class="amtbox-h">ShortOver</div>
         <div class="amtbox-h">Remark</div>
         <div class="amtbox-h">Action</div>
 
@@ -275,34 +275,35 @@
         <div class="amtbox-c"><button type="button" id="newAmtSubmitBtn">บันทึก</button></div>
       </div>
 
+
       <div id="input-inspect" class="pro3-proc6-g2">
         <div class="grid-title">ข้อมูลการ Inspection ของ QC</div>
         <!-- 1 --><div class="pro3-proc6-g2-h">Box-no</div>
         <!-- 2 --><div class="pro3-proc6-g2-h">Plate-no</div>
-        <!-- 3 --><div class="pro3-proc6-g2-h">FG-qty</div>
-        <!-- 4 --><div class="pro3-proc6-g2-h">NG-mode</div>
-        <!-- 5 --><div class="pro3-proc6-g2-h">NG-qty</div>
-        <!-- 6 --><div class="pro3-proc6-g2-h" style="font-size:0.8em;">ขาด/เกิน</div>
-        <!-- 7 --><div class="pro3-proc6-g2-h">Oper.</div>
+        <!-- 3 --><div class="pro3-proc6-g2-h" style="font-size:0.8em;">จำนวนจริงต่อแร็ก</div>
+        <!-- 4 --><div class="pro3-proc6-g2-h" style="font-size:0.8em;">จำนวนสุ่มต่อแร็ก</div>
+        <!-- 5 --><div class="pro3-proc6-g2-h" style="font-size:0.8em;">จำนวนสุ่มเป็น FG</div>
+        <!-- 6 --><div class="pro3-proc6-g2-h" style="font-size:0.8em;">จำนวนสุ่มเป็น NG</div>
+        <!-- 7 --><div class="pro3-proc6-g2-h" style="font-size:0.8em;">NG-mode</div>
         <!-- 8 --><div class="pro3-proc6-g2-h">Status</div> 
         <!-- 9 --><div class="pro3-proc6-g2-h">Remark</div>
         <!--10 --><div class="pro3-proc6-g2-h">Action</div>
 
-        <div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="Lot Tag"></div>
-        <div class="pro3-proc6-g2-c"><input type="text"   id="newPlateNo" placeholder="Plate-no"></div>
-        <div class="pro3-proc6-g2-c"><input type="number" id="newFGqty"   placeholder="FG-qty"></div>
-        <div class="pro3-proc6-g2-c">
+        <!-- 1 --><div class="pro3-proc6-g2-c" id="entryRowAnchor"><input type="text" id="newBoxNo" placeholder="Lot Tag"></div>
+        <!-- 2 --><div class="pro3-proc6-g2-c"><input type="text"   id="newPlateNo" placeholder="Plate-no"></div>
+        <!-- 3 --><div class="pro3-proc6-g2-c"><input type="number" id="newActQty"  placeholder="จำนวนจริง"></div>
+        <!-- 4 --><div class="pro3-proc6-g2-c"><input type="number" id="newSmpQty"  placeholder="จำนวนสุ่ม"></div>
+        <!-- 5 --><div class="pro3-proc6-g2-c"><input type="number" id="newFGQty"  placeholder="จำนวน FG"></div>
+        <!-- 6 --><div class="pro3-proc6-g2-c"><input type="number" id="newNGQty"  placeholder="จำนวน NG"></div>
+        <!-- 7 --><div class="pro3-proc6-g2-c">
           <select id="newNGmode">
-            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="No NG" selected disabled>ไม่พบ NG</option>
             <?php foreach ($ngModeList as $mode): ?>
             <option value="<?php echo htmlspecialchars($mode); ?>"><?php echo htmlspecialchars($mode); ?></option>
             <?php endforeach; ?>
           </select>
         </div>
-        <div class="pro3-proc6-g2-c"><input type="number" id="newNGqty"   placeholder="NG-qty"></div>
-        <div class="pro3-proc6-g2-c"><input type="number" id="newShrOvr"  placeholder="ขาด/เกิน" min="0"></div>
-        <div class="pro3-proc6-g2-c"><input type="number" id="newOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
-        <div class="pro3-proc6-g2-c">
+        <!-- 8 --><div class="pro3-proc6-g2-c">
           <select id="newStatus">
             <option value="" selected disabled>โปรดระบุ</option>
             <option value="Accept">Accept</option>
@@ -311,9 +312,10 @@
             <option value="SpecialAccept">SpecialAccept</option>
           </select>
         </div>
-        <div class="pro3-proc6-g2-c"><textarea id="newPltRemark" rows="2"></textarea></div>
-        <div class="pro3-proc6-g2-c"><button type="button" id="newInspSubmitBtn">บันทึก</button></div>
+        <!-- 9 --><div class="pro3-proc6-g2-c"><textarea id="newPltRemark" rows="2"></textarea></div>
+        <!--10 --><div class="pro3-proc6-g2-c"><button type="button" id="newInspSubmitBtn">บันทึก</button></div>
       </div>
+
 
       <div class="pro3-proc6-summary">
         <div class="pro3-proc6-summary-it">จำนวนงานดี (pcs) :</div>
@@ -542,7 +544,7 @@
         shortOverField.value = '';
         return;
       }
-      shortOverField.value = qcActQty - lotTagQty;
+      shortOverField.value = lotTagQty - qcActQty;
     }
     document.getElementById('newAmtLotTagQty').addEventListener('input', updateAmtShortOver);
     document.getElementById('newAmtQCActQty').addEventListener('input', updateAmtShortOver);
