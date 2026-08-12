@@ -35,8 +35,8 @@
           <input placeholder="ProdName|WO|BoxNo|BoxQty|Material">
         </div>
 
-        <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
-        <div class="pro3-proc2-g1-it">
+        <div class="pro3-proc7-g-it"><label>Lot ID</label></div>
+        <div class="pro3-proc7-g-it">
           <input type="text" value="<?php echo $lot_id; ?>" disabled>
         </div>
 
@@ -46,14 +46,14 @@
           <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
         </div>
 
-        <div class="pro3-proc2-g1-it"><label>Invoice no</label></div>
-        <div class="pro3-proc2-g1-it">
+        <div class="pro3-proc7-g-it"><label>Invoice no</label></div>
+        <div class="pro3-proc7-g-it">
           <input type="text" value="<?php echo $lot_invno; ?>" disabled>
           <input type="hidden" name="InvNo" value="<?php echo $lot_invno; ?>">
         </div>
 
-        <div class="pro3-proc2-g1-it"><label>WO</label></div>
-        <div class="pro3-proc2-g1-it">
+        <div class="pro3-proc7-g-it"><label>WO</label></div>
+        <div class="pro3-proc7-g-it">
           <input type="text" value="<?php echo $lot_wo; ?>" disabled>
           <input type="hidden" name="WO" value="<?php echo $lot_wo; ?>">
         </div>
@@ -98,20 +98,20 @@
 
         <div class="pro3-proc7-g-it"><label>สรุปการตัดสินใจ</label></div>
         <div class="pro3-proc7-g-it">
-          <input type="text" name="QAJudge" id="f_QAJudge" readonly required style="font-weight:bold;">
+          <input type="text" name="QAJudge" id="f_QAJudge" readonly required>
         </div>
 
         <!-- Remark -->
-        <div class="pro3-proc7-g-it" style="grid-column:1/span 2; justify-content:center; margin-top:6px;">
+        <div class="pro3-proc7-g-it full-row">
           <label>-หมายเหตุ-</label>
         </div>
-        <div class="pro3-proc7-g-it" style="grid-column:1/span 2; justify-content:center;">
-          <textarea name="Remark" rows="3" style="width:270px;"></textarea>
+        <div class="pro3-proc7-g-it full-row">
+          <textarea name="Remark" rows="3"></textarea>
         </div>
 
       </div>
 
-      <p style="display:flex; justify-content:space-between; padding:0 10px;">
+      <p>
         <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
         <button type="submit" id="okBtn">บันทึกค่า<br>เข้าระบบ</button>
       </p>
