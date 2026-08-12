@@ -297,12 +297,11 @@
                 '3. Racking'    => '3. Racking',
                 '4. Plating'    => '4. Plating',
                 '5. Unracking'  => '5. Unracking',
-                '6. Inspection' => '6. Inspection',
-                '7. QAoutgoing' => '7. QAoutgoing',
             ];
             foreach ($processOptions as $val => $label):
           ?>
-          <option value="<?php echo $val; ?>" <?php echo ($pre_process === $val) ? 'selected' : ''; ?>><?php echo $label; ?></option>
+          <option value="<?php echo $val; ?>" <?php echo (
+             === $val) ? 'selected' : ''; ?>><?php echo $label; ?></option>
           <?php endforeach; ?>
         </select>
       </div>
