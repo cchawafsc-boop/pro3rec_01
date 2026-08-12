@@ -272,6 +272,49 @@
         exit;
     }
 
+    // AJAX: insert a new lot-level inspection summary record into tb_proc6_sum
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_summary'])) {
+        header('Content-Type: application/json');
+
+        $sProdName     = $_POST['ProdName'] ?? '';
+        $sInvNo        = $_POST['InvNo'] ?? '';
+        $sWo           = $_POST['WO'] ?? '';
+        $sDate         = $_POST['Date'] ?? '';
+        $sTime         = $_POST['Time'] ?? '';
+        $sOpr          = (int)($_POST['Opr'] ?? 0);
+        $sLotTagQty    = (int)($_POST['LotTagQty'] ?? 0);
+        $sInspFGqty    = (int)($_POST['InspFGqty'] ?? 0);
+        $sInspNGqty    = (int)($_POST['InspNGqty'] ?? 0);
+        $sInspFGNGqty  = (int)($_POST['InspFGNGqty'] ?? 0);
+        $sShortOver    = (int)($_POST['ShortOver'] ?? 0);
+        $sAmountChk    = $_POST['AmountChk'] ?? '';
+        $sQCchk        = $_POST['QCchk'] ?? '';
+        $sQCdone       = $_POST['QCdone'] ?? '';
+
+        $sDupStmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_proc6_sum WHERE ProdName=? AND InvNo=? AND WO=? LIMIT 1");
+        mysqli_stmt_bind_param($sDupStmt, 'sss', $sProdName, $sInvNo, $sWo);
+        mysqli_stmt_execute($sDupStmt);
+        $sDupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($sDupStmt));
+
+        if ($sDupRow) {
+            echo json_encode(['status' => 'dup', 'message' => 'พบข้อมูลซ้ำในฐานข้อมูล กรุณาตรวจสอบความถูกต้อง']);
+        } else {
+            $sStmt = mysqli_prepare($conn,
+                "INSERT INTO `tb_proc6_sum`
+                    (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`LotTagQty`,`InspFGqty`,`InspNGqty`,`InspFGNGqty`,`ShortOver`,`AmountChk`,`QCchk`,`QCdone`)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($sStmt, 'sssssiiiiiisss',
+                $sProdName, $sInvNo, $sWo, $sDate, $sTime, $sOpr,
+                $sLotTagQty, $sInspFGqty, $sInspNGqty, $sInspFGNGqty, $sShortOver,
+                $sAmountChk, $sQCchk, $sQCdone);
+            $sok = mysqli_stmt_execute($sStmt);
+            echo json_encode(['status' => $sok ? 'ok' : 'fail', 'message' => $sok ? '' : mysqli_error($conn)]);
+        }
+        mysqli_close($conn);
+        exit;
+    }
+
     // NG mode options for inspection
     $ngModeList = [];
     $nmStmt = mysqli_prepare($conn, "SELECT NGmode FROM tb_ng_list WHERE Process = 'All'");
@@ -442,16 +485,16 @@
         </div>
 
         <div class="pro3-proc6-summary-it gs-amtjudge">
-          <span class="gs-label">ความถูกต้องของจำนวน</span>
-          <select name="inspAmountJudge" id="inspAmountJudge">
+          <span class="gs-label">การตรวจเช็คจำนวน</span>
+          <select name="inspAmountChk" id="inspAmountChk">
             <option value="" selected disabled>โปรดระบุ</option>
-            <option value="Pass">Pass</option>
-            <option value="Fail">Fail</option>
+            <option value="Correct">ถูกต้อง</option>
+            <option value="Incorrect">ไม่ถูกต้อง</option>
           </select>
         </div>
 
         <div class="pro3-proc6-summary-it gs-qcjudge">
-          <span class="gs-label">ความถูกต้องของ QC</span>
+          <span class="gs-label">การตรวจเช็คคุณภาพ</span>
           <select name="inspQCJudge" id="inspQCJudge">
             <option value="" selected disabled>โปรดระบุ</option>
             <option value="Pass">Pass</option>
@@ -460,16 +503,18 @@
         </div>
 
         <div class="pro3-proc6-summary-it gs-status">
-          <span class="gs-label">สถานะของ Inspection</span>
+          <span class="gs-label">การจบขั้นตอน Inspection</span>
           <select name="inspStatus" id="inspStatus">
             <option value="" selected disabled>โปรดระบุ</option>
-            <option value="Pass">QC Pass</option>
+            <option value="Done">QC Done</option>
             <option value="Hold">QC Hold</option>
             <option value="Reject">QC Reject</option>
           </select>
         </div>
 
-        <div class="pro3-proc6-summary-it gs-submit"><button type="button" id="submitInspProcessBtn">บันทึก</button></div>
+        <div class="pro3-proc6-summary-it gs-submit">
+          <button type="button" id="submitInspProcessBtn">บันทึก</button>
+        </div>
 
       </div>
 
@@ -896,6 +941,48 @@
       fetchAndRenderAmountRows(ctx.prodname, ctx.invno, ctx.wo);
       fetchAndRenderInspectRows(ctx.prodname, ctx.invno, ctx.wo);
     })();
+
+    document.getElementById('submitInspProcessBtn').addEventListener('click', function () {
+      var btn = this;
+      var ctx = currentAmtLotCtx();
+      var payload = new URLSearchParams({
+        ajax_insert_summary: '1',
+        ProdName:    ctx.prodname,
+        InvNo:       ctx.invno,
+        WO:          ctx.wo,
+        Date:        document.getElementById('rackDate').value,
+        Time:        document.getElementById('rackTime').value,
+        Opr:         document.querySelector('input[name="Opr"]').value,
+        LotTagQty:   document.getElementById('sum_LotTagQty').value,
+        InspFGqty:   document.getElementById('sum_InspFGQty').value,
+        InspNGqty:   document.getElementById('sum_InspNGQty').value,
+        InspFGNGqty: document.getElementById('sum_InspQty').value,
+        ShortOver:   document.getElementById('sum_ShortOver').value,
+        AmountChk:   document.getElementById('inspAmountJudge').value,
+        QCchk:       document.getElementById('inspQCJudge').value,
+        QCdone:      document.getElementById('inspStatus').value
+      });
+
+      btn.disabled = true;
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status === 'dup') {
+            alert(data.message);
+          } else if (data.status !== 'ok') {
+            alert(data.message || 'บันทึกไม่สำเร็จ');
+          }
+          btn.disabled = false;
+        })
+        .catch(function () {
+          alert('เกิดข้อผิดพลาด');
+          btn.disabled = false;
+        });
+    });
   </script>
 </body>
 </html>
