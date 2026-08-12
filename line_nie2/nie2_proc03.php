@@ -252,6 +252,7 @@
       </div>
 
       <div id="input-qty">
+        <div class="grid-title">ข้อมูลจำนวนของกล่อง</div>
         <div class="qtybox-h">Box-no</div>
         <div class="qtybox-h">LotTag-qty</div>
         <div class="qtybox-h">Actual-qty</div>
@@ -277,6 +278,7 @@
       </div>
 
       <div id="input-racking">
+        <div class="grid-title">ข้อมูลการ racking</div>
         <div class="rack-h">Box-no</div>
         <div class="rack-h">Lot-plate</div>
         <div class="rack-h">Plate-no</div>
