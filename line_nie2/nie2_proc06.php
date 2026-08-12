@@ -3,6 +3,12 @@
     require('../connect.php');
     require('../init_session.php');
 
+    // Restore lot context after a page reload (e.g. after inspection submit)
+    $lot_id       = $_GET['lot_id'] ?? '';
+    $lot_prodname = $_GET['ProdName'] ?? '';
+    $lot_invno    = $_GET['InvNo'] ?? '';
+    $lot_wo       = $_GET['WO'] ?? '';
+
     // AJAX: resolve Lot ID / Product name / Invoice no from a Box Tag scan
     // (prodName+wo+boxNo), same pattern as nie2_proc03.php's GET lookup.
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_resolve_lot'])) {
@@ -298,25 +304,25 @@
 
         <div class="pro3-proc6-g1-it"><label>Lot ID</label></div>
         <div class="pro3-proc6-g1-it">
-          <input type="text" id="lotIdDisplay" value="<?php echo $lot_id ?? ''; ?>" disabled>
+          <input type="text" id="lotIdDisplay" value="<?php echo htmlspecialchars($lot_id); ?>" disabled>
         </div>
 
         <div class="pro3-proc6-g1-it"><label>Product name</label></div>
         <div class="pro3-proc6-g1-it">
-          <input type="text" id="lotProdnameDisplay" value="<?php echo $lot_prodname ?? ''; ?>" disabled>
-          <input type="hidden" id="lotProdnameHidden" name="ProdName" value="<?php echo $lot_prodname ?? ''; ?>">
+          <input type="text" id="lotProdnameDisplay" value="<?php echo htmlspecialchars($lot_prodname); ?>" disabled>
+          <input type="hidden" id="lotProdnameHidden" name="ProdName" value="<?php echo htmlspecialchars($lot_prodname); ?>">
         </div>
 
         <div class="pro3-proc6-g1-it"><label>Invoice no</label></div>
         <div class="pro3-proc6-g1-it">
-          <input type="text" id="lotInvnoDisplay" value="<?php echo $lot_invno ?? ''; ?>" disabled>
-          <input type="hidden" id="lotInvnoHidden" name="InvNo" value="<?php echo $lot_invno ?? ''; ?>">
+          <input type="text" id="lotInvnoDisplay" value="<?php echo htmlspecialchars($lot_invno); ?>" disabled>
+          <input type="hidden" id="lotInvnoHidden" name="InvNo" value="<?php echo htmlspecialchars($lot_invno); ?>">
         </div>
 
         <div class="pro3-proc6-g1-it"><label>WO</label></div>
         <div class="pro3-proc6-g1-it">
-          <input type="text" id="lotWoDisplay" value="<?php echo $lot_wo ?? ''; ?>" disabled>
-          <input type="hidden" id="lotWoHidden" name="WO" value="<?php echo $lot_wo ?? ''; ?>">
+          <input type="text" id="lotWoDisplay" value="<?php echo htmlspecialchars($lot_wo); ?>" disabled>
+          <input type="hidden" id="lotWoHidden" name="WO" value="<?php echo htmlspecialchars($lot_wo); ?>">
         </div>
 
         <div class="pro3-proc6-g1-it"><label>Date</label></div>
@@ -390,7 +396,7 @@
         </div>
         <!-- 8 --><div class="pro3-proc6-g2-c">
           <select id="newStatus">
-            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="" selected>โปรดระบุ</option>
             <option value="Accept">Accept</option>
             <option value="Reject">Reject</option>
             <option value="Hold">Hold</option>
@@ -806,7 +812,13 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data.status === 'ok') {
-            location.reload();
+            var qs = new URLSearchParams({
+              lot_id:   document.getElementById('lotIdDisplay').value,
+              ProdName: ctx.prodname,
+              InvNo:    ctx.invno,
+              WO:       ctx.wo
+            });
+            location.href = location.pathname + '?' + qs.toString();
           } else if (data.status === 'dup') {
             alert(data.message);
             btn.disabled = false;
@@ -820,6 +832,13 @@
           btn.disabled = false;
         });
     });
+
+    (function () {
+      var ctx = currentAmtLotCtx();
+      if (!ctx.prodname || !ctx.invno || !ctx.wo) return;
+      fetchAndRenderAmountRows(ctx.prodname, ctx.invno, ctx.wo);
+      fetchAndRenderInspectRows(ctx.prodname, ctx.invno, ctx.wo);
+    })();
   </script>
 </body>
 </html>
