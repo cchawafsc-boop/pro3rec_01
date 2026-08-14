@@ -25,7 +25,8 @@
     <?php endif; ?>
     <p> <button type="button"   id="Nie2_BfIndexBtn"   onclick="goBfIndex()">กลับหน้าเลือก lot</button>
         <button type="button"   id="Nie2_HistBtn"      onclick="goHist()">ประวัติ Lot Card </button>
-        <button type="button"   id="Nie2_TrackBtn"     onclick="goTrack()">ติดตามสถานะ Lot </button> </p>
+        <button type="button"   id="Nie2_TrackBtn"     onclick="goTrack()">ติดตามสถานะ Lot </button>
+        <button type="button"   id="Nie2_NGMonBtn"     onclick="goNGMon()">ติดตาม NG แต่ละ Lot/Box </button> </p>
     <p> <button type="button"   id="์Nie2_Proc01_Btn"   onclick="goProc01()">1. Receiving  </button> </p>
     <p> <button type="button"   id="์Nie2_Proc02_Btn"   onclick="goProc02()">2. Incoming   </button> </p>
     <p> <button type="button"   id="์Nie2_Proc03_Btn"   onclick="goProc03()">3. Racking    </button> </p>
@@ -49,6 +50,9 @@
     }
     function goTrack() {
       window.location.href = "./nie2_track_index.php";
+    }
+    function goNGMon() {
+      window.location.href = "./nie2_ng_monitor.php";
     }
     function goProc01() {
       window.location.href = "./nie2_proc01.php";
@@ -78,5 +82,4 @@
   
 </body>
 </html>
-
 
