@@ -1,3 +1,53 @@
+<?php
+    session_start();
+    require('../connect.php');
+    require('../init_session.php');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $prodNames = $_POST['ProdName'];
+        $wos       = $_POST['WO'];
+        $boxNos    = $_POST['BoxNo'];
+        $boxQtys   = $_POST['BoxQty'];
+        $materials = $_POST['Materials'];
+        $appChecks = $_POST['AppCheck'];
+        $lotID     = $_POST['LotID'];
+        $remarks   = $_POST['Remark'];
+
+        $invNo    = $_POST['InvNo'];
+        $date     = $_POST['Date'];
+        $opr      = $_POST['Opr'];
+
+        // Time removed from form; keep column filled for the table.
+        $time   = date('H:i:s');
+        $status = empty($remarks) ? 'wait incoming' : 'รอ QA ตัดสินใจ';
+
+        $stmt = mysqli_prepare($conn,
+            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`Status`,`Remark`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "sssssssssissss", $prodName, $invNo, $wo, $boxNo, $material, $date, $time, $opr, $appCheck, $boxQty, $boxJudge, $lotIDFull, $status, $remark);
+
+        $req = true;
+        for ($i = 0; $i < count($prodNames); $i++) {
+            $prodName  = $prodNames[$i];
+            $wo        = $wos[$i];
+            $boxNo     = $boxNos[$i];
+            $boxQty    = (int)$boxQtys[$i];
+            $material  = $materials[$i];
+            $appCheck  = $appChecks[$i];
+            $boxJudge  = $appChecks[$i];
+            $lotIDFull = $lotID."_".$date."_".$time;
+            $remark    = $remarks[$i];
+            $req = mysqli_stmt_execute($stmt) && $req;
+        }
+
+        if ($req) {
+            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
+        } else {
+            echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
+        }
+        mysqli_close($conn);
+    }
+?>
+
 <!doctype html>
 <head>
   <meta http-equiv="Content-Type" name="viewport" content="text/html; charset=utf-8; width=device-width; initial-scale=1.0">
@@ -97,7 +147,8 @@
   </div>
 
   <?php if (!isset($req)) { mysqli_close($conn); } ?>
-  <script src="js/lotTagParser.js"></script>
+
+  <script src="js/supportfunction.js"></script>
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('invNo').focus();
