@@ -220,10 +220,13 @@ label{
     display: grid;
     grid-template-columns: 150px 160px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
+    width: fit-content;                  /* Shrink box to fit the columns */
+    max-width: 100%;
     border: 1px solid #ccc;
     padding: 3px;
     border-radius: 8px;
 	justify-content: center;             /* Center the grid horizontally */
+	margin: 0 auto;                      /* Center the box itself in its parent */
 }
 .pro3-proc1-g-it {
     display: flex;                       /* Using flexbox for vertical alignment within each cell */
