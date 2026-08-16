@@ -53,6 +53,7 @@
   <meta http-equiv="Content-Type" name="viewport" content="text/html; charset=utf-8; width=device-width; initial-scale=1.0">
   <title>production record</title>
   <link rel="stylesheet" type='text/css' href="../style01.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
   <?php require('../topbar.php'); ?>
@@ -87,6 +88,15 @@
         <div class="pro3-proc1-g-it"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat">
+        </div>
+
+        <div class="pro3-proc1-g-it"><label>สแกน QR (Lot Tag)</label></div>
+        <div class="pro3-proc1-g-it">
+          <div id="qrScanDiv" style="max-width:300px;">
+            <video id="qrVideo" style="width:100%;" playsinline></video>
+          </div>
+          <canvas id="qrCanvas" style="display:none;"></canvas>
+          <button type="button" id="qrConfirmBtn">ยืนยัน QR</button>
         </div>
 
       </div>
@@ -152,6 +162,46 @@
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('invNo').focus();
+    });
+
+    var qrVideo  = document.getElementById('qrVideo');
+    var qrCanvas = document.getElementById('qrCanvas');
+    var qrCtx    = qrCanvas.getContext('2d');
+    var qrLastResult = '';
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(function (stream) {
+        qrVideo.srcObject = stream;
+        qrVideo.play();
+        requestAnimationFrame(qrTick);
+      })
+      .catch(function (err) {
+        console.error('Camera error:', err);
+      });
+
+    function qrTick() {
+      if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
+        qrCanvas.width  = qrVideo.videoWidth;
+        qrCanvas.height = qrVideo.videoHeight;
+        qrCtx.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
+
+        var imageData = qrCtx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+        var code = jsQR(imageData.data, imageData.width, imageData.height);
+        if (code) {
+          qrLastResult = code.data;
+        }
+      }
+      requestAnimationFrame(qrTick);
+    }
+
+    document.getElementById('qrConfirmBtn').addEventListener('click', function () {
+      if (!qrLastResult) {
+        alert('ยังไม่พบข้อมูล QR code กรุณาสแกนใหม่');
+        return;
+      }
+      var lotTagInput = document.getElementById('lotTagData');
+      lotTagInput.value = qrLastResult;
+      lotTagInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
     });
 
     document.getElementById('lotTagData').addEventListener('keydown', function (e) {
