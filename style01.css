@@ -247,9 +247,12 @@ label{
 }
 .pro3-proc1-lotList {
 	display: grid;
-	grid-template-columns: 70px 70px 40px 40px 40px 70px 1fr 70px;
+	grid-template-columns: 100px 70px 40px 40px 40px 70px 1fr 70px;
 	gap: 5px;
 	width: fit-content;
+	max-width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
 	border: 1px solid #ccc;
 	border-radius: 8px;
 	margin: 4px auto;
