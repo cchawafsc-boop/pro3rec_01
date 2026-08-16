@@ -112,6 +112,7 @@ label{
 
 .form-lgin button {
 	padding: 10px 15px;
+	margin: 10px 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -246,7 +247,7 @@ label{
 }
 .pro3-proc1-lotList {
 	display: grid;
-	grid-template-columns: 100px 70px 40px 40px 40px 70px 110px 70px;
+	grid-template-columns: 70px 70px 40px 40px 40px 70px 1fr 70px;
 	gap: 5px;
 	width: fit-content;
 	border: 1px solid #ccc;
