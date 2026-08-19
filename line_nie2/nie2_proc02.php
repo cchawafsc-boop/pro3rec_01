@@ -253,15 +253,6 @@
           <input type="time" id="hdrTime" value="<?php echo date('H:i'); ?>" disabled>
         </div>
 
-        <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>สภาพกล่อง<span style="color:red">ทุกกล่อง</span></label></div>
-        <div class="pro3-proc2-g1-it">
-          <select name="AllBoxCon" required>
-            <option value="" selected disabled>โปรดระบุ</option>
-            <option value="ผ่าน">ผ่าน</option>
-            <option value="ไม่ผ่าน">ไม่ผ่าน</option>
-          </select>
-        </div>
-
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนกล่องตาม Inv</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $lot_boxcount; ?>" disabled>
@@ -445,7 +436,7 @@
       btn.addEventListener('click', function () {
         var form = document.createElement('form');
         form.method = 'post';
-        form.action = 'nie2_ng_input.php';
+        form.action = 'nie2_ng_input_proc02.php';
 
         function addField(name, value) {
           var inp = document.createElement('input');
