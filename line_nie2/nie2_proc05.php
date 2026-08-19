@@ -120,6 +120,30 @@
         exit;
     }
 
+    // AJAX: look up LotPlate/PlateNo in tb_proc3 for a scanned ProdName+WO+BoxNo
+    // (Box Tag validation against the page's newLotPlate/newPlateNo entry).
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_find_lotplate'])) {
+        header('Content-Type: application/json');
+
+        $fProdName = $_POST['ProdName'] ?? '';
+        $fWo       = $_POST['WO'] ?? '';
+        $fBoxNo    = $_POST['BoxNo'] ?? '';
+
+        $fstmt = mysqli_prepare($conn,
+            "SELECT LotPlate, PlateNo FROM tb_proc3 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
+        mysqli_stmt_bind_param($fstmt, 'sss', $fProdName, $fWo, $fBoxNo);
+        mysqli_stmt_execute($fstmt);
+        $frow = mysqli_fetch_assoc(mysqli_stmt_get_result($fstmt));
+
+        if ($frow) {
+            echo json_encode(['status' => 'ok', 'lotplate' => $frow['LotPlate'], 'plateno' => $frow['PlateNo']]);
+        } else {
+            echo json_encode(['status' => 'notfound']);
+        }
+        mysqli_close($conn);
+        exit;
+    }
+
     // AJAX: insert a new unracking record into tb_proc5
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_unrack'])) {
         header('Content-Type: application/json');
@@ -212,7 +236,7 @@
       <div id="input-unracking">
         <div class="pro3-proc5-g2-h">Lot-plate</div>
         <div class="pro3-proc5-g2-h">Plate-no</div>
-        <div class="pro3-proc5-g2-h">Box-no</div>
+        <div class="pro3-proc5-g2-h">Lot-Tag</div>
         <div class="pro3-proc5-g2-h">FG-qty</div>
         <div class="pro3-proc5-g2-h">NG-qty</div>
         <div class="pro3-proc5-g2-h">ลง NG</div>
@@ -223,7 +247,7 @@
 
         <div class="pro3-proc5-g2-c" id="entryRowAnchor"><input type="text" id="newLotPlate" autocomplete="off" placeholder="Lot-plate"></div>
         <div class="pro3-proc5-g2-c"><input type="text" id="newPlateNo" autocomplete="off" placeholder="Plate-no"></div>
-        <div class="pro3-proc5-g2-c"><input type="text" id="newBoxNo" autocomplete="off" placeholder="Box-no"></div>
+        <div class="pro3-proc5-g2-c"><input type="text" id="newBoxNo" autocomplete="off" placeholder="Lot-Tag"></div>
         <div class="pro3-proc5-g2-c"><input type="number" id="newFGQty" min="0" placeholder="FGqty"></div>
         <div class="pro3-proc5-g2-c"><input type="number" id="newNGQty" min="0" placeholder="NGqty"></div>
         <div class="pro3-proc5-g2-c"><button type="button" id="newNgBtn">ลง NG</button></div>
@@ -238,7 +262,7 @@
           </select>
         </div>
         <div class="pro3-proc5-g2-c"><textarea id="newUnrackRemark" rows="2"></textarea></div>
-        <div class="pro3-proc5-g2-c"><button type="button" id="newUnrackSubmitBtn">บันทึกเข้าระบบ</button></div>
+        <div class="pro3-proc5-g2-c"><button type="button" id="newUnrackSubmitBtn" disabled>บันทึกเข้าระบบ</button></div>
       </div>
 
       <p>
@@ -249,6 +273,7 @@
 
   <?php mysqli_close($conn); ?>
 
+  <script src="js/supportfunction.js"></script>
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('newLotPlate').focus();
@@ -402,7 +427,59 @@
     document.getElementById('newBoxNo').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
-      document.getElementById('newFGQty').focus();
+
+      var input = this;
+      var submitBtn = document.getElementById('newUnrackSubmitBtn');
+      var lot = parseLotTagInput(input.value);
+      if (!lot) {
+        alert('Data from Lot Tag is error. Please re-check');
+        input.value = '';
+        input.focus();
+        submitBtn.disabled = true;
+        return;
+      }
+
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          ajax_find_lotplate: '1',
+          ProdName: lot.prodName,
+          WO: lot.wo,
+          BoxNo: lot.boxNo
+        })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.status !== 'ok') {
+            alert('ไม่พบข้อมูลใน tb_proc3 โปรดตรวจสอบอีกครั้ง');
+            submitBtn.disabled = true;
+            return;
+          }
+
+          var lotPlateVal = document.getElementById('newLotPlate').value.trim();
+          var plateNoVal  = document.getElementById('newPlateNo').value.trim();
+
+          if (String(data.lotplate) !== lotPlateVal) {
+            alert('Lot Plate กับ Lot Tag ไม่ตรงกัน กรุณาเช็คอีกครั้ง');
+            submitBtn.disabled = true;
+            return;
+          }
+
+          if (String(data.plateno) !== plateNoVal) {
+            alert('Lot Plate กับ Lot Tag ไม่ตรงกัน กรุณาเช็คอีกครั้ง');
+            submitBtn.disabled = true;
+            return;
+          }
+
+          input.value = lot.boxNo;
+          submitBtn.disabled = false;
+          document.getElementById('newFGQty').focus();
+        })
+        .catch(function () {
+          alert('เกิดข้อผิดพลาด');
+          submitBtn.disabled = true;
+        });
     });
 
     document.getElementById('newFGQty').addEventListener('keydown', function (e) {
