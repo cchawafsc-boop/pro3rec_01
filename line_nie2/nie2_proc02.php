@@ -541,6 +541,8 @@
     }
     handleDecisionColor(document.getElementById('decisionSelect'));
 
+    var lotBoxCount = <?php echo (int)$lot_boxcount; ?>;
+
     function currentLotCtx() {
       return {
         prodname: document.querySelector('input[name="ProdName"]').value,
@@ -605,6 +607,7 @@
       records.forEach(function (rec) {
         anchor.parentNode.insertBefore(buildBoxCondRow(rec), anchor);
       });
+      document.getElementById('newBoxCondSubmitBtn').disabled = records.length >= lotBoxCount;
     }
 
     function fetchAndRenderBoxCondRows(prodname, invno, wo) {
@@ -674,8 +677,6 @@
       if (!ctx.prodname || !ctx.invno || !ctx.wo) return;
       fetchAndRenderBoxCondRows(ctx.prodname, ctx.invno, ctx.wo);
     })();
-
-    var lotBoxCount = <?php echo (int)$lot_boxcount; ?>;
 
     document.getElementById('proc02Form').addEventListener('submit', function (e) {
       var boxCondCount = document.querySelectorAll('.pro3-boxcond-record-row').length / 3;
