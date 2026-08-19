@@ -234,7 +234,7 @@
           <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
         </div>
 
-        <div class="pro3-proc3-g1-it"><label>Box no</label></div>
+        <div class="pro3-proc3-g1-it"><label style="color: red;"><strong> Data from Lot Tag</strong></label></div>
         <div class="pro3-proc3-g1-it">
           <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>">
         </div>
