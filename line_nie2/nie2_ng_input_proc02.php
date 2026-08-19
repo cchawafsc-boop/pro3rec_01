@@ -288,7 +288,7 @@
 
       <div class="pro3-proc1-g-it"><label>Process</label></div>
       <div class="pro3-proc1-g-it">
-        <select id="hdrProcess" required>
+        <select id="hdrProcess" required <?php echo $pre_process !== '' ? 'disabled' : ''; ?>>
           <option value="" <?php echo $pre_process === '' ? 'selected' : ''; ?> disabled>โปรดระบุ</option>
           <?php
             $processOptions = [
@@ -317,7 +317,7 @@
 
       <div class="pro3-proc1-g-it"><label>Box no</label></div>
       <div class="pro3-proc1-g-it">
-        <select id="hdrBoxNo">
+        <select id="hdrBoxNo" <?php echo $pre_boxno !== '' ? 'disabled' : ''; ?>>
           <option value="" <?php echo $pre_boxno === '' ? 'selected' : ''; ?> disabled>โปรดระบุ</option>
           <?php foreach ($lot_boxnos as $boxNoOpt): ?>
           <option value="<?php echo htmlspecialchars($boxNoOpt); ?>" <?php echo ($pre_boxno === $boxNoOpt) ? 'selected' : ''; ?>><?php echo htmlspecialchars($boxNoOpt); ?></option>
