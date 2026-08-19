@@ -396,7 +396,7 @@ form .form-pro3-proc2-g1 {
 	border-radius: 8px;
 	margin: 6px auto;
 	justify-content: center;             /* Center the grid horizontally */
-	background-color: khaki;
+	background-color:lightskyblue;
 }
 .pro3-proc2-qrset-it {
 	display: flex;                       /* Using flexbox for vertical alignment within each cell */
@@ -415,6 +415,7 @@ form .form-pro3-proc2-g1 {
 
 .pro3-proc2-summary {
 	display: grid;
+	background-color: khaki;
 	grid-template-columns: 150px 160px;  /* Defines column width */
 	gap: 0px;                            /* Sets a gap between grid items */
 	border: 2px solid lightblue;
