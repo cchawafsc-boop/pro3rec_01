@@ -93,6 +93,7 @@
         $iLotPlate = $_POST['LotPlate'] ?? '';
         $iPlateNo  = $_POST['PlateNo'] ?? '';
         $iRackNo   = $_POST['RackNo'] ?? '';
+        $iCondChk  = $_POST['CondCheck'] ?? '';
         $iQty      = (int)($_POST['Qty'] ?? 0);
         $iTankNo   = (int)($_POST['PltTankNo'] ?? 0);
         $iStatus   = $_POST['Status'] ?? '';
@@ -111,10 +112,10 @@
         }
 
         $istmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc4` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`LotPlate`,`PlateNo`,`RackNo`,`Qty`,`PltTankNo`,`Status`,`Remark`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($istmt, 'sssssisssiiss',
-            $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iLotPlate, $iPlateNo, $iRackNo, $iQty, $iTankNo, $iStatus, $iRemark);
+            "INSERT INTO `tb_proc4` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`LotPlate`,`PlateNo`,`RackNo`,`CondCheck`,`Qty`,`PltTankNo`,`Status`,`Remark`)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($istmt, 'sssssissssiiss',
+            $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iLotPlate, $iPlateNo, $iRackNo, $iCondChk, $iQty, $iTankNo, $iStatus, $iRemark);
         $iok = mysqli_stmt_execute($istmt);
         echo json_encode(['status' => $iok ? 'ok' : 'fail', 'message' => $iok ? '' : mysqli_error($conn)]);
         mysqli_close($conn);
@@ -203,6 +204,7 @@
         <div class="pro3-proc4-g2-h">Lot-plate</div>
         <div class="pro3-proc4-g2-h">Plate-no</div>        
         <div class="pro3-proc4-g2-h">Rack-no</div>
+        <div class="pro3-proc4-g2-h">Cond-check</div>
         <div class="pro3-proc4-g2-h">Qty</div>
         <div class="pro3-proc4-g2-h">NieTank-no</div>
         <div class="pro3-proc4-g2-h">Operator</div>
@@ -210,10 +212,11 @@
         <div class="pro3-proc4-g2-h">Remark</div>
         <div class="pro3-proc4-g2-h">Action</div>
 
-        <div class="pro3-proc4-g2-c" id="entryRowAnchor"><input type="text" id="newLotPlate" placeholder="Lot-plate"></div>
-        <div class="pro3-proc4-g2-c"><input type="text" id="newPlateNo" placeholder="Plate-no"></div>
-        <div class="pro3-proc4-g2-c"><input type="text" id="newRackNo" placeholder="Rack-no"></div>
-        <div class="pro3-proc4-g2-c"><input type="number" id="newPltQty" placeholder="Qty"></div>
+        <div class="pro3-proc4-g2-c" id="entryRowAnchor"><input type="text" id="newLotPlate" placeholder="Lot-plate" required></div>
+        <div class="pro3-proc4-g2-c"><input type="text" id="newPlateNo" placeholder="Plate-no" required></div>
+        <div class="pro3-proc4-g2-c"><input type="text" id="newRackNo" placeholder="Rack-no" required></div>
+        <div class="pro3-proc4-g2-c"><input type="text" id="newCondChk" placeholder="Cond-chk" required></div>
+        <div class="pro3-proc4-g2-c"><input type="number" id="newPltQty" placeholder="Qty" required></div>
         <div class="pro3-proc4-g2-c"><input type="number" id="newPltTankNo" placeholder="NieTank-no"></div>
         <div class="pro3-proc4-g2-c"><input type="number" id="newPltOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
         <div class="pro3-proc4-g2-c">
@@ -226,7 +229,7 @@
           </select>
         </div>
         <div class="pro3-proc4-g2-c"><textarea id="newPltRemark" rows="2"></textarea></div>
-        <div class="pro3-proc4-g2-c"><button type="button" id="newPltSubmitBtn">บันทึกเข้าระบบ</button></div>
+        <div class="pro3-proc4-g2-c"><button type="button" id="newPltSubmitBtn" disabled>บันทึกเข้าระบบ</button></div>
       </div>
 
       <div class="pro3-proc4-summary">
@@ -366,7 +369,24 @@
     document.getElementById('newRackNo').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
-      document.getElementById('newPltQty').focus();
+      document.getElementById('newCondChk').focus();
+    });
+
+    document.getElementById('newCondChk').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+
+      var condChk = this.value.trim();
+      var lotProdname = document.getElementById('lotProdnameHidden').value;
+      var submitBtn = document.getElementById('newPltSubmitBtn');
+
+      if (condChk === lotProdname) {
+        submitBtn.disabled = false;
+        document.getElementById('newPltQty').focus();
+      } else {
+        submitBtn.disabled = true;
+        alert('เงื่อนไขการชุบไม่ถูกต้อง');
+      }
     });
 
     document.getElementById('newPltSubmitBtn').addEventListener('click', function () {
@@ -375,6 +395,7 @@
       var lotPlate = document.getElementById('newLotPlate').value.trim();
       var plateNo  = document.getElementById('newPlateNo').value.trim();
       var rackNo   = document.getElementById('newRackNo').value.trim();
+      var condChk  = document.getElementById('newCondChk').value.trim();
       var qty      = document.getElementById('newPltQty').value;
       var tankNo   = document.getElementById('newPltTankNo').value;
       var opr      = document.getElementById('newPltOpr').value;
@@ -392,6 +413,7 @@
         LotPlate:  lotPlate,
         PlateNo:   plateNo,
         RackNo:    rackNo,
+        CondCheck: condChk,
         Qty:       qty,
         PltTankNo: tankNo,
         Status:    status,
@@ -426,6 +448,8 @@
           document.getElementById('newLotPlate').value = '';
           document.getElementById('newPlateNo').value = '';
           document.getElementById('newRackNo').value = '';
+          document.getElementById('newCondChk').value = '';
+          btn.disabled = true;
           document.getElementById('newPltQty').value = '';
           document.getElementById('newPltTankNo').value = '';
           document.getElementById('newPltStatus').value = '';
