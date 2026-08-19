@@ -303,7 +303,7 @@
         <div class="qtybox-c"><input type="number" id="newActualQty" placeholder="Actual-qty" min="0"></div>
         <div class="qtybox-c"><input type="number" id="newQtyShortOver" readonly></div>
         <div class="qtybox-c"><textarea id="newQtyRemark" rows="2"></textarea></div>
-        <div class="qtybox-c"><button type="button" id="newQtyBoxSubmitBtn">บันทึก</button></div>
+        <div class="qtybox-c"><button type="button" id="newQtyBoxSubmitBtn" hidden>กดบันทึกด้านล่าง</button></div>
       </div>
 
       <div id="input-racking">
@@ -476,6 +476,8 @@
     });
 
     document.getElementById('newRackSubmitBtn').addEventListener('click', function () {
+      document.getElementById('newQtyBoxSubmitBtn').click();
+
       var btn = this;
       var payload = new URLSearchParams({
         ajax_insert_rack: '1',
