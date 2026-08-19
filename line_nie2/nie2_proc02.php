@@ -690,10 +690,14 @@
           form.appendChild(inp);
         }
 
+        var qrset = btn.closest('.pro3-proc2-qrset');
+        var smpPerBox = qrset ? qrset.querySelector('input[name="box_sampledqty[]"]').value : '';
+
         addField('sourcePathname', window.location.pathname);
         addField('lot_id_raw', ngRedirectLotID);
         addField('boxNo', btn.dataset.boxno);
         addField('selected_process', '2. Incoming');
+        addField('smpPerBox', smpPerBox);
 
         document.body.appendChild(form);
         form.submit();
