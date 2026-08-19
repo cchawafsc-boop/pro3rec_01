@@ -29,7 +29,7 @@
     // pattern) so lot_id_raw/process/boxno live in the query string, not in
     // session — location.reload() below then just re-sends this same URL.
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax_edit']) && !isset($_POST['ajax_insert'])) {
-        header('Location: nie2_ng_input.php?' . http_build_query([
+        header('Location: nie2_ng_input_proc02.php?' . http_build_query([
             'lot_id_raw' => $_POST['lot_id_raw'] ?? '',
             'process'    => $_POST['selected_process'] ?? '',
             'boxno'      => $_POST['boxNo'] ?? '',
@@ -43,7 +43,7 @@
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_GET['backurl']) && $backurl !== '') {
         $carry = $_GET;
         $carry['backurl'] = $backurl;
-        header('Location: nie2_ng_input.php?' . http_build_query($carry));
+        header('Location: nie2_ng_input_proc02.php?' . http_build_query($carry));
         exit;
     }
 
