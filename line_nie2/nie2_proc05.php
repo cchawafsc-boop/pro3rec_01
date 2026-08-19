@@ -390,38 +390,7 @@
     document.getElementById('newPlateNo').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
-
-      var plateNoVal = this.value.trim();
-      if (!plateNoVal) return;
-
-      var input = this;
-      var payload = new URLSearchParams({
-        ajax_find_boxno: '1',
-        ProdName: document.getElementById('lotProdnameHidden').value,
-        InvNo:    document.getElementById('lotInvnoHidden').value,
-        WO:       document.getElementById('lotWoHidden').value,
-        PlateNo:  plateNoVal
-      });
-
-      fetch(location.href, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: payload
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.status === 'ok') {
-            document.getElementById('newBoxNo').value = data.boxno;
-            document.getElementById('newBoxNo').focus();
-          } else {
-            alert('ไม่พบ Plate-no ในฐานข้อมูล โปรดตรวจสอบอีกครั้ง');
-            input.focus();
-          }
-        })
-        .catch(function () {
-          alert('ไม่พบ Plate-no ในฐานข้อมูล โปรดตรวจสอบอีกครั้ง');
-          input.focus();
-        });
+      document.getElementById('newBoxNo').focus();
     });
 
     document.getElementById('newBoxNo').addEventListener('keydown', function (e) {
