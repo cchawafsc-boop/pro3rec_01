@@ -237,13 +237,14 @@
         if ($dupRow) {
             echo "<script>alert('There is redundant Product name, Invoice and WO in database. \\nPlease check the data intry');</script>";
         } else {
+            $allBoxCon = ''; // no UI input anymore — column is NOT NULL with no DB default, so a placeholder is required
             $insStmt = mysqli_prepare($conn,
                 "INSERT INTO `tb_proc2`
-                 (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Status`,`Remark`)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-            mysqli_stmt_bind_param($insStmt, "sssssiiiiss",
+                 (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`AllBoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Status`,`Remark`)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($insStmt, "sssssisiiiss",
                 $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
-                $lot_amountinv, $lot_samplingsize, $ngTotal, $status, $remark);
+                $allBoxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $status, $remark);
             if (mysqli_stmt_execute($insStmt)) {
                 $updStmt = mysqli_prepare($conn,
                     "UPDATE `tb_proc1` SET `Status` = 'waiting racking' WHERE `ProdName` = ? AND `InvNo` = ? AND `WO` = ?");
@@ -293,7 +294,7 @@
   <div class="form-pro3-proc2-g1">
     <h2>2 Incoming — Ni-e Line 2</h2>
       
-    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+    <form id="proc02Form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="form-pro3-proc2-g1">
 
         <div class="pro3-proc2-g1-it"><label>Operator</label></div>
@@ -673,6 +674,16 @@
       if (!ctx.prodname || !ctx.invno || !ctx.wo) return;
       fetchAndRenderBoxCondRows(ctx.prodname, ctx.invno, ctx.wo);
     })();
+
+    var lotBoxCount = <?php echo (int)$lot_boxcount; ?>;
+
+    document.getElementById('proc02Form').addEventListener('submit', function (e) {
+      var boxCondCount = document.querySelectorAll('.pro3-boxcond-record-row').length / 3;
+      if (boxCondCount !== lotBoxCount) {
+        e.preventDefault();
+        alert('กรุณาตรวจเช็คสภาพกล่องให้ครบ');
+      }
+    });
 
     var ngRedirectLotID = "<?php echo htmlspecialchars($lot_id_raw, ENT_QUOTES); ?>";
 
