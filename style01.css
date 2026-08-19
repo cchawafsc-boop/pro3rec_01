@@ -576,7 +576,7 @@ form .form-pro3-proc3-g1 {
 }
 .qtybox-c button#newQtyBoxSubmitBtn {
 	color: white;
-	background-color: #4CAF50;
+	background-color: orange;
 }
 
 #input-amount {
