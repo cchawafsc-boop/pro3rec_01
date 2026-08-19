@@ -33,6 +33,7 @@
             'lot_id_raw' => $_POST['lot_id_raw'] ?? '',
             'process'    => $_POST['selected_process'] ?? '',
             'boxno'      => $_POST['boxNo'] ?? '',
+            'smpperbox'  => $_POST['smpPerBox'] ?? '',
             'backurl'    => $backurl,
         ]));
         exit;
@@ -96,8 +97,9 @@
     }
 
     // Set by the "เลือกชนิด NG" button on nie2_proc02.php, carried via the query string.
-    $pre_process = $_GET['process'] ?? '';
-    $pre_boxno   = $_GET['boxno']   ?? '';
+    $pre_process   = $_GET['process']    ?? '';
+    $pre_boxno     = $_GET['boxno']      ?? '';
+    $pre_smpperbox = $_GET['smpperbox']  ?? '';
 
     $ngModeList = [];
     if ($pre_process === '2. Incoming') {
@@ -188,6 +190,7 @@
         $time     = $_POST['Time'] ?? '';
         $opr      = (int)($_POST['Opr'] ?? 0);
         $process  = $_POST['Process'] ?? '';
+        $smpPerBox = (int)($_POST['SmpPerBox'] ?? 0);
         $ngMode   = $_POST['NGmode'] ?? '';
         $qty      = (int)($_POST['Qty'] ?? 0);
         $remark   = mb_substr($_POST['Remark'] ?? '', 0, 30);
@@ -219,14 +222,14 @@
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO tb_ng
-             (ProdName, InvNo, WO, Process, Date, Time, Opr, BoxNo, NGmode, NGqty, Remark)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+             (ProdName, InvNo, WO, Process, Date, Time, Opr, BoxNo, SmpPerBox, NGmode, NGqty, Remark)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
         if (!$stmt) {
             echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
             exit;
         }
-        mysqli_stmt_bind_param($stmt, 'ssssssissis',
-            $prodName, $invNo, $wo, $process, $date, $time, $opr, $boxNo, $ngMode, $qty, $remark);
+        mysqli_stmt_bind_param($stmt, 'ssssssisisis',
+            $prodName, $invNo, $wo, $process, $date, $time, $opr, $boxNo, $smpPerBox, $ngMode, $qty, $remark);
 
         $ok = mysqli_stmt_execute($stmt);
         echo json_encode(['status' => $ok ? 'ok' : 'fail', 'message' => $ok ? '' : mysqli_error($conn)]);
@@ -323,6 +326,11 @@
           <option value="<?php echo htmlspecialchars($boxNoOpt); ?>" <?php echo ($pre_boxno === $boxNoOpt) ? 'selected' : ''; ?>><?php echo htmlspecialchars($boxNoOpt); ?></option>
           <?php endforeach; ?>
         </select>
+      </div>
+
+      <div class="pro3-proc1-g-it" style="font-size:0.8em;"><label>จำนวนชิ้นงานที่ถูกสุ่ม (กล่องนี้)</label></div>
+      <div class="pro3-proc1-g-it">
+        <input type="number" id="hdrSmpPerBox" value="<?php echo htmlspecialchars($pre_smpperbox); ?>" min="0" <?php echo $pre_smpperbox !== '' ? 'disabled' : ''; ?> required>
       </div>
 
     </div>
@@ -482,6 +490,7 @@
         WO:       document.getElementById('hdrWO').value,
         Process:  document.getElementById('hdrProcess').value,
         BoxNo:    document.getElementById('hdrBoxNo').value,
+        SmpPerBox: document.getElementById('hdrSmpPerBox').value,
         Date:     document.getElementById('hdrDate').value,
         Time:     document.getElementById('hdrTime').value,
         Opr:      document.getElementById('hdrOpr').value,
