@@ -750,7 +750,7 @@ form .form-pro3-proc4-g1 {
 
 #input-plating {
 	display: grid;
-	grid-template-columns: 90px 90px 80px 60px 90px 70px 90px 1fr 80px;
+	grid-template-columns: 90px 90px 80px 100px 60px 90px 70px 90px 1fr 80px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
