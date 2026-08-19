@@ -220,16 +220,18 @@
             exit;
         }
 
+        $smpPerRack = 0; // no rack context on this screen — Incoming/Unracking are box-level, not rack-level
+
         $stmt = mysqli_prepare($conn,
             "INSERT INTO tb_ng
-             (ProdName, InvNo, WO, Process, Date, Time, Opr, BoxNo, SmpPerBox, NGmode, NGqty, Remark)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+             (ProdName, InvNo, WO, Process, Date, Time, Opr, BoxNo, SmpPerBox, SmpPerRack, NGmode, NGqty, Remark)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
         if (!$stmt) {
             echo json_encode(['status' => 'fail', 'message' => mysqli_error($conn)]);
             exit;
         }
-        mysqli_stmt_bind_param($stmt, 'ssssssisisis',
-            $prodName, $invNo, $wo, $process, $date, $time, $opr, $boxNo, $smpPerBox, $ngMode, $qty, $remark);
+        mysqli_stmt_bind_param($stmt, 'ssssssisiisis',
+            $prodName, $invNo, $wo, $process, $date, $time, $opr, $boxNo, $smpPerBox, $smpPerRack, $ngMode, $qty, $remark);
 
         $ok = mysqli_stmt_execute($stmt);
         echo json_encode(['status' => $ok ? 'ok' : 'fail', 'message' => $ok ? '' : mysqli_error($conn)]);
