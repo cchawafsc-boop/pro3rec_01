@@ -234,6 +234,11 @@
           <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
         </div>
 
+        <div class="pro3-proc3-g1-it"><label>Box no</label></div>
+        <div class="pro3-proc3-g1-it">
+          <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>">
+        </div>
+
         <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="text" value="<?php echo $lot_id; ?>" disabled>
@@ -293,7 +298,7 @@
         </div>
         <?php endforeach; ?>
 
-        <div class="qtybox-c"><input type="text" id="newQtyBoxNo" disabled value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>"></div>
+        <div class="qtybox-c"><input type="text" disabled></div>
         <div class="qtybox-c"><input type="number" id="newLotTagQty" placeholder="LotTag-qty" min="0" readonly value="<?php echo htmlspecialchars($_GET['boxQty'] ?? ''); ?>"></div>
         <div class="qtybox-c"><input type="number" id="newActualQty" placeholder="Actual-qty" min="0"></div>
         <div class="qtybox-c"><input type="number" id="newQtyShortOver" readonly></div>
@@ -333,7 +338,7 @@
         </div>
         <?php endforeach; ?>
 
-        <div class="rack-c"><input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>"></div>
+        <div class="rack-c"><input type="text" disabled></div>
         <div class="rack-c"><input type="text" id="newLotPlate" autocomplete="off" placeholder="Lot-plate"></div>
         <div class="rack-c"><input type="text" id="newPlateNo" autocomplete="off" placeholder="Plate-no"></div>
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off" placeholder="Rack-no"></div>
@@ -417,7 +422,7 @@
         Date:       document.getElementById('rackDate').value,
         Time:       document.getElementById('rackTime').value,
         Opr:        document.getElementById('newRackOpr').value,
-        BoxNo:      document.getElementById('newQtyBoxNo').value,
+        BoxNo:      document.getElementById('newBoxNo').value,
         LotTagQty:  document.getElementById('newLotTagQty').value,
         ActualQty:  document.getElementById('newActualQty').value,
         ShortOver:  document.getElementById('newQtyShortOver').value,
