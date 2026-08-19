@@ -42,7 +42,7 @@
         $rackPlateCount = 0;
         if ($found) {
             $rstmt = mysqli_prepare($conn,
-                "SELECT LotPlate, PlateNo, RackNo, Qty, PltTankNo, Opr, Status, Remark
+                "SELECT LotPlate, PlateNo, RackNo, CondCheck, Qty, PltTankNo, Opr, Status, Remark
                  FROM tb_proc4 WHERE ProdName = ? AND InvNo = ? AND WO = ? ORDER BY PlateNo");
             mysqli_stmt_bind_param($rstmt, 'sss', $found['ProdName'], $found['InvNo'], $found['WO']);
             mysqli_stmt_execute($rstmt);
@@ -268,7 +268,7 @@
       wrap.dataset.plateno = rec.PlateNo;
       wrap.dataset.rackno = rec.RackNo;
 
-      [rec.LotPlate, rec.PlateNo, rec.RackNo, rec.Qty, rec.PltTankNo, rec.Opr, rec.Status, rec.Remark].forEach(function (val) {
+      [rec.LotPlate, rec.PlateNo, rec.RackNo, rec.CondCheck, rec.Qty, rec.PltTankNo, rec.Opr, rec.Status, rec.Remark].forEach(function (val) {
         var cell = document.createElement('div');
         cell.className = 'pro3-proc4-g2-c';
         cell.textContent = val;
@@ -440,7 +440,7 @@
           }
 
           addRecordRow({
-            LotPlate: lotPlate, PlateNo: plateNo, RackNo: rackNo, Qty: qty,
+            LotPlate: lotPlate, PlateNo: plateNo, RackNo: rackNo, CondCheck: condChk, Qty: qty,
             PltTankNo: tankNo, Opr: opr, Status: status, Remark: remark
           }, ctx);
           updateSummary();
