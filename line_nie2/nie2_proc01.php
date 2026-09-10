@@ -129,7 +129,7 @@
         <div class="pro3-proc1-check-it"><text id="sumJudge" readonly></text></div>
         <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ระบุ Lot ID</lable></div>
         <div class="pro3-proc1-check-it">
-          <select id="LotID" name="LotID">
+          <select id="LotID" name="LotID" required>
             <option>โปรดระบุ</option>
             <option value="A1">A1</option>
             <option value="A2">A2</option>
