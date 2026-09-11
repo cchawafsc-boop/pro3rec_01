@@ -130,7 +130,7 @@
         <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ระบุ Lot ID</lable></div>
         <div class="pro3-proc1-check-it">
           <select id="LotID" name="LotID" required>
-            <option selected disabled>โปรดระบุ</option>
+            <option value="" selected disabled>โปรดระบุ</option>
             <option value="A1">A1</option>
             <option value="A2">A2</option>
             <option value="A3">A3</option>
