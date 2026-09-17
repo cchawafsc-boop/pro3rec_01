@@ -70,14 +70,14 @@
           <input type="hidden" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Invoice no.</label></div>
+        <div class="pro3-proc1-g-it"><label style="color: red;"><strong>1. Invoice no.</strong></label></div>
         <div class="pro3-proc1-g-it">
-          <input type="text" name="InvNo" id="invNo" required>
+          <input type="text" name="InvNo" id="invNo" placeholder="โปรดใส่ Inv. no." required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label style="font-size:0.8em;">จำนวนตาม Inv. (pcs)</label></div>
+        <div class="pro3-proc1-g-it"><label style="color: red; font-size:0.8em;"><strong>2. จำนวนตาม Inv. (pcs)</strong></label></div>
         <div class="pro3-proc1-g-it">
-          <input type="number" name="InvQty" id="invqty" required>
+          <input type="number" name="InvQty" id="invqty" placeholder="โปรดใส่จำนวนตาม Inv" required>
         </div>
 
         <div class="pro3-proc1-g-it"><label>Date</label></div>
@@ -91,8 +91,8 @@
         </div>
 
         <div class="pro3-proc1-g-it"><label>สแกน QR (Lot Tag)</label></div>
-        <div class="pro3-proc1-g-it">
-          <div id="qrScanDiv" style="max-width:300px;">
+        <div class="pro3-proc1-g-it" style="flex-direction:column;">
+          <div id="qrScanDiv" style="width:100%;">
             <video id="qrVideo" style="width:100%;" playsinline></video>
           </div>
           <canvas id="qrCanvas" style="display:none;"></canvas>
@@ -111,12 +111,12 @@
         <div class="lotListHeader h7"><label>Remark</label></div>
         <div class="lotListHeader h8"><label>Action</label></div>
         <div id="prodNameList" class="lotDataList"></div>
-        <div id="woList" class="lotDataList"></div>
-        <div id="boxNoList" class="lotDataList"></div>
-        <div id="boxQtyList" class="lotDataList"></div>
-        <div id="matList" class="lotDataList"></div>
+        <div id="woList"       class="lotDataList"></div>
+        <div id="boxNoList"    class="lotDataList"></div>
+        <div id="boxQtyList"   class="lotDataList"></div>
+        <div id="matList"      class="lotDataList"></div>
         <div id="appCheckList" class="appCheckList"></div>
-        <div id="remarkList" class="lotDataList"></div>
+        <div id="remarkList"   class="lotDataList"></div>
         <div id="DelItem"></div>
       </div>
 
@@ -210,7 +210,7 @@
 
       var lot = parseLotTagInput(this.value);
       if (!lot) {
-        alert('Data from Lot Tag is error. Please re-check');
+        alert('Lot Tag ไม่ถูกต้อง\nกรุณาตรวจสอบอีกครั้ง');
         this.value = '';
         this.focus();
         return;
