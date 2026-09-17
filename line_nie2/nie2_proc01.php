@@ -70,12 +70,12 @@
           <input type="hidden" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label style="color: red;"><strong>1. Invoice no.</strong></label></div>
+        <div class="pro3-proc1-g-it"><label id="invNoLabel" style="color: red;">Invoice no.</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" name="InvNo" id="invNo" placeholder="โปรดใส่ Inv. no." required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label style="color: red; font-size:0.8em;"><strong>2. จำนวนตาม Inv. (pcs)</strong></label></div>
+        <div class="pro3-proc1-g-it"><label id="invQtyLabel" style="color: red; font-size:0.8em;">จำนวนตาม Inv. (pcs)</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="InvQty" id="invqty" placeholder="โปรดใส่จำนวนตาม Inv" required>
         </div>
@@ -87,7 +87,7 @@
 
         <div class="pro3-proc1-g-it"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat">
+          <input type="text" id="lotTagData" autocomplete="off" disabled placeholder="prod|wo|box|qty|mat">
         </div>
 
         <div class="pro3-proc1-g-it"><label>สแกน QR (Lot Tag)</label></div>
@@ -162,7 +162,26 @@
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('invNo').focus();
+      checkInvFields();
     });
+
+    function checkInvFields() {
+      var invNoVal  = document.getElementById('invNo').value.trim();
+      var invQtyVal = document.getElementById('invqty').value.trim();
+
+      document.getElementById('invNoLabel').style.color  = 'black';
+      document.getElementById('invQtyLabel').style.color = 'black';
+
+      var lotTagInput = document.getElementById('lotTagData');
+      if (invNoVal && invQtyVal) {
+        lotTagInput.disabled = false;
+      } else {
+        lotTagInput.disabled = true;
+      }
+    }
+
+    document.getElementById('invNo').addEventListener('input', checkInvFields);
+    document.getElementById('invqty').addEventListener('input', checkInvFields);
 
     var qrVideo  = document.getElementById('qrVideo');
     var qrCanvas = document.getElementById('qrCanvas');
@@ -207,6 +226,13 @@
     document.getElementById('lotTagData').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
+
+      var invNoVal  = document.getElementById('invNo').value.trim();
+      var invQtyVal = document.getElementById('invqty').value.trim();
+      if (!invNoVal || !invQtyVal) {
+        alert('โปรดใส่ Inv. no. และจำนวนตาม Inv.');
+        return;
+      }
 
       var lot = parseLotTagInput(this.value);
       if (!lot) {
