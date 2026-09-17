@@ -85,7 +85,7 @@
           <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label>Data from Lot Tag</label></div>
+        <div class="pro3-proc1-g-it"><label id="lotTagDataLabel">Data from Lot Tag</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" id="lotTagData" autocomplete="off" disabled placeholder="prod|wo|box|qty|mat">
         </div>
@@ -175,8 +175,10 @@
       var lotTagInput = document.getElementById('lotTagData');
       if (invNoVal && invQtyVal) {
         lotTagInput.disabled = false;
+        document.getElementById('lotTagDataLabel').style.color = 'red';
       } else {
         lotTagInput.disabled = true;
+        document.getElementById('lotTagDataLabel').style.color = 'black';
       }
     }
 
