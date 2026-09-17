@@ -10,6 +10,7 @@
         $boxQtys   = $_POST['BoxQty'];
         $materials = $_POST['Materials'];
         $appChecks = $_POST['AppCheck'];
+        $statuses  = $_POST['Status'];
         $lotID     = $_POST['LotID'];
         $remarks   = $_POST['Remark'];
 
@@ -19,7 +20,6 @@
 
         // Time removed from form; keep column filled for the table.
         $time   = date('H:i:s');
-        $status = empty($remarks) ? 'wait incoming' : 'รอ QA ตัดสินใจ';
 
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`Status`,`Remark`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -35,6 +35,7 @@
             $appCheck  = $appChecks[$i];
             $boxJudge  = $appChecks[$i];
             $lotIDFull = $lotID."_".$date."_".$time;
+            $status    = $statuses[$i];
             $remark    = $remarks[$i];
             $req = mysqli_stmt_execute($stmt) && $req;
         }
@@ -108,14 +109,16 @@
         <div class="lotListHeader h4"><label>Box q'ty</label></div>
         <div class="lotListHeader h5"><label>Mat.</label></div>
         <div class="lotListHeader h6"><label>App Check</label></div>
-        <div class="lotListHeader h7"><label>Remark</label></div>
-        <div class="lotListHeader h8"><label>Action</label></div>
+        <div class="lotListHeader h7"><label>Status</label></div>
+        <div class="lotListHeader h8"><label>Remark</label></div>
+        <div class="lotListHeader h9"><label>Action</label></div>
         <div id="prodNameList" class="lotDataList"></div>
         <div id="woList"       class="lotDataList"></div>
         <div id="boxNoList"    class="lotDataList"></div>
         <div id="boxQtyList"   class="lotDataList"></div>
         <div id="matList"      class="lotDataList"></div>
         <div id="appCheckList" class="appCheckList"></div>
+        <div id="statusList"   class="appCheckList"></div>
         <div id="remarkList"   class="lotDataList"></div>
         <div id="DelItem"></div>
       </div>
@@ -250,7 +253,7 @@
       var firstWoRow = document.querySelector('#woList .dataRow');
       if (firstProdNameRow && firstWoRow) {
         if (prodName !== firstProdNameRow.textContent || wo !== firstWoRow.textContent) {
-          alert('Product name or WO is incorrect. Please re-check');
+          alert('Product name หรือ WO ไม่ถูกต้อง\nโปรดตรวจสอบ Product name และ WO อีกครั้ง');
           return;
         }
       }
@@ -300,6 +303,18 @@
         '</select>';
       document.getElementById('appCheckList').appendChild(appCheckRow);
 
+      var statusRow = document.createElement('div');
+      statusRow.className = 'appCheckRow';
+      statusRow.innerHTML =
+        '<select name="Status[]" required>' +
+          '<option value="" selected disabled>โปรดระบุ</option>' +
+          '<option value="Accept">Accept</option>' +
+          '<option value="Reject">Reject</option>' +
+          '<option value="Hold">Hold</option>' +
+          '<option value="SpecialAccept">SpecialAccept</option>' +
+        '</select>';
+      document.getElementById('statusList').appendChild(statusRow);
+
       var remarkRow = document.createElement('div');
       remarkRow.className = 'remarkRow';
       var remarkTextarea = document.createElement('textarea');
@@ -320,6 +335,7 @@
         boxQtyRow.remove();
         matRow.remove();
         appCheckRow.remove();
+        statusRow.remove();
         remarkRow.remove();
         delRow.remove();
         updateSumPcs();
