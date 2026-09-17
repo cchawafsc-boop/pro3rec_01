@@ -149,18 +149,6 @@ label{
 	border-color:#aaa;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.main-menu button#Nie2_HistBtn {
-	font-weight: bold;
-	color: white;
-	background-color: mediumblue;
-	width: 10em;
-}
-.main-menu button#Nie2_BfIndexBtn{
-	font-weight: bold;
-	color: white;
-	background-color: red;
-	width: 10em;
-}
 /*___________________________ End: main-menu __________________________*/
 /*======================   pro1 Lot card History ======================*/
 .pro1LcardHis{
@@ -250,7 +238,7 @@ label{
 }
 .pro3-proc1-lotList {
 	display: grid;
-	grid-template-columns: 100px 70px 40px 40px 40px 70px 100px 70px;
+	grid-template-columns: 100px 70px 40px 40px 40px 70px 70px 100px 70px;
 	gap: 5px;
 	width: fit-content;
 	max-width: 100%;
