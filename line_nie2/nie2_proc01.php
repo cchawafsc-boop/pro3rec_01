@@ -169,8 +169,8 @@
       var invNoVal  = document.getElementById('invNo').value.trim();
       var invQtyVal = document.getElementById('invqty').value.trim();
 
-      document.getElementById('invNoLabel').style.color  = 'black';
-      document.getElementById('invQtyLabel').style.color = 'black';
+      document.getElementById('invNoLabel').style.color  = invNoVal  ? 'black' : 'red';
+      document.getElementById('invQtyLabel').style.color = invQtyVal ? 'black' : 'red';
 
       var lotTagInput = document.getElementById('lotTagData');
       if (invNoVal && invQtyVal) {
