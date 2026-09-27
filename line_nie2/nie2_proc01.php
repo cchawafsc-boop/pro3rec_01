@@ -130,27 +130,37 @@
         <div class="pro3-proc1-check-it"><text id="sumPcs" readonly></text></div>
         <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">สถานะขาด/เกิน</lable></div>
         <div class="pro3-proc1-check-it"><text id="sumJudge" readonly></text></div>
-        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ระบุ Lot ID</lable></div>
+        <div class="pro3-proc1-check-it"><lable style="font-size:0.8em;">ตั้ง All status เป็น</lable></div>
         <div class="pro3-proc1-check-it">
-          <select id="LotID" name="LotID" required>
-            <option value="" selected disabled>โปรดระบุ</option>
-            <option value="A1">A1</option>
-            <option value="A2">A2</option>
-            <option value="A3">A3</option>
-            <option value="A4">A4</option>
-            <option value="A5">A5</option>
-            <option value="B1">B1</option>
-            <option value="B2">B2</option>
-            <option value="B3">B3</option>
-            <option value="B4">B4</option>
-            <option value="B5">B5</option>
-            <option value="C1">C1</option>
-            <option value="C2">C2</option>
-            <option value="C3">C3</option>
-            <option value="C4">C4</option>
-            <option value="C5">C5</option>
+          <select id="allStatusSelect">
+            <option value="Accept" selected>Accept</option>
+            <option value="Reject">Reject</option>
+            <option value="Hold">Hold</option>
+            <option value="SpecialAccept">SpecialAccept</option>
           </select>
-          </text></div>
+        </div>
+      </div>
+
+      <div class="pro3-proc1-lotid-row">
+        <lable style="font-size:0.8em;">ระบุ Lot ID</lable>
+        <select id="LotID" name="LotID" required>
+          <option value="" selected disabled>โปรดระบุ</option>
+          <option value="A1">A1</option>
+          <option value="A2">A2</option>
+          <option value="A3">A3</option>
+          <option value="A4">A4</option>
+          <option value="A5">A5</option>
+          <option value="B1">B1</option>
+          <option value="B2">B2</option>
+          <option value="B3">B3</option>
+          <option value="B4">B4</option>
+          <option value="B5">B5</option>
+          <option value="C1">C1</option>
+          <option value="C2">C2</option>
+          <option value="C3">C3</option>
+          <option value="C4">C4</option>
+          <option value="C5">C5</option>
+        </select>
       </div>
       <p>
         <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
@@ -247,6 +257,15 @@
         return;
       }
 
+      var isDuplicate = false;
+      document.querySelectorAll('#boxNoList .dataRow').forEach(function (row) {
+        if (row.textContent === lot.boxNo) isDuplicate = true;
+      });
+      if (isDuplicate) {
+        alert('ข้อมูลถูกบันทึกแล้ว โปรดสแกนใหม่');
+        return;
+      }
+
       var prodName = lot.prodName, wo = lot.wo, boxNo = lot.boxNo, boxQty = lot.boxQty, material = lot.material;
 
       var firstProdNameRow = document.querySelector('#prodNameList .dataRow');
@@ -307,8 +326,7 @@
       statusRow.className = 'appCheckRow';
       statusRow.innerHTML =
         '<select name="Status[]" required>' +
-          '<option value="" selected disabled>โปรดระบุ</option>' +
-          '<option value="Accept">Accept</option>' +
+          '<option value="Accept" selected>Accept</option>' +
           '<option value="Reject">Reject</option>' +
           '<option value="Hold">Hold</option>' +
           '<option value="SpecialAccept">SpecialAccept</option>' +
@@ -350,6 +368,13 @@
       updateSumJudge();
     });
 
+    document.getElementById('allStatusSelect').addEventListener('change', function () {
+      var val = this.value;
+      document.querySelectorAll('#statusList select').forEach(function (sel) {
+        sel.value = val;
+      });
+    });
+
     function updateSumPcs() {
       var sum = 0;
       document.querySelectorAll('#boxQtyList .dataRow').forEach(function (row) {
@@ -368,10 +393,10 @@
         sumJudgeEl.style.color = 'green';
       } else if (sumPcsVal < invQtyVal) {
         sumJudgeEl.textContent = 'จำนวนรวมขาด';
-        sumJudgeEl.style.color = 'red';
+        sumJudgeEl.style.color = 'darkgoldenrod';
       } else {
         sumJudgeEl.textContent = 'จำนวนรวมเกิน';
-        sumJudgeEl.style.color = 'red';
+        sumJudgeEl.style.color = 'darkgoldenrod';
       }
     }
   </script>
