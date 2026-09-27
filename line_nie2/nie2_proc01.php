@@ -139,9 +139,6 @@
             <option value="SpecialAccept">SpecialAccept</option>
           </select>
         </div>
-      </div>
-
-      <div class="pro3-proc1-lotid-row">
         <lable style="font-size:0.8em;">ระบุ Lot ID</lable>
         <select id="LotID" name="LotID" required>
           <option value="" selected disabled>โปรดระบุ</option>
