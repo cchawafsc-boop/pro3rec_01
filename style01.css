@@ -324,6 +324,21 @@ label{
 	box-sizing: border-box;
 	background-color: #F7F2C2;          /*pale cream khaki*/
 }
+.pro3-proc1-g-it button#qrConfirmBtn {
+	padding: 6px 7px;
+	border-radius: 4px;
+	cursor: pointer;
+	width: 100%;
+	border-color: #aaa;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.pro3-proc1-lotid-row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	margin: 4px auto;
+}
 /*____________________ End: Pro3-Process1 ____________________*/
 /*======================= Pro3-Process 2 =====================*/
 .pro1incoming {
