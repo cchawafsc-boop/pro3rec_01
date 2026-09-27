@@ -139,25 +139,27 @@
             <option value="SpecialAccept">SpecialAccept</option>
           </select>
         </div>
-        <lable style="font-size:0.8em;">ระบุ Lot ID</lable>
-        <select id="LotID" name="LotID" required>
-          <option value="" selected disabled>โปรดระบุ</option>
-          <option value="A1">A1</option>
-          <option value="A2">A2</option>
-          <option value="A3">A3</option>
-          <option value="A4">A4</option>
-          <option value="A5">A5</option>
-          <option value="B1">B1</option>
-          <option value="B2">B2</option>
-          <option value="B3">B3</option>
-          <option value="B4">B4</option>
-          <option value="B5">B5</option>
-          <option value="C1">C1</option>
-          <option value="C2">C2</option>
-          <option value="C3">C3</option>
-          <option value="C4">C4</option>
-          <option value="C5">C5</option>
-        </select>
+        <div class="pro3-proc1-lotid-row">
+          <lable style="font-size:0.8em;">ระบุ Lot ID</lable>
+          <select id="LotID" name="LotID" required>
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="A3">A3</option>
+            <option value="A4">A4</option>
+            <option value="A5">A5</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="B3">B3</option>
+            <option value="B4">B4</option>
+            <option value="B5">B5</option>
+            <option value="C1">C1</option>
+            <option value="C2">C2</option>
+            <option value="C3">C3</option>
+            <option value="C4">C4</option>
+            <option value="C5">C5</option>
+          </select>
+        </div>
       </div>
       <p>
         <button type="button" id="Nie2_homeBtn" onclick="window.location.href='./nie2_index.php'">กลับหน้า<br>Ni-e line 2</button>
