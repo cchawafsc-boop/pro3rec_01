@@ -63,34 +63,40 @@
     <h2>1 Receiving — Ni-e Line 2</h2>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="form-pro3-proc1-g">
+      <div class="form-pro3-proc1-g pro3-proc1-g3">
 
+        <div class="pro3-proc1-g-it pro3-proc1-g-bl"></div>
         <div class="pro3-proc1-g-it"><label>Operator</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" id="oprDisplay" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled>
           <input type="hidden" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><span class="blinkBullet" id="invNoBullet">●</span><label id="invNoLabel" style="color: red;">Invoice no.</label></div>
+        <div class="pro3-proc1-g-it pro3-proc1-g-bl"><span class="blinkBullet" id="invNoBullet">●</span></div>
+        <div class="pro3-proc1-g-it"><label id="invNoLabel" style="color: red;">Invoice no.</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" name="InvNo" id="invNo" placeholder="โปรดใส่ Inv. no." required>
         </div>
 
-        <div class="pro3-proc1-g-it"><span class="blinkBullet" id="invQtyBullet">●</span><label id="invQtyLabel" style="color: red; font-size:0.8em;">จำนวนตาม Inv. (pcs)</label></div>
+        <div class="pro3-proc1-g-it pro3-proc1-g-bl"><span class="blinkBullet" id="invQtyBullet">●</span></div>
+        <div class="pro3-proc1-g-it"><label id="invQtyLabel" style="color: red; font-size:0.8em;">จำนวนตาม Inv. (pcs)</label></div>
         <div class="pro3-proc1-g-it">
           <input type="number" name="InvQty" id="invQty" placeholder="โปรดใส่จำนวนตาม Inv" required>
         </div>
 
+        <div class="pro3-proc1-g-it pro3-proc1-g-bl"></div>
         <div class="pro3-proc1-g-it"><label>Date</label></div>
         <div class="pro3-proc1-g-it">
           <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><span class="blinkBullet" id="lotTagDataBullet">●</span><label id="lotTagDataLabel">Data from Lot Tag</label></div>
+        <div class="pro3-proc1-g-it pro3-proc1-g-bl"><span class="blinkBullet" id="lotTagDataBullet">●</span></div>
+        <div class="pro3-proc1-g-it"><label id="lotTagDataLabel">Data from Lot Tag</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" id="lotTagData" autocomplete="off" disabled placeholder="prod|wo|box|qty|mat">
         </div>
 
+        <div class="pro3-proc1-g-it pro3-proc1-g-bl"></div>
         <div class="pro3-proc1-g-it"><label>สแกน QR (Lot Tag)</label></div>
         <div class="pro3-proc1-g-it" style="flex-direction:column;">
           <div id="qrScanDiv" style="width:100%;">
