@@ -7,7 +7,14 @@
     echo "<button onclick=\"showForm()\" class=\"makeButton\">Login</button>";
     echo "<button onclick=\"goRegister()\" class=\"makeButton\">Register</button>";
   }else{
-    echo "สวัสดี ".$_SESSION['us_name']." ผู้ใช้ระดับ ".$_SESSION['us_aut'];
+    $role = match ((int) ($_SESSION['us_aut'] ?? -1)) {
+      0 => 'superadmin',
+      1 => 'admin',
+      2 => 'operator',
+      3 => 'guest',
+    default => 'unknown',
+    };
+    echo "สวัสดี ".$_SESSION['us_name']." ผู้ใช้ระดับ ".$role;
     echo "<button onclick=\"goLogout()\" class=\"makeButton\">Logout</button>";
   }
   ?>
