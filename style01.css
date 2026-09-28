@@ -30,6 +30,12 @@ label{
 	height: 30px;
 	padding: 0px 5px;
 }
+.topbar1-right{
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	padding-right: 5px;
+}
 .topbar2{
 	width: 100%;
 	position: fixed;        
