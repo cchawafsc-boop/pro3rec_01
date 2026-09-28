@@ -228,6 +228,18 @@ label{
     padding: 5px;
     border-radius: 4px;
 }
+.pro3-proc1-g-it .blinkBullet {
+	color: red;
+	margin-right: 4px;
+	visibility: hidden;
+}
+.pro3-proc1-g-it .blinkBullet.show {
+	visibility: visible;
+	animation: blinkBullet 1s step-start infinite;
+}
+@keyframes blinkBullet {
+	50% { opacity: 0; }
+}
 .pro3-proc1-g-it input:-webkit-autofill {
 	/* This prevents client's browser change background-color automatically */
 	-webkit-box-shadow: 0 0 0 30px white inset !important;
