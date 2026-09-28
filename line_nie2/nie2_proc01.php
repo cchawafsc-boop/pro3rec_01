@@ -228,8 +228,8 @@
       }
     }
 
-    document.getElementById('invNo').addEventListener('input', checkInvFields);
-    document.getElementById('invQty').addEventListener('input', checkInvFields);
+    document.getElementById('invNo').addEventListener('change', checkInvFields);
+    document.getElementById('invQty').addEventListener('change', checkInvFields);
 
     var qrVideo  = document.getElementById('qrVideo');
     var qrCanvas = document.getElementById('qrCanvas');
