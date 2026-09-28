@@ -1,7 +1,8 @@
 <div class="topbar1">  
   <a href="/index.php"><img src="/img/logo1.png"></a> 
 
-  <?php 
+  <div class="topbar1-right">
+  <?php
   if(empty($_SESSION['us_name'])){
     echo "<button onclick=\"showForm()\" class=\"makeButton\">Login</button>";
     echo "<button onclick=\"goRegister()\" class=\"makeButton\">Register</button>";
@@ -9,7 +10,8 @@
     echo "สวัสดี ".$_SESSION['us_name'];
     echo "<button onclick=\"goLogout()\" class=\"makeButton\">Logout</button>";
   }
-  ?>  
+  ?>
+  </div>
 </div>
 
 <!-- Log-in pop-up window -->
