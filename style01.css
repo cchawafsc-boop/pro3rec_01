@@ -222,6 +222,13 @@ label{
 	justify-content: center;             /* Center the grid horizontally */
 	margin: 0 auto;                      /* Center the box itself in its parent */
 }
+.form-pro3-proc1-g.pro3-proc1-g3 {
+    grid-template-columns: 20px 150px 160px;  /* bullet | label | input */
+}
+.pro3-proc1-g-it.pro3-proc1-g-bl {
+    justify-content: center;
+    padding: 5px 0;
+}
 .pro3-proc1-g-it {
     display: flex;                       /* Using flexbox for vertical alignment within each cell */
     align-items: center;
@@ -230,7 +237,6 @@ label{
 }
 .pro3-proc1-g-it .blinkBullet {
 	color: red;
-	margin-right: 4px;
 	visibility: hidden;
 }
 .pro3-proc1-g-it .blinkBullet.show {
