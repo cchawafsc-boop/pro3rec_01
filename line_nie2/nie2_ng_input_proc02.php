@@ -264,35 +264,35 @@
 
   <div class="form-pro3-ngin">
     <h2>ระบุ NG — Ni-e Line 2</h2>
-    <div class="form-pro3-proc1-g">
+    <div class="pro3-ngin-g">
 
-      <div class="pro3-proc1-g-it"><label>Operator</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>Operator</label></div>
+      <div class="pro3-ngin-g-it">
         <input type="number" id="hdrOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled>
       </div>
 
-      <div class="pro3-proc1-g-it"><label>Data from Lot Tag</label></div>
-        <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>Data from Lot Tag</label></div>
+        <div class="pro3-ngin-g-it">
           <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat" autofocus>
         </div>
 
-      <div class="pro3-proc1-g-it"><label>Product name</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>Product name</label></div>
+      <div class="pro3-ngin-g-it">
         <input type="text" id="hdrProdName" value="<?php echo $lot_prodname; ?>" disabled>
       </div>
 
-      <div class="pro3-proc1-g-it"><label>Invoice no</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>Invoice no</label></div>
+      <div class="pro3-ngin-g-it">
         <input type="text" id="hdrInvNo" value="<?php echo $lot_invno; ?>" disabled>
       </div>
 
-      <div class="pro3-proc1-g-it"><label>WO</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>WO</label></div>
+      <div class="pro3-ngin-g-it">
         <input type="text" id="hdrWO" value="<?php echo $lot_wo; ?>" disabled>
       </div>
 
-      <div class="pro3-proc1-g-it"><label>Process</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>Process</label></div>
+      <div class="pro3-ngin-g-it">
         <select id="hdrProcess" required <?php echo $pre_process !== '' ? 'disabled' : ''; ?>>
           <option value="" <?php echo $pre_process === '' ? 'selected' : ''; ?> disabled>โปรดระบุ</option>
           <?php
@@ -310,18 +310,18 @@
         </select>
       </div>
 
-      <div class="pro3-proc1-g-it"><label>Date</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>Date</label></div>
+      <div class="pro3-ngin-g-it">
         <input type="date" id="hdrDate" value="<?php echo date('Y-m-d'); ?>" disabled>
       </div>
 
-      <div class="pro3-proc1-g-it"><label>Time</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>Time</label></div>
+      <div class="pro3-ngin-g-it">
         <input type="time" id="hdrTime" value="<?php echo date('H:i'); ?>" disabled>
       </div>
 
-      <div class="pro3-proc1-g-it"><label>Box no</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it"><label>Box no</label></div>
+      <div class="pro3-ngin-g-it">
         <select id="hdrBoxNo" <?php echo $pre_boxno !== '' ? 'disabled' : ''; ?>>
           <option value="" <?php echo $pre_boxno === '' ? 'selected' : ''; ?> disabled>โปรดระบุ</option>
           <?php foreach ($lot_boxnos as $boxNoOpt): ?>
@@ -330,8 +330,8 @@
         </select>
       </div>
 
-      <div class="pro3-proc1-g-it" style="font-size:0.8em;"><label>จำนวนชิ้นงานที่ถูกสุ่ม (กล่องนี้)</label></div>
-      <div class="pro3-proc1-g-it">
+      <div class="pro3-ngin-g-it" style="font-size:0.8em;"><label>จำนวนชิ้นงานที่ถูกสุ่ม (กล่องนี้)</label></div>
+      <div class="pro3-ngin-g-it">
         <input type="number" id="hdrSmpPerBox" value="<?php echo htmlspecialchars($pre_smpperbox); ?>" min="0" <?php echo $pre_smpperbox !== '' ? 'disabled' : ''; ?> required>
       </div>
 
