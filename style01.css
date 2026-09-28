@@ -353,7 +353,6 @@ label{
 	border-radius: 4px;
 	cursor: pointer;
 	width: 100%;
-	border-style: outset;
 	border-color: #aaa;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
