@@ -114,7 +114,7 @@
         <div class="lotListHeader h3"><label>Box no.</label></div>
         <div class="lotListHeader h4"><label>Box q'ty</label></div>
         <div class="lotListHeader h5"><label>Mat.</label></div>
-        <div class="lotListHeader h6"><label>App Check</label></div>
+        <div class="lotListHeader h6"><label>Box Check</label></div>
         <div class="lotListHeader h7"><label>Status</label></div>
         <div class="lotListHeader h8"><label>Remark</label></div>
         <div class="lotListHeader h9"><label>Action</label></div>
