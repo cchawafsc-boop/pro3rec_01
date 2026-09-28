@@ -1111,6 +1111,24 @@ form .form-pro3-proc6-g1 {
 	color:white;
 	background-color: blue;
 }
+.pro3-ngin-g {
+    display: grid;
+    grid-template-columns: 150px 160px;  /* Defines column width */
+    gap: 0px;                            /* Sets a gap between grid items */
+    width: fit-content;                  /* Shrink box to fit the columns */
+    max-width: 100%;
+    border: 1px solid #ccc;
+    padding: 3px;
+    border-radius: 8px;
+	justify-content: center;             /* Center the grid horizontally */
+	margin: 0 auto;                      /* Center the box itself in its parent */
+}
+.pro3-ngin-g-it {
+    display: flex;                       /* Using flexbox for vertical alignment within each cell */
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+}
 .ngInputTbl{
 	border-collapse: collapse;
 	margin: 10px auto;
