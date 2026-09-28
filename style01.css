@@ -1129,6 +1129,14 @@ form .form-pro3-proc6-g1 {
     padding: 5px;
     border-radius: 4px;
 }
+.pro3-ngin-g-it select,
+.pro3-ngin-g-it input[type="text"],
+.pro3-ngin-g-it input[type="number"],
+.pro3-ngin-g-it input[type="date"],
+.pro3-ngin-g-it input[type="time"]{
+	width: 100%;
+	box-sizing: border-box;
+}
 .ngInputTbl{
 	border-collapse: collapse;
 	margin: 10px auto;
