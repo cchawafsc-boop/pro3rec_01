@@ -7,7 +7,7 @@
     echo "<button onclick=\"showForm()\" class=\"makeButton\">Login</button>";
     echo "<button onclick=\"goRegister()\" class=\"makeButton\">Register</button>";
   }else{
-    echo "สวัสดี ".$_SESSION['us_name'];
+    echo "สวัสดี ".$_SESSION['us_name']." ผู้ใช้ระดับ ".$_SESSION['us_aut'];
     echo "<button onclick=\"goLogout()\" class=\"makeButton\">Logout</button>";
   }
   ?>
