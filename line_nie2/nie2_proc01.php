@@ -71,14 +71,14 @@
           <input type="hidden" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>">
         </div>
 
-        <div class="pro3-proc1-g-it"><label id="invNoLabel" style="color: red;">Invoice no.</label></div>
+        <div class="pro3-proc1-g-it"><span class="blinkBullet" id="invNoBullet">●</span><label id="invNoLabel" style="color: red;">Invoice no.</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" name="InvNo" id="invNo" placeholder="โปรดใส่ Inv. no." required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label id="invQtyLabel" style="color: red; font-size:0.8em;">จำนวนตาม Inv. (pcs)</label></div>
+        <div class="pro3-proc1-g-it"><span class="blinkBullet" id="invQtyBullet">●</span><label id="invQtyLabel" style="color: red; font-size:0.8em;">จำนวนตาม Inv. (pcs)</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="number" name="InvQty" id="invqty" placeholder="โปรดใส่จำนวนตาม Inv" required>
+          <input type="number" name="InvQty" id="invQty" placeholder="โปรดใส่จำนวนตาม Inv" required>
         </div>
 
         <div class="pro3-proc1-g-it"><label>Date</label></div>
@@ -86,7 +86,7 @@
           <input type="date" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
-        <div class="pro3-proc1-g-it"><label id="lotTagDataLabel">Data from Lot Tag</label></div>
+        <div class="pro3-proc1-g-it"><span class="blinkBullet" id="lotTagDataBullet">●</span><label id="lotTagDataLabel">Data from Lot Tag</label></div>
         <div class="pro3-proc1-g-it">
           <input type="text" id="lotTagData" autocomplete="off" disabled placeholder="prod|wo|box|qty|mat">
         </div>
@@ -177,9 +177,37 @@
       checkInvFields();
     });
 
+    // Blink bullets: shown on invNo/invQty after page load, hidden on blur with value
+    window.addEventListener('load', function () {
+      document.getElementById('invNoBullet').classList.add('show');
+      document.getElementById('invQtyBullet').classList.add('show');
+    });
+
+    function updateInvBullets() {
+      var invNoOk  = !document.getElementById('invNoBullet').classList.contains('show');
+      var invQtyOk = !document.getElementById('invQtyBullet').classList.contains('show');
+      document.getElementById('lotTagDataBullet').classList.toggle('show', invNoOk && invQtyOk);
+    }
+
+    document.getElementById('invNo').addEventListener('blur', function () {
+      document.getElementById('invNoBullet').classList.toggle('show', !this.value.trim());
+      updateInvBullets();
+    });
+
+    document.getElementById('invQty').addEventListener('blur', function () {
+      document.getElementById('invQtyBullet').classList.toggle('show', !this.value.trim());
+      updateInvBullets();
+    });
+
+    document.getElementById('invQty').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      document.getElementById('lotTagData').focus();
+    });
+
     function checkInvFields() {
       var invNoVal  = document.getElementById('invNo').value.trim();
-      var invQtyVal = document.getElementById('invqty').value.trim();
+      var invQtyVal = document.getElementById('invQty').value.trim();
 
       document.getElementById('invNoLabel').style.color  = invNoVal  ? 'black' : 'red';
       document.getElementById('invQtyLabel').style.color = invQtyVal ? 'black' : 'red';
@@ -195,7 +223,7 @@
     }
 
     document.getElementById('invNo').addEventListener('input', checkInvFields);
-    document.getElementById('invqty').addEventListener('input', checkInvFields);
+    document.getElementById('invQty').addEventListener('input', checkInvFields);
 
     var qrVideo  = document.getElementById('qrVideo');
     var qrCanvas = document.getElementById('qrCanvas');
@@ -242,7 +270,7 @@
       e.preventDefault();
 
       var invNoVal  = document.getElementById('invNo').value.trim();
-      var invQtyVal = document.getElementById('invqty').value.trim();
+      var invQtyVal = document.getElementById('invQty').value.trim();
       if (!invNoVal || !invQtyVal) {
         alert('โปรดใส่ Inv. no. และจำนวนตาม Inv.');
         return;
@@ -276,7 +304,7 @@
         }
       }
 
-      var invQtyVal = parseFloat(document.getElementById('invqty').value) || 0;
+      var invQtyVal = parseFloat(document.getElementById('invQty').value) || 0;
       var existingBoxQtySum = 0;
       document.querySelectorAll('#boxQtyList .dataRow').forEach(function (row) {
         existingBoxQtySum += parseFloat(row.textContent) || 0;
@@ -384,7 +412,7 @@
 
     function updateSumJudge() {
       var sumPcsVal = parseFloat(document.getElementById('sumPcs').textContent) || 0;
-      var invQtyVal = parseFloat(document.getElementById('invqty').value) || 0;
+      var invQtyVal = parseFloat(document.getElementById('invQty').value) || 0;
       var sumJudgeEl = document.getElementById('sumJudge');
       sumJudgeEl.style.fontWeight = 'bold';
       if (sumPcsVal === invQtyVal) {
