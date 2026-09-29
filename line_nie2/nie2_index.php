@@ -33,6 +33,9 @@
     <p> <button type="button"   id="์Nie2_Proc06_Btn"   onclick="goProc06()">6. Inspection </button> </p>
     <p> <button type="button"   id="์Nie2_Proc07_Btn"   onclick="goProc07()">7. QAoutgoing </button> </p>
     <p> <button type="button"   id="Nie2_NGinputBtn"   onclick="goNGinput()">ระบุ NG </button> </p>
+    <?php if (in_array((int)($_SESSION['us_aut'] ?? -1), [0, 1], true)): ?>
+    <p> <button type="button"   id="Nie2_HoldDecBtn"   onclick="goHoldDecision()">ตัดสินใจ Hold </button> </p>
+    <?php endif; ?>
 
   </div>
 
@@ -66,6 +69,9 @@
     }
     function goProc07() {
       window.location.href = "./nie2_proc07.php";
+    }
+    function goHoldDecision() {
+      window.location.href = "./nie2_hold_decision.php";
     }
     function goNGinput() {
       window.location.href = "./nie2_ng_input.php";
