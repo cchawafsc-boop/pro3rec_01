@@ -4,6 +4,13 @@
     require('../init_session.php');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Operator must come from the session, never from the form.
+        if (empty($_SESSION['us_id'])) {
+            mysqli_close($conn);
+            echo "<script>alert('โปรด Login ก่อนบันทึกข้อมูล'); location='./nie2_proc01.php';</script>";
+            exit;
+        }
+
         $prodNames = $_POST['ProdName'];
         $wos       = $_POST['WO'];
         $boxNos    = $_POST['BoxNo'];
@@ -16,7 +23,7 @@
 
         $invNo    = $_POST['InvNo'];
         $date     = $_POST['Date'];
-        $opr      = $_POST['Opr'];
+        $opr      = $_SESSION['us_id'];
 
         // Time removed from form; keep column filled for the table.
         $time   = date('H:i:s');
@@ -68,8 +75,7 @@
         <div class="pro3-proc1-g-it pro3-proc1-g-bl"></div>
         <div class="pro3-proc1-g-it"><label>Operator</label></div>
         <div class="pro3-proc1-g-it">
-          <input type="number" id="oprDisplay" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled>
-          <input type="hidden" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>">
+          <input type="text" id="oprDisplay" value="<?php echo htmlspecialchars($_SESSION['us_name'] ?? ''); ?>" disabled>
         </div>
 
         <div class="pro3-proc1-g-it pro3-proc1-g-bl"><span class="blinkBullet" id="invNoBullet">●</span></div>
