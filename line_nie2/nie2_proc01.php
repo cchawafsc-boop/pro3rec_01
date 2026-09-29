@@ -25,7 +25,7 @@
         $date     = $_POST['Date'] ?? '';
         $opr      = $_SESSION['us_id'];
 
-        // Required fields must be filled and every row list must have the same length; otherwise save nothing.
+        // Required fields must be filled and every row list must have the same length, otherwise save nothing.
         $formError = '';
         $rowCount  = count($prodNames);
         $dateObj   = DateTime::createFromFormat('Y-m-d', $date);
