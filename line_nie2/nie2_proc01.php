@@ -21,7 +21,7 @@
         $lotID     = trim($_POST['LotID'] ?? '');
         $remarks   = (array)($_POST['Remark']    ?? []);
 
-        $invNo    = trim($_POST['InvNo'] ?? '');
+        $invNo    = strtoupper(str_replace(['-', '_', ' '], '', trim($_POST['InvNo'] ?? '')));
         $date     = $_POST['Date'] ?? '';
         $opr      = $_SESSION['us_id'];
 
@@ -68,22 +68,72 @@
         // Time removed from form; keep column filled for the table.
         $time   = date('H:i:s');
 
+        // Duplicate check: one physical box = ProdName + WO + BoxNo (InvNo is not part of the key).
+        // A box may be saved again only if its latest record is Reject AND it comes with a different InvNo.
+        $dupErrors = [];
+        $seenBoxes = [];
+        $dupStmt = mysqli_prepare($conn,
+            "SELECT `InvNo`, `Status` FROM `tb_proc1` WHERE `ProdName` = ? AND `WO` = ? AND `BoxNo` = ? ORDER BY `Date` DESC, `Time` DESC LIMIT 1");
+        for ($i = 0; $i < $rowCount; $i++) {
+            $boxLabel = $prodNames[$i] . ' / ' . $wos[$i] . ' / Box ' . $boxNos[$i];
+            $boxKey   = strtolower(trim($prodNames[$i]) . "\x1F" . trim($wos[$i]) . "\x1F" . trim($boxNos[$i]));
+            if (isset($seenBoxes[$boxKey])) {
+                $dupErrors[] = $boxLabel . ' : สแกนซ้ำในรายการนี้';
+                continue;
+            }
+            $seenBoxes[$boxKey] = true;
+
+            mysqli_stmt_bind_param($dupStmt, 'sss', $prodNames[$i], $wos[$i], $boxNos[$i]);
+            mysqli_stmt_execute($dupStmt);
+            $last = mysqli_fetch_assoc(mysqli_stmt_get_result($dupStmt));
+            if (!$last) {
+                continue;   // new box
+            }
+            if ($last['Status'] === 'Reject') {
+                if ($last['InvNo'] === $invNo) {
+                    $dupErrors[] = $boxLabel . ' : เคย Reject ด้วย ' . $last['InvNo'] . ' แล้ว โปรดใช้ InvNo ใหม่ (เช่น ' . $invNo . 'A)';
+                }
+                continue;   // re-receive with a new InvNo is OK
+            }
+            $dupErrors[] = $boxLabel . ' : รับเข้าแล้ว (Inv ' . $last['InvNo'] . ', ' . $last['Status'] . ')';
+        }
+        if ($dupErrors) {
+            mysqli_close($conn);
+            echo "<script>alert(" . json_encode("พบกล่องซ้ำ ไม่ได้บันทึกข้อมูล:\n" . implode("\n", $dupErrors)) . "); history.back();</script>";
+            exit;
+        }
+
         $stmt = mysqli_prepare($conn,
             "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`LotID`,`Status`,`Remark`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
         mysqli_stmt_bind_param($stmt, "sssssssssisss", $prodName, $invNo, $wo, $boxNo, $material, $date, $time, $opr, $appCheck, $boxQty, $lotIDFull, $status, $remark);
 
+        // All-or-nothing: insert every box inside one transaction.
         $req = true;
-        for ($i = 0; $i < count($prodNames); $i++) {
-            $prodName  = $prodNames[$i];
-            $wo        = $wos[$i];
-            $boxNo     = $boxNos[$i];
-            $boxQty    = (int)$boxQtys[$i];
-            $material  = $materials[$i];
-            $appCheck  = $appChecks[$i];
-            $lotIDFull = $lotID."_".$date."_".$time;
-            $status    = $statuses[$i];
-            $remark    = $remarks[$i];
-            $req = mysqli_stmt_execute($stmt) && $req;
+        try {
+            mysqli_begin_transaction($conn);
+            for ($i = 0; $i < $rowCount; $i++) {
+                $prodName  = $prodNames[$i];
+                $wo        = $wos[$i];
+                $boxNo     = $boxNos[$i];
+                $boxQty    = (int)$boxQtys[$i];
+                $material  = $materials[$i];
+                $appCheck  = $appChecks[$i];
+                $lotIDFull = $lotID."_".$date."_".$time;
+                $status    = $statuses[$i];
+                $remark    = $remarks[$i];
+                if (!mysqli_stmt_execute($stmt)) {
+                    $req = false;
+                    break;
+                }
+            }
+            if ($req) {
+                mysqli_commit($conn);
+            } else {
+                mysqli_rollback($conn);
+            }
+        } catch (mysqli_sql_exception $e) {
+            mysqli_rollback($conn);
+            $req = false;
         }
 
         if ($req) {
@@ -275,6 +325,14 @@
 
     document.getElementById('invNo').addEventListener('change', checkInvFields);
     document.getElementById('invQty').addEventListener('change', checkInvFields);
+
+    // InvNo: keep UPPERCASE only; remove dash, underscore and spaces while typing.
+    document.getElementById('invNo').addEventListener('input', function () {
+      var cleaned = this.value.toUpperCase().replace(/[-_\s]/g, '');
+      if (this.value !== cleaned) {
+        this.value = cleaned;
+      }
+    });
 
     var qrVideo  = document.getElementById('qrVideo');
     var qrCanvas = document.getElementById('qrCanvas');
