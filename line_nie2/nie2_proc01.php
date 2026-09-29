@@ -39,8 +39,8 @@
         $time   = date('H:i:s');
 
         $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`BoxJudge`,`LotID`,`Status`,`Remark`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "sssssssssissss", $prodName, $invNo, $wo, $boxNo, $material, $date, $time, $opr, $appCheck, $boxQty, $boxJudge, $lotIDFull, $status, $remark);
+            "INSERT INTO `tb_proc1` (`ProdName`,`InvNo`,`WO`,`BoxNo`,`Mat`,`Date`,`Time`,`Opr`,`AppCheck`,`BoxQty`,`LotID`,`Status`,`Remark`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "sssssssssisss", $prodName, $invNo, $wo, $boxNo, $material, $date, $time, $opr, $appCheck, $boxQty, $lotIDFull, $status, $remark);
 
         $req = true;
         for ($i = 0; $i < count($prodNames); $i++) {
@@ -50,7 +50,6 @@
             $boxQty    = (int)$boxQtys[$i];
             $material  = $materials[$i];
             $appCheck  = $appChecks[$i];
-            $boxJudge  = $appChecks[$i];
             $lotIDFull = $lotID."_".$date."_".$time;
             $status    = $statuses[$i];
             $remark    = $remarks[$i];
