@@ -11,19 +11,49 @@
             exit;
         }
 
-        $prodNames = $_POST['ProdName'];
-        $wos       = $_POST['WO'];
-        $boxNos    = $_POST['BoxNo'];
-        $boxQtys   = $_POST['BoxQty'];
-        $materials = $_POST['Materials'];
-        $appChecks = $_POST['AppCheck'];
-        $statuses  = $_POST['Status'];
-        $lotID     = $_POST['LotID'];
-        $remarks   = $_POST['Remark'];
+        $prodNames = (array)($_POST['ProdName']  ?? []);
+        $wos       = (array)($_POST['WO']        ?? []);
+        $boxNos    = (array)($_POST['BoxNo']     ?? []);
+        $boxQtys   = (array)($_POST['BoxQty']    ?? []);
+        $materials = (array)($_POST['Materials'] ?? []);
+        $appChecks = (array)($_POST['AppCheck']  ?? []);
+        $statuses  = (array)($_POST['Status']    ?? []);
+        $lotID     = trim($_POST['LotID'] ?? '');
+        $remarks   = (array)($_POST['Remark']    ?? []);
 
-        $invNo    = $_POST['InvNo'];
-        $date     = $_POST['Date'];
+        $invNo    = trim($_POST['InvNo'] ?? '');
+        $date     = $_POST['Date'] ?? '';
         $opr      = $_SESSION['us_id'];
+
+        // Required fields must be filled and every row list must have the same length; otherwise save nothing.
+        $formError = '';
+        $rowCount  = count($prodNames);
+        $dateObj   = DateTime::createFromFormat('Y-m-d', $date);
+        if ($invNo === '' || $lotID === '') {
+            $formError = 'โปรดใส่ Inv. no. และ Lot ID';
+        } elseif (!$dateObj || $dateObj->format('Y-m-d') !== $date) {
+            $formError = 'วันที่ไม่ถูกต้อง';
+        } elseif ($rowCount === 0) {
+            $formError = 'ไม่มีข้อมูลกล่อง กรุณาสแกน Lot Tag';
+        } elseif (count($wos) !== $rowCount || count($boxNos) !== $rowCount || count($boxQtys) !== $rowCount
+               || count($materials) !== $rowCount || count($appChecks) !== $rowCount
+               || count($statuses) !== $rowCount || count($remarks) !== $rowCount) {
+            $formError = 'ข้อมูลกล่องไม่ครบ กรุณาสแกนใหม่';
+        } else {
+            for ($i = 0; $i < $rowCount; $i++) {
+                if (trim($prodNames[$i]) === '' || trim($wos[$i]) === '' || trim($boxNos[$i]) === ''
+                    || !ctype_digit((string)$boxQtys[$i]) || (int)$boxQtys[$i] <= 0
+                    || !in_array($appChecks[$i], ['pass', 'fail'], true)) {
+                    $formError = 'ข้อมูลกล่องที่ ' . ($i + 1) . ' ไม่ครบหรือไม่ถูกต้อง';
+                    break;
+                }
+            }
+        }
+        if ($formError !== '') {
+            mysqli_close($conn);
+            echo "<script>alert(" . json_encode($formError) . "); history.back();</script>";
+            exit;
+        }
 
         // Status must be one of the 4 allowed values; otherwise save nothing.
         $allowedStatus = ['Accept', 'Hold', 'Reject', 'SpecialAccept'];
