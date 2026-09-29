@@ -25,6 +25,16 @@
         $date     = $_POST['Date'];
         $opr      = $_SESSION['us_id'];
 
+        // Status must be one of the 4 allowed values; otherwise save nothing.
+        $allowedStatus = ['Accept', 'Hold', 'Reject', 'SpecialAccept'];
+        foreach ((array)$statuses as $st) {
+            if (!in_array($st, $allowedStatus, true)) {
+                mysqli_close($conn);
+                echo "<script>alert('Status ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง'); history.back();</script>";
+                exit;
+            }
+        }
+
         // Time removed from form; keep column filled for the table.
         $time   = date('H:i:s');
 
