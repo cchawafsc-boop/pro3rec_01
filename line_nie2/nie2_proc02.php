@@ -360,7 +360,7 @@
         
         <!-- row6 -->
         <div class="pro3-proc2-g1-it-bl"><span class="blinkBullet">●</span></div>
-        <div class="pro3-proc2-g1-it"><label>Data from Lot Tag</label></div>
+        <div class="pro3-proc2-g1-it" style="color: red;"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat" autofocus>
         </div>
