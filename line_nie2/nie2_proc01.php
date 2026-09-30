@@ -25,7 +25,7 @@
         $date     = $_POST['Date'] ?? '';
         $opr      = $_SESSION['us_id'];
 
-        // Required fields must be filled and every row list must have the same length, otherwise save nothing.
+        // Required fields must be filled and every row list must have the same length; otherwise save nothing.
         $formError = '';
         $rowCount  = count($prodNames);
         $dateObj   = DateTime::createFromFormat('Y-m-d', $date);
@@ -137,7 +137,7 @@
         }
 
         if ($req) {
-            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
+            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location.replace('./nie2_index.php');</script>";
         } else {
             echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
         }
@@ -332,6 +332,16 @@
       if (this.value !== cleaned) {
         this.value = cleaned;
       }
+    });
+
+    // Prevent double submit: disable the save button after the first click.
+    var okBtn = document.getElementById('okBtn');
+    okBtn.form.addEventListener('submit', function () {
+      okBtn.disabled = true;
+    });
+    // Enable it again when the page is shown again (e.g. after history.back() from a server alert).
+    window.addEventListener('pageshow', function () {
+      okBtn.disabled = false;
     });
 
     var qrVideo  = document.getElementById('qrVideo');
