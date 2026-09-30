@@ -28,7 +28,7 @@
     <input  type="number"   id="lg_id" name="lg_id" placeholder="รหัสพนักงาน"  required max="9999" maxlength="4">
     <input  type="password" id="lg_pw" name="lg_pw" placeholder="พาสเวิร์ด" required>
     <button type="button"   id="cancelBtn" onclick="hideForm()">Cancel</button>
-    <button type="submit"   id="okBtn">OK</button>
+    <button type="submit"   id="loginBtn">OK</button>
   </form>
 </div>
 
