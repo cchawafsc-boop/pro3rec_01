@@ -387,7 +387,7 @@ label{
 }
 form .form-pro3-proc2-g1 {
 	display: grid;
-    grid-template-columns: 150px 160px;  /* Defines column width */
+    grid-template-columns: 10px 100px 100px 100px 100px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
     border: 1px solid #ccc;
     padding: 3px;
@@ -409,6 +409,10 @@ form .form-pro3-proc2-g1 {
 .pro3-proc2-g1-it select {
 	width: 140px;
 	box-sizing: border-box;
+}
+.pro3-proc2-g1-it-bl {
+    justify-content: center;
+    padding: 0px;
 }
 .pro3-proc2-qrset {
 	display: grid;
