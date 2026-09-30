@@ -188,7 +188,8 @@ label{
 .pro1LcardHis th{
 	background-color: lightskyblue ;
 }
-/*======================= Pro3 process page title =====================*/
+/*____________________ End: pro1 Lot card History _________________*/
+/*======================= Pro3 process page title =================*/
 .form-pro3-proc1 > h2,
 .form-pro3-proc2-g1 > h2,
 .form-pro3-proc3-g1 > h2,
@@ -196,7 +197,6 @@ label{
 .form-pro3-proc5-g1 > h2 {
 	margin: 6px 0;
 }
-/*____________________ End: pro1 Lot card History _________________*/
 /*========================= Pro3-Process1 =========================*/
 .form-pro3-proc1{
     justify-items: center;
