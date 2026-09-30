@@ -387,7 +387,7 @@ label{
 }
 form .form-pro3-proc2-g1 {
 	display: grid;
-    grid-template-columns: 10px 100px 100px 100px 100px;  /* Defines column width */
+    grid-template-columns: 10px 140px 120px 150px 140px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
     border: 1px solid #ccc;
     padding: 3px;
@@ -402,17 +402,26 @@ form .form-pro3-proc2-g1 {
     padding: 5px;
     border-radius: 4px;
 }
-.pro3-proc2-g1-it input[type="text"],
+.pro3-proc2-g1-it input[type="text"]{
+	width: 100px;
+	box-sizing: border-box;
+}
 .pro3-proc2-g1-it input[type="number"],
 .pro3-proc2-g1-it input[type="date"],
 .pro3-proc2-g1-it input[type="time"],
 .pro3-proc2-g1-it select {
-	width: 140px;
+	width: 80px;
 	box-sizing: border-box;
 }
 .pro3-proc2-g1-it-bl {
+    display: flex;
+    align-items: center;
     justify-content: center;
     padding: 0px;
+}
+.pro3-proc2-g1-it-bl .blinkBullet {
+	color: red;
+	animation: blinkBullet 1s step-start infinite;
 }
 .pro3-proc2-qrset {
 	display: grid;
