@@ -302,7 +302,7 @@
         <div class="pro3-proc2-g1-it-bl"></div>  
         <div class="pro3-proc2-g1-it"><label>Operator</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="number" name="OprDisplay" value="<?php echo htmlspecialchars($_SESSION['us_name'] ?? ''); ?>" disabled required>
+          <input type="text" id="oprDisplay" name="OprDisplay" value="<?php echo htmlspecialchars($_SESSION['us_name'] ?? ''); ?>" disabled required>
         </div>
         <div class="pro3-proc2-g1-it"><label>Date</label></div>
         <div class="pro3-proc2-g1-it">
@@ -359,7 +359,7 @@
         </div>
         
         <!-- row6 -->
-        <div class="pro3-proc2-g1-it-bl"></div>
+        <div class="pro3-proc2-g1-it-bl"><span class="blinkBullet">●</span></div>
         <div class="pro3-proc2-g1-it"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat" autofocus>
