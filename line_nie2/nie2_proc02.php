@@ -247,11 +247,6 @@
                 $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
                 $allBoxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $status, $remark);
             if (mysqli_stmt_execute($insStmt)) {
-                $updStmt = mysqli_prepare($conn,
-                    "UPDATE `tb_proc1` SET `Status` = 'waiting racking' WHERE `ProdName` = ? AND `InvNo` = ? AND `WO` = ?");
-                mysqli_stmt_bind_param($updStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
-                mysqli_stmt_execute($updStmt);
-
                 $supBoxNos       = $_POST['box_subLot'] ?? [];
                 $supSampledQtys  = $_POST['box_sampledqty'] ?? [];
                 $supRemark       = 'sampled box';
