@@ -370,6 +370,30 @@
         </div>
       </div>
 
+      <div id="input-boxcond">
+        <div class="grid-title">เช็คสภาพกล่องทุกกล่อง (for tb_proc2_box)</div>
+        <div class="boxcondbox-h">Box-no</div>
+        <div class="boxcondbox-h">สภาพกล่อง</div>
+        <div class="boxcondbox-h">Action</div>
+
+        <div class="boxcondbox-c" id="boxCondEntryRowAnchor">
+          <select id="newBoxCondBoxNo">
+            <option value="" selected disabled>เลือก Box-no</option>
+            <?php foreach ($all_boxnos as $abn): ?>
+            <option value="<?php echo htmlspecialchars($abn, ENT_QUOTES); ?>"><?php echo htmlspecialchars($abn); ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="boxcondbox-c">
+          <select id="newBoxCondValue">
+            <option value="" selected disabled>โปรดระบุ</option>
+            <option value="ปกติ">ปกติ</option>
+            <option value="ชำรุด">ชำรุด</option>
+          </select>
+        </div>
+        <div class="boxcondbox-c"><button type="button" id="newBoxCondSubmitBtn">บันทึก</button></div>
+      </div>
+
       <?php
         $sorted_boxnos = $lot_boxnos;
         sort($sorted_boxnos);
@@ -428,29 +452,6 @@
       </div>
       <?php endforeach; ?>
 
-      <div id="input-boxcond">
-        <div class="grid-title">สภาพกล่อง (tb_proc2_box)</div>
-        <div class="boxcondbox-h">Box-no</div>
-        <div class="boxcondbox-h">สภาพกล่อง</div>
-        <div class="boxcondbox-h">Action</div>
-
-        <div class="boxcondbox-c" id="boxCondEntryRowAnchor">
-          <select id="newBoxCondBoxNo">
-            <option value="" selected disabled>เลือก Box-no</option>
-            <?php foreach ($all_boxnos as $abn): ?>
-            <option value="<?php echo htmlspecialchars($abn, ENT_QUOTES); ?>"><?php echo htmlspecialchars($abn); ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="boxcondbox-c">
-          <select id="newBoxCondValue">
-            <option value="" selected disabled>โปรดระบุ</option>
-            <option value="ปกติ">ปกติ</option>
-            <option value="ชำรุด">ชำรุด</option>
-          </select>
-        </div>
-        <div class="boxcondbox-c"><button type="button" id="newBoxCondSubmitBtn">บันทึก</button></div>
-      </div>
 
       <div class="pro3-proc2-summary">
         <div class="pro3-proc2-summary-it"><label>NG รวม</label></div>
