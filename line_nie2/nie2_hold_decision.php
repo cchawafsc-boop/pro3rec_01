@@ -12,18 +12,50 @@
     }
 
     // One entry per process. Table/column names come ONLY from here, never from user input.
-    // To add a process later: add an entry (its table needs Status, Remark, DecidedBy columns).
-    //   lotKey : columns that identify one lot
-    //   rowKey : columns that identify one row (box) inside the table
-    //   cols   : columns shown in the list
+    // To add a process later: add an entry (its table needs a status column, Remark, DecidedBy).
+    //   statusCol  : column that holds Hold / Accept / ...
+    //   alsoSet    : other columns set to the same new value (optional)
+    //   noAcceptIf : [column, value] -> rows with this value may not become Accept (optional)
+    //   lotKey     : columns that identify one lot
+    //   rowKey     : columns that identify one row inside the table
+    //   cols       : columns shown in the list
+    //   lotForm    : show the "decide whole lot" form (false when the table has one row per lot)
+    //   unit       : word used in messages
     $procConfig = [
         'proc1' => [
-            'label'  => '1. Receiving',
-            'table'  => 'tb_proc1',
-            'lotKey' => ['ProdName', 'InvNo', 'WO'],
-            'rowKey' => ['ProdName', 'InvNo', 'WO', 'BoxNo', 'LotID'],
-            'cols'   => ['BoxNo', 'BoxQty', 'Date', 'Time', 'Opr', 'Remark'],
-            'order'  => 'ProdName, InvNo, WO, CAST(BoxNo AS UNSIGNED), BoxNo',
+            'label'     => '1. Receiving',
+            'table'     => 'tb_proc1',
+            'statusCol' => 'Status',
+            'lotKey'    => ['ProdName', 'InvNo', 'WO'],
+            'rowKey'    => ['ProdName', 'InvNo', 'WO', 'BoxNo', 'LotID'],
+            'cols'      => ['BoxNo', 'BoxQty', 'Date', 'Time', 'Opr', 'Remark'],
+            'order'     => 'ProdName, InvNo, WO, CAST(BoxNo AS UNSIGNED), BoxNo',
+            'lotForm'   => true,
+            'unit'      => 'กล่อง',
+        ],
+        'proc2' => [
+            'label'     => '2. Incoming - Lot (tb_proc2)',
+            'table'     => 'tb_proc2',
+            'statusCol' => 'Status',
+            'alsoSet'   => ['AllBoxCon'],
+            'lotKey'    => ['ProdName', 'InvNo', 'WO'],
+            'rowKey'    => ['ProdName', 'InvNo', 'WO'],
+            'cols'      => ['Date', 'Time', 'Opr', 'PcsFromInv', 'SamplingSize', 'NGtotal', 'Remark'],
+            'order'     => 'ProdName, InvNo, WO',
+            'lotForm'   => false,
+            'unit'      => 'Lot',
+        ],
+        'proc2box' => [
+            'label'      => '2. Incoming - Box condition (tb_proc2_box)',
+            'table'      => 'tb_proc2_box',
+            'statusCol'  => 'BoxCondStatus',
+            'noAcceptIf' => ['BoxCond', 'ชำรุด'],
+            'lotKey'     => ['ProdName', 'InvNo', 'WO'],
+            'rowKey'     => ['ProdName', 'InvNo', 'WO', 'BoxNo'],
+            'cols'       => ['BoxNo', 'BoxCond', 'Date', 'Time', 'Opr', 'Remark'],
+            'order'      => 'ProdName, InvNo, WO, CAST(BoxNo AS UNSIGNED), BoxNo',
+            'lotForm'    => true,
+            'unit'       => 'กล่อง',
         ],
     ];
     $decisionValues = ['Accept', 'Reject', 'SpecialAccept'];
@@ -44,7 +76,8 @@
 
         if (!hash_equals($_SESSION['hold_csrf'], $_POST['csrf'] ?? '')) {
             $msg = 'คำขอไม่ถูกต้อง กรุณาลองใหม่';
-        } elseif (!isset($procConfig[$proc]) || !in_array($scope, ['box', 'lot'], true)) {
+        } elseif (!isset($procConfig[$proc]) || !in_array($scope, ['box', 'lot'], true)
+                  || ($scope === 'lot' && !$procConfig[$proc]['lotForm'])) {
             $msg = 'ข้อมูลไม่ถูกต้อง';
         } elseif (!in_array($newStatus, $decisionValues, true)) {
             $msg = 'โปรดเลือกผลการตัดสินใจ (Accept / Reject / SpecialAccept)';
@@ -60,7 +93,7 @@
                 $where[]  = "`$col` = ?";
                 $params[] = (string)($_POST[$col] ?? '');
             }
-            $where[]  = "`Status` = 'Hold'";   // only rows that are still Hold
+            $where[]  = "`{$cfg['statusCol']}` = 'Hold'";   // only rows that are still Hold
             $whereSql = implode(' AND ', $where);
 
             // Text appended to Remark, e.g. "scratch | Accept: customer approved"
@@ -75,21 +108,44 @@
             mysqli_stmt_execute($chkStmt);
             $tooLong = (int)mysqli_fetch_assoc(mysqli_stmt_get_result($chkStmt))['n'];
 
-            if ($tooLong > 0) {
+            // Some rows may never become Accept (e.g. damaged box in tb_proc2_box)
+            $noAccept = 0;
+            if ($newStatus === 'Accept' && !empty($cfg['noAcceptIf'])) {
+                [$naCol, $naVal] = $cfg['noAcceptIf'];
+                $naStmt = mysqli_prepare($conn,
+                    "SELECT COUNT(*) AS n FROM `{$cfg['table']}` WHERE $whereSql AND `$naCol` = ?");
+                $naParams = array_merge($params, [$naVal]);
+                mysqli_stmt_bind_param($naStmt, str_repeat('s', count($naParams)), ...$naParams);
+                mysqli_stmt_execute($naStmt);
+                $noAccept = (int)mysqli_fetch_assoc(mysqli_stmt_get_result($naStmt))['n'];
+            }
+
+            if ($noAccept > 0) {
+                $msg = 'มี ' . $noAccept . ' ' . $cfg['unit'] . ' ที่ ' . $cfg['noAcceptIf'][1]
+                     . ' เลือก Accept ไม่ได้ (เลือก Reject หรือ SpecialAccept)';
+            } elseif ($tooLong > 0) {
                 $msg = 'Remark ยาวเกิน ' . $remarkMaxLen . ' ตัวอักษร กรุณาย่อเหตุผลให้สั้นลง';
             } else {
                 $decidedBy = (int)$_SESSION['us_id'];
+                $setSql    = "`{$cfg['statusCol']}` = ?";
+                $setParams = [$newStatus];
+                foreach ($cfg['alsoSet'] ?? [] as $col) {
+                    $setSql     .= ", `$col` = ?";
+                    $setParams[] = $newStatus;
+                }
                 $updStmt = mysqli_prepare($conn,
-                    "UPDATE `{$cfg['table']}` SET `Status` = ?, `DecidedBy` = ?, `Remark` = $newRemark WHERE $whereSql");
-                $updParams = array_merge([$newStatus, $decidedBy, $appendText], $params);
-                mysqli_stmt_bind_param($updStmt, 'si' . str_repeat('s', count($updParams) - 2), ...$updParams);
+                    "UPDATE `{$cfg['table']}` SET $setSql, `DecidedBy` = ?, `Remark` = $newRemark WHERE $whereSql");
+                $updParams = array_merge($setParams, [$decidedBy, $appendText], $params);
+                $updTypes  = str_repeat('s', count($setParams)) . 'i'
+                           . str_repeat('s', count($updParams) - count($setParams) - 1);
+                mysqli_stmt_bind_param($updStmt, $updTypes, ...$updParams);
 
                 if (!mysqli_stmt_execute($updStmt)) {
                     $msg = 'บันทึกไม่สำเร็จ กรุณาลองใหม่';
                 } elseif (mysqli_stmt_affected_rows($updStmt) === 0) {
                     $msg = 'ไม่พบรายการ Hold นี้ (อาจถูกตัดสินใจไปแล้ว)';
                 } else {
-                    $msg = 'บันทึกสำเร็จ: ' . mysqli_stmt_affected_rows($updStmt) . ' กล่อง -> ' . $newStatus;
+                    $msg = 'บันทึกสำเร็จ: ' . mysqli_stmt_affected_rows($updStmt) . ' ' . $cfg['unit'] . ' -> ' . $newStatus;
                 }
             }
         }
@@ -111,7 +167,7 @@
     $selCols = array_unique(array_merge($cfg['lotKey'], $cfg['rowKey'], $cfg['cols']));
     $selSql  = implode(', ', array_map(fn($c) => "`$c`", $selCols));
     $res = mysqli_query($conn,
-        "SELECT $selSql FROM `{$cfg['table']}` WHERE `Status` = 'Hold' ORDER BY {$cfg['order']}");
+        "SELECT $selSql FROM `{$cfg['table']}` WHERE `{$cfg['statusCol']}` = 'Hold' ORDER BY {$cfg['order']}");
 
     // Group rows by lot
     $lots = [];
@@ -246,12 +302,14 @@
             <tr class="hold-lot-row">
               <td colspan="<?php echo count($cfg['cols']); ?>">
                 <?php echo h(implode(' / ', array_map(fn($c) => $first[$c], $cfg['lotKey']))); ?>
-                — Hold <?php echo count($rows); ?> กล่อง
+                — Hold <?php echo count($rows); ?> <?php echo h($cfg['unit']); ?>
               </td>
               <td>
+                <?php if ($cfg['lotForm']): ?>
                 <form method="post" class="lotForm" data-count="<?php echo count($rows); ?>">
                   <?php echo decisionControls($proc, 'lot', $cfg['lotKey'], $first, $decisionValues); ?>
                 </form>
+                <?php endif; ?>
               </td>
             </tr>
             <?php foreach ($rows as $row): ?>
