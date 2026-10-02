@@ -48,96 +48,97 @@
     $lot_boxcount = 0;
     $lot_amountinv = 0;
     if (!empty($_GET['selected_lotid'])) {
-        $gStmt = mysqli_prepare($conn,
-            "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
-        mysqli_stmt_bind_param($gStmt, 's', $_GET['selected_lotid']);
-        mysqli_stmt_execute($gStmt);
-        $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
-        if ($gRow) {
-            $lot_id_raw       = $gRow['LotID'];
-            $lot_id           = htmlspecialchars($gRow['LotID']);
-            $lot_prodname_raw = $gRow['ProdName'];
-            $lot_invno_raw    = $gRow['InvNo'];
-            $lot_wo_raw       = $gRow['WO'];
-            $lot_prodname     = htmlspecialchars($gRow['ProdName']);
-            $lot_invno        = htmlspecialchars($gRow['InvNo']);
-            $lot_wo           = htmlspecialchars($gRow['WO']);
+      $gStmt = mysqli_prepare($conn,
+        "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
+      mysqli_stmt_bind_param($gStmt, 's', $_GET['selected_lotid']);
+      mysqli_stmt_execute($gStmt);
+      $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
+      if ($gRow) {
+        $lot_id_raw       = $gRow['LotID'];
+        $lot_id           = htmlspecialchars($gRow['LotID']);
+        $lot_prodname_raw = $gRow['ProdName'];
+        $lot_invno_raw    = $gRow['InvNo'];
+        $lot_wo_raw       = $gRow['WO'];
+        $lot_prodname     = htmlspecialchars($gRow['ProdName']);
+        $lot_invno        = htmlspecialchars($gRow['InvNo']);
+        $lot_wo           = htmlspecialchars($gRow['WO']);
 
-            $cstmt = mysqli_prepare($conn,
-                "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
-            mysqli_stmt_bind_param($cstmt, 's', $lot_id_raw);
-            mysqli_stmt_execute($cstmt);
-            $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
-            if ($crow) {
-                $lot_boxcount  = (int)$crow['boxCount'];
-                $lot_amountinv = (int)$crow['totalQty'];
-            }
-        } else {
-            echo "<script>alert('Not found the data');</script>";
+        $cstmt = mysqli_prepare($conn,
+          "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
+        mysqli_stmt_bind_param($cstmt, 's', $lot_id_raw);
+        mysqli_stmt_execute($cstmt);
+        $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
+        if ($crow) {
+          $lot_boxcount  = (int)$crow['boxCount'];
+          $lot_amountinv = (int)$crow['totalQty'];
         }
+      } else {
+        echo "<script>alert('Not found the data');</script>";
+      }
     } elseif (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
-        $gStmt = mysqli_prepare($conn,
-            "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
-        mysqli_stmt_bind_param($gStmt, 'sss', $_GET['prodName'], $_GET['wo'], $_GET['boxNo']);
-        mysqli_stmt_execute($gStmt);
-        $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
-        if ($gRow) {
-            $lot_id_raw       = $gRow['LotID'];
-            $lot_id           = htmlspecialchars($gRow['LotID']);
-            $lot_prodname_raw = $gRow['ProdName'];
-            $lot_invno_raw    = $gRow['InvNo'];
-            $lot_wo_raw       = $gRow['WO'];
-            $lot_prodname     = htmlspecialchars($gRow['ProdName']);
-            $lot_invno        = htmlspecialchars($gRow['InvNo']);
-            $lot_wo           = htmlspecialchars($gRow['WO']);
+      $gStmt = mysqli_prepare($conn,
+        "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
+      mysqli_stmt_bind_param($gStmt, 'sss', $_GET['prodName'], $_GET['wo'], $_GET['boxNo']);
+      mysqli_stmt_execute($gStmt);
+      $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
+      if ($gRow) {
+        $lot_id_raw       = $gRow['LotID'];
+        $lot_id           = htmlspecialchars($gRow['LotID']);
+        $lot_prodname_raw = $gRow['ProdName'];
+        $lot_invno_raw    = $gRow['InvNo'];
+        $lot_wo_raw       = $gRow['WO'];
+        $lot_prodname     = htmlspecialchars($gRow['ProdName']);
+        $lot_invno        = htmlspecialchars($gRow['InvNo']);
+        $lot_wo           = htmlspecialchars($gRow['WO']);
 
-            $cstmt = mysqli_prepare($conn,
-                "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
-            mysqli_stmt_bind_param($cstmt, 's', $lot_id_raw);
-            mysqli_stmt_execute($cstmt);
-            $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
-            if ($crow) {
-                $lot_boxcount  = (int)$crow['boxCount'];
-                $lot_amountinv = (int)$crow['totalQty'];
-            }
-        } else {
-            echo "<script>alert('Not found the data');</script>";
+        $cstmt = mysqli_prepare($conn,
+          "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
+        mysqli_stmt_bind_param($cstmt, 's', $lot_id_raw);
+        mysqli_stmt_execute($cstmt);
+        $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
+        if ($crow) {
+          $lot_boxcount  = (int)$crow['boxCount'];
+          $lot_amountinv = (int)$crow['totalQty'];
         }
+      } else {
+        echo "<script>alert('Not found the data');</script>";
+      }
     }
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
 
     $lot_boxnos = [];
     $lot_boxqty = [];
     if (!empty($lot_id_raw) && $lot_samplingsize > 0) {
-        $bstmt = mysqli_prepare($conn,
-            "SELECT BoxNo, BoxQty FROM tb_proc1 WHERE LotID = ? ORDER BY BoxNo ASC");
-        mysqli_stmt_bind_param($bstmt, 's', $lot_id_raw);
-        mysqli_stmt_execute($bstmt);
-        $bres = mysqli_stmt_get_result($bstmt);
+      $bstmt = mysqli_prepare($conn,
+        "SELECT BoxNo, BoxQty FROM tb_proc1 WHERE LotID = ? ORDER BY BoxNo ASC");
+      mysqli_stmt_bind_param($bstmt, 's', $lot_id_raw);
+      mysqli_stmt_execute($bstmt);
+      $bres = mysqli_stmt_get_result($bstmt);
 
-        $residual = $lot_samplingsize;
-        while ($residual > 0 && ($brow = mysqli_fetch_assoc($bres))) {
-            $lot_boxnos[] = $brow['BoxNo'];
-            $lot_boxqty[$brow['BoxNo']] = (int)$brow['BoxQty'];
-            $residual -= (int)$brow['BoxQty'];
-        }
+      $residual = $lot_samplingsize;
+      while ($residual > 0 && ($brow = mysqli_fetch_assoc($bres))) {
+        $lot_boxnos[] = $brow['BoxNo'];
+        $lot_boxqty[$brow['BoxNo']] = (int)$brow['BoxQty'];
+        $residual -= (int)$brow['BoxQty'];
+      }
     }
     $incChkBox_qty = count($lot_boxnos);
 
     // Full box-no list for the lot (used by the box-condition entry select — tb_proc2_box)
     $all_boxnos = [];
     if (!empty($lot_id_raw)) {
-        $abstmt = mysqli_prepare($conn, "SELECT BoxNo FROM tb_proc1 WHERE LotID = ? ORDER BY BoxNo ASC");
-        mysqli_stmt_bind_param($abstmt, 's', $lot_id_raw);
-        mysqli_stmt_execute($abstmt);
-        $abres = mysqli_stmt_get_result($abstmt);
-        while ($abrow = mysqli_fetch_assoc($abres)) {
-            $all_boxnos[] = $abrow['BoxNo'];
-        }
+      $abstmt = mysqli_prepare($conn, "SELECT BoxNo FROM tb_proc1 WHERE LotID = ? ORDER BY BoxNo ASC");
+      mysqli_stmt_bind_param($abstmt, 's', $lot_id_raw);
+      mysqli_stmt_execute($abstmt);
+      $abres = mysqli_stmt_get_result($abstmt);
+      while ($abrow = mysqli_fetch_assoc($abres)) {
+        $all_boxnos[] = $abrow['BoxNo'];
+      }
     }
 
     // Existing box-condition records (tb_proc2_box) for this lot, keyed by BoxNo
     $boxcond_map = [];
+    $lot_saved = false;
     if (!empty($lot_id_raw)) {
         $bcmStmt = mysqli_prepare($conn,
             "SELECT BoxNo, BoxCond, BoxCondStatus FROM tb_proc2_box WHERE ProdName = ? AND InvNo = ? AND WO = ?");
@@ -147,6 +148,13 @@
         while ($bcmRow = mysqli_fetch_assoc($bcmRes)) {
             $boxcond_map[$bcmRow['BoxNo']] = $bcmRow;
         }
+
+        // Lot already saved in tb_proc2 -> box-condition rows are read-only, no delete
+        $lsStmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_proc2 WHERE ProdName = ? AND InvNo = ? AND WO = ? LIMIT 1");
+        mysqli_stmt_bind_param($lsStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+        mysqli_stmt_execute($lsStmt);
+        $lot_saved = (bool)mysqli_fetch_assoc(mysqli_stmt_get_result($lsStmt));
     }
 
     // AJAX: delete one box-condition record from tb_proc2_box
@@ -228,7 +236,7 @@
         } elseif (!$bcValid) {
             echo "<script>alert('ข้อมูลสภาพกล่องไม่ครบหรือไม่ถูกต้อง ไม่ได้บันทึกข้อมูล');</script>";
         } else {
-            $allBoxCon = ''; // no UI input anymore — column is NOT NULL with no DB default, so a placeholder is required
+            $allBoxCon = $_POST['Decision'] ?? '';
             $insStmt = mysqli_prepare($conn,
                 "INSERT INTO `tb_proc2`
                  (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`AllBoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Status`,`Remark`)
@@ -399,7 +407,7 @@
           <input type="text" name="bc_boxno[<?php echo $bcI; ?>]" value="<?php echo htmlspecialchars($abn, ENT_QUOTES); ?>" readonly>
         </div>
         <div class="pro3-proc2-bcond-c">
-          <select name="bc_cond[<?php echo $bcI; ?>]" class="bc-cond" data-idx="<?php echo $bcI; ?>" onchange="handleBoxCond(this)">
+          <select name="bc_cond[<?php echo $bcI; ?>]" class="bc-cond" data-idx="<?php echo $bcI; ?>" onchange="handleBoxCond(this)" <?php echo $lot_saved ? 'disabled' : ''; ?>>
             <option value="" disabled <?php echo $bcC === '' ? 'selected' : ''; ?>>โปรดระบุ</option>
             <?php foreach (['ปกติ', 'ชำรุด'] as $opt): ?>
             <option value="<?php echo $opt; ?>" <?php echo $bcC === $opt ? 'selected' : ''; ?>><?php echo $opt; ?></option>
@@ -407,7 +415,7 @@
           </select>
         </div>
         <div class="pro3-proc2-bcond-c">
-          <select name="bc_status[<?php echo $bcI; ?>]" class="bc-status" data-idx="<?php echo $bcI; ?>">
+          <select name="bc_status[<?php echo $bcI; ?>]" class="bc-status" data-idx="<?php echo $bcI; ?>" <?php echo $lot_saved ? 'disabled' : ''; ?>>
             <option value="" disabled <?php echo $bcS === '' ? 'selected' : ''; ?>>โปรดระบุ</option>
             <?php foreach (['Accept', 'Reject', 'Hold', 'SpecialAccept'] as $opt): ?>
             <option value="<?php echo $opt; ?>" <?php echo $bcS === $opt ? 'selected' : ''; ?>><?php echo $opt; ?></option>
@@ -415,7 +423,7 @@
           </select>
         </div>
         <div class="pro3-proc2-bcond-c">
-          <?php if ($bcRec): ?>
+          <?php if ($bcRec && !$lot_saved): ?>
           <button type="button" class="bc-delete" data-idx="<?php echo $bcI; ?>" data-boxno="<?php echo htmlspecialchars($abn, ENT_QUOTES); ?>">delete</button>
           <?php endif; ?>
         </div>
