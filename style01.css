@@ -431,6 +431,48 @@ form .form-pro3-proc2-g1 {
 	color: red;
 	animation: blinkBullet 1s step-start infinite;
 }
+#input-boxcond {
+	display: grid;
+	grid-template-columns: 90px 100px 130px 70px;
+	gap: 5px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	margin: 6px auto;
+	padding: 5px;
+	box-sizing: border-box;
+	justify-content: center;
+}
+.boxcondbox-h {
+	background: lightblue;
+	text-align: center;
+	box-sizing: border-box;
+	padding: 4px 0;
+}
+.pro3-proc2-bcond-c {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	min-width: 0;
+}
+.pro3-proc2-bcond-c input[type="text"] {
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+	font-family: monospace;
+}
+.pro3-proc2-bcond-c select {
+	width: 100%;
+	box-sizing: border-box;
+	min-width: 0;
+}
+.pro3-proc2-bcond-c button {
+	width: 100%;
+	height: 1.8em;
+	margin: 0;
+	padding: 0 5px;
+	box-sizing: border-box;
+}
 .pro3-proc2-qrset {
 	display: grid;
 	grid-template-columns: 150px 160px;  /* Defines column width */
@@ -479,46 +521,6 @@ form .form-pro3-proc2-g1 {
 .pro3-proc2-summary-it textarea {
 	width: 140px;
 	box-sizing: border-box;
-}
-#input-boxcond {
-	display: grid;
-	grid-template-columns: 150px 150px 90px;
-	gap: 5px;
-	border: 1px solid #ccc;
-	border-radius: 8px;
-	margin: 6px auto;
-	padding: 5px;
-	box-sizing: border-box;
-	justify-content: center;
-}
-.boxcondbox-h {
-	background: lightblue;
-	text-align: center;
-	box-sizing: border-box;
-	padding: 4px 0;
-}
-.boxcondbox-c {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-sizing: border-box;
-	text-align: center;
-	font-family: monospace;
-	min-width: 0;
-}
-.boxcondbox-c select {
-	width: 100%;
-	box-sizing: border-box;
-	min-width: 0;
-}
-.boxcondbox-c button {
-	width: 100%;
-	height: 1.8em;
-	box-sizing: border-box;
-}
-.boxcondbox-c button#newBoxCondSubmitBtn {
-	color: white;
-	background-color: #4CAF50;
 }
 /*____________________ End: Pro3-Process 2 ____________________*/
 /*======================= Pro3-Process 3 ======================*/
