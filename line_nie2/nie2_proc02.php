@@ -157,24 +157,6 @@
         $lot_saved = (bool)mysqli_fetch_assoc(mysqli_stmt_get_result($lsStmt));
     }
 
-    // AJAX: delete one box-condition record from tb_proc2_box
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete_boxcond'])) {
-        header('Content-Type: application/json');
-
-        $xProdName = $_POST['ProdName'] ?? '';
-        $xInvNo    = $_POST['InvNo'] ?? '';
-        $xWo       = $_POST['WO'] ?? '';
-        $xBoxNo    = $_POST['BoxNo'] ?? '';
-
-        $xstmt = mysqli_prepare($conn,
-            "DELETE FROM tb_proc2_box WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ? LIMIT 1");
-        mysqli_stmt_bind_param($xstmt, 'ssss', $xProdName, $xInvNo, $xWo, $xBoxNo);
-        $xok = mysqli_stmt_execute($xstmt);
-        echo json_encode(['status' => $xok ? 'ok' : 'fail', 'message' => $xok ? '' : mysqli_error($conn)]);
-        mysqli_close($conn);
-        exit;
-    }
-
     // Main PHP part to insert data into tb_proc2 & tb_proc2_sup
     $process = '2. Incoming';
     $ngTotal = calcNGtotal($conn, $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $process);
@@ -396,7 +378,6 @@
         <div class="boxcondbox-h">Box-no</div>
         <div class="boxcondbox-h">สภาพกล่อง</div>
         <div class="boxcondbox-h">BoxCondStatus</div>
-        <div class="boxcondbox-h">Action</div>
 
         <?php foreach ($all_boxnos as $bcI => $abn):
           $bcRec = $boxcond_map[$abn] ?? null;
@@ -421,11 +402,6 @@
             <option value="<?php echo $opt; ?>" <?php echo $bcS === $opt ? 'selected' : ''; ?>><?php echo $opt; ?></option>
             <?php endforeach; ?>
           </select>
-        </div>
-        <div class="pro3-proc2-bcond-c">
-          <?php if ($bcRec && !$lot_saved): ?>
-          <button type="button" class="bc-delete" data-idx="<?php echo $bcI; ?>" data-boxno="<?php echo htmlspecialchars($abn, ENT_QUOTES); ?>">delete</button>
-          <?php endif; ?>
         </div>
         <?php endforeach; ?>
       </div>
@@ -584,14 +560,6 @@
     }
     handleDecisionColor(document.getElementById('decisionSelect'));
 
-    function currentLotCtx() {
-      return {
-        prodname: document.querySelector('input[name="ProdName"]').value,
-        invno: document.querySelector('input[name="InvNo"]').value,
-        wo: document.querySelector('input[name="WO"]').value
-      };
-    }
-
     // Box condition: 'ชำรุด' cannot be Accept
     function handleBoxCond(condSel) {
       var statusSel = document.querySelector('.bc-status[data-idx="' + condSel.dataset.idx + '"]');
@@ -600,43 +568,6 @@
       if (damaged && statusSel.value === 'Accept') statusSel.value = '';
     }
     document.querySelectorAll('.bc-cond').forEach(handleBoxCond);
-
-    // Delete one saved tb_proc2_box row; the row becomes empty again
-    document.querySelectorAll('.bc-delete').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!confirm('ต้องการลบรายการนี้หรือไม่')) return;
-        var ctx = currentLotCtx();
-        btn.disabled = true;
-        fetch(location.href, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            ajax_delete_boxcond: '1',
-            ProdName: ctx.prodname,
-            InvNo: ctx.invno,
-            WO: ctx.wo,
-            BoxNo: btn.dataset.boxno
-          })
-        })
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            if (data.status === 'ok') {
-              var condSel = document.querySelector('.bc-cond[data-idx="' + btn.dataset.idx + '"]');
-              condSel.value = '';
-              document.querySelector('.bc-status[data-idx="' + btn.dataset.idx + '"]').value = '';
-              handleBoxCond(condSel);
-              btn.remove();
-            } else {
-              alert(data.message || 'ลบไม่สำเร็จ');
-              btn.disabled = false;
-            }
-          })
-          .catch(function () {
-            alert('เกิดข้อผิดพลาด');
-            btn.disabled = false;
-          });
-      });
-    });
 
     document.getElementById('proc02Form').addEventListener('submit', function (e) {
       var incomplete = Array.prototype.some.call(document.querySelectorAll('.bc-cond'), function (condSel) {
