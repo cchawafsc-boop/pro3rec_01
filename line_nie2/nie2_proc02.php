@@ -136,61 +136,17 @@
         }
     }
 
-    // AJAX: list existing box-condition records from tb_proc2_box for a lot
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_list_boxcond'])) {
-        header('Content-Type: application/json');
-
-        $lProdName = $_POST['ProdName'] ?? '';
-        $lInvNo    = $_POST['InvNo'] ?? '';
-        $lWo       = $_POST['WO'] ?? '';
-
-        $records = [];
-        $lstmt = mysqli_prepare($conn,
-            "SELECT BoxNo, BoxCond FROM tb_proc2_box WHERE ProdName = ? AND InvNo = ? AND WO = ? ORDER BY BoxNo ASC");
-        mysqli_stmt_bind_param($lstmt, 'sss', $lProdName, $lInvNo, $lWo);
-        mysqli_stmt_execute($lstmt);
-        $lres = mysqli_stmt_get_result($lstmt);
-        while ($lrow = mysqli_fetch_assoc($lres)) {
-            $records[] = $lrow;
+    // Existing box-condition records (tb_proc2_box) for this lot, keyed by BoxNo
+    $boxcond_map = [];
+    if (!empty($lot_id_raw)) {
+        $bcmStmt = mysqli_prepare($conn,
+            "SELECT BoxNo, BoxCond, BoxCondStatus FROM tb_proc2_box WHERE ProdName = ? AND InvNo = ? AND WO = ?");
+        mysqli_stmt_bind_param($bcmStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+        mysqli_stmt_execute($bcmStmt);
+        $bcmRes = mysqli_stmt_get_result($bcmStmt);
+        while ($bcmRow = mysqli_fetch_assoc($bcmRes)) {
+            $boxcond_map[$bcmRow['BoxNo']] = $bcmRow;
         }
-
-        echo json_encode(['status' => 'ok', 'records' => $records]);
-        mysqli_close($conn);
-        exit;
-    }
-
-    // AJAX: insert a new box-condition record into tb_proc2_box
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_boxcond'])) {
-        header('Content-Type: application/json');
-
-        $bProdName = $_POST['ProdName'] ?? '';
-        $bInvNo    = $_POST['InvNo'] ?? '';
-        $bWo       = $_POST['WO'] ?? '';
-        $bDate     = $_POST['Date'] ?? '';
-        $bTime     = date('H:i:s');
-        $bOpr      = (int)($_POST['Opr'] ?? 0);
-        $bBoxNo    = $_POST['BoxNo'] ?? '';
-        $bBoxCond  = $_POST['BoxCond'] ?? '';
-
-        $bDupStmt = mysqli_prepare($conn,
-            "SELECT 1 FROM tb_proc2_box WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ? LIMIT 1");
-        mysqli_stmt_bind_param($bDupStmt, 'ssss', $bProdName, $bInvNo, $bWo, $bBoxNo);
-        mysqli_stmt_execute($bDupStmt);
-        $bDupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($bDupStmt));
-
-        if ($bDupRow) {
-            echo json_encode(['status' => 'dup', 'message' => 'มีข้อมูลกล่องนี้อยู่แล้ว กรุณาลบรายการเดิมก่อนบันทึกใหม่']);
-        } else {
-            $bStmt = mysqli_prepare($conn,
-                "INSERT INTO `tb_proc2_box` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`BoxCond`)
-                 VALUES (?,?,?,?,?,?,?,?)");
-            mysqli_stmt_bind_param($bStmt, 'sssssiss',
-                $bProdName, $bInvNo, $bWo, $bDate, $bTime, $bOpr, $bBoxNo, $bBoxCond);
-            $bok = mysqli_stmt_execute($bStmt);
-            echo json_encode(['status' => $bok ? 'ok' : 'fail', 'message' => $bok ? '' : mysqli_error($conn)]);
-        }
-        mysqli_close($conn);
-        exit;
     }
 
     // AJAX: delete one box-condition record from tb_proc2_box
@@ -235,8 +191,42 @@
         mysqli_stmt_execute($dupStmt);
         $dupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($dupStmt));
 
+        // Validate box-condition rows (tb_proc2_box) before saving anything
+        $lotBoxStmt = mysqli_prepare($conn,
+            "SELECT BoxNo FROM tb_proc1 WHERE ProdName = ? AND InvNo = ? AND WO = ?");
+        mysqli_stmt_bind_param($lotBoxStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+        mysqli_stmt_execute($lotBoxStmt);
+        $lotBoxRes = mysqli_stmt_get_result($lotBoxStmt);
+        $lotBoxSet = [];
+        while ($lbRow = mysqli_fetch_assoc($lotBoxRes)) {
+            $lotBoxSet[$lbRow['BoxNo']] = true;
+        }
+
+        $bcBoxNos   = $_POST['bc_boxno'] ?? [];
+        $bcConds    = $_POST['bc_cond'] ?? [];
+        $bcStatuses = $_POST['bc_status'] ?? [];
+        $bcValid = is_array($bcBoxNos) && is_array($bcConds) && is_array($bcStatuses)
+            && count($lotBoxSet) > 0
+            && count(array_unique($bcBoxNos)) === count($lotBoxSet)
+            && count($bcBoxNos) === count($lotBoxSet);
+        if ($bcValid) {
+            foreach ($bcBoxNos as $bcIdx => $bcBoxNo) {
+                $bcCond   = $bcConds[$bcIdx] ?? '';
+                $bcStatus = $bcStatuses[$bcIdx] ?? '';
+                if (!isset($lotBoxSet[$bcBoxNo])
+                    || !in_array($bcCond, ['ปกติ', 'ชำรุด'], true)
+                    || !in_array($bcStatus, ['Accept', 'Reject', 'Hold', 'SpecialAccept'], true)
+                    || ($bcCond === 'ชำรุด' && $bcStatus === 'Accept')) {
+                    $bcValid = false;
+                    break;
+                }
+            }
+        }
+
         if ($dupRow) {
             echo "<script>alert('There is redundant Product name, Invoice and WO in database. \\nPlease check the data intry');</script>";
+        } elseif (!$bcValid) {
+            echo "<script>alert('ข้อมูลสภาพกล่องไม่ครบหรือไม่ถูกต้อง ไม่ได้บันทึกข้อมูล');</script>";
         } else {
             $allBoxCon = ''; // no UI input anymore — column is NOT NULL with no DB default, so a placeholder is required
             $insStmt = mysqli_prepare($conn,
@@ -268,6 +258,34 @@
                         $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
                         $supBoxNo, $supSampledQty, $supNgQty, $supRemark);
                     mysqli_stmt_execute($supStmt);
+                }
+
+                // tb_proc2_box: UPDATE existing rows, INSERT new ones
+                $bcExistStmt = mysqli_prepare($conn,
+                    "SELECT 1 FROM tb_proc2_box WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ? LIMIT 1");
+                $bcUpdStmt = mysqli_prepare($conn,
+                    "UPDATE `tb_proc2_box` SET `BoxCond` = ?, `BoxCondStatus` = ?, `Date` = ?, `Time` = ?, `Opr` = ?
+                     WHERE `ProdName` = ? AND `InvNo` = ? AND `WO` = ? AND `BoxNo` = ?");
+                $bcInsStmt = mysqli_prepare($conn,
+                    "INSERT INTO `tb_proc2_box`
+                     (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`BoxCond`,`BoxCondStatus`)
+                     VALUES (?,?,?,?,?,?,?,?,?)");
+                foreach ($bcBoxNos as $bcIdx => $bcBoxNo) {
+                    $bcCond   = $bcConds[$bcIdx];
+                    $bcStatus = $bcStatuses[$bcIdx];
+                    mysqli_stmt_bind_param($bcExistStmt, 'ssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $bcBoxNo);
+                    mysqli_stmt_execute($bcExistStmt);
+                    if (mysqli_fetch_assoc(mysqli_stmt_get_result($bcExistStmt))) {
+                        mysqli_stmt_bind_param($bcUpdStmt, 'ssssissss',
+                            $bcCond, $bcStatus, $date, $time, $opr,
+                            $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $bcBoxNo);
+                        mysqli_stmt_execute($bcUpdStmt);
+                    } else {
+                        mysqli_stmt_bind_param($bcInsStmt, 'sssssisss',
+                            $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
+                            $bcBoxNo, $bcCond, $bcStatus);
+                        mysqli_stmt_execute($bcInsStmt);
+                    }
                 }
 
                 echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
@@ -369,24 +387,39 @@
         <div class="grid-title">เช็คสภาพกล่องทุกกล่อง (for tb_proc2_box)</div>
         <div class="boxcondbox-h">Box-no</div>
         <div class="boxcondbox-h">สภาพกล่อง</div>
+        <div class="boxcondbox-h">BoxCondStatus</div>
         <div class="boxcondbox-h">Action</div>
 
-        <div class="boxcondbox-c" id="boxCondEntryRowAnchor">
-          <select id="newBoxCondBoxNo">
-            <option value="" selected disabled>เลือก Box-no</option>
-            <?php foreach ($all_boxnos as $abn): ?>
-            <option value="<?php echo htmlspecialchars($abn, ENT_QUOTES); ?>"><?php echo htmlspecialchars($abn); ?></option>
+        <?php foreach ($all_boxnos as $bcI => $abn):
+          $bcRec = $boxcond_map[$abn] ?? null;
+          $bcC   = $bcRec['BoxCond'] ?? '';
+          $bcS   = $bcRec['BoxCondStatus'] ?? '';
+        ?>
+        <div class="pro3-proc2-bcond-c">
+          <input type="text" name="bc_boxno[<?php echo $bcI; ?>]" value="<?php echo htmlspecialchars($abn, ENT_QUOTES); ?>" readonly>
+        </div>
+        <div class="pro3-proc2-bcond-c">
+          <select name="bc_cond[<?php echo $bcI; ?>]" class="bc-cond" data-idx="<?php echo $bcI; ?>" onchange="handleBoxCond(this)">
+            <option value="" disabled <?php echo $bcC === '' ? 'selected' : ''; ?>>โปรดระบุ</option>
+            <?php foreach (['ปกติ', 'ชำรุด'] as $opt): ?>
+            <option value="<?php echo $opt; ?>" <?php echo $bcC === $opt ? 'selected' : ''; ?>><?php echo $opt; ?></option>
             <?php endforeach; ?>
           </select>
         </div>
-        <div class="boxcondbox-c">
-          <select id="newBoxCondValue">
-            <option value="" selected disabled>โปรดระบุ</option>
-            <option value="ปกติ">ปกติ</option>
-            <option value="ชำรุด">ชำรุด</option>
+        <div class="pro3-proc2-bcond-c">
+          <select name="bc_status[<?php echo $bcI; ?>]" class="bc-status" data-idx="<?php echo $bcI; ?>">
+            <option value="" disabled <?php echo $bcS === '' ? 'selected' : ''; ?>>โปรดระบุ</option>
+            <?php foreach (['Accept', 'Reject', 'Hold', 'SpecialAccept'] as $opt): ?>
+            <option value="<?php echo $opt; ?>" <?php echo $bcS === $opt ? 'selected' : ''; ?>><?php echo $opt; ?></option>
+            <?php endforeach; ?>
           </select>
         </div>
-        <div class="boxcondbox-c"><button type="button" id="newBoxCondSubmitBtn">บันทึก</button></div>
+        <div class="pro3-proc2-bcond-c">
+          <?php if ($bcRec): ?>
+          <button type="button" class="bc-delete" data-idx="<?php echo $bcI; ?>" data-boxno="<?php echo htmlspecialchars($abn, ENT_QUOTES); ?>">delete</button>
+          <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
       </div>
 
       <?php
@@ -543,8 +576,6 @@
     }
     handleDecisionColor(document.getElementById('decisionSelect'));
 
-    var lotBoxCount = <?php echo (int)$lot_boxcount; ?>;
-
     function currentLotCtx() {
       return {
         prodname: document.querySelector('input[name="ProdName"]').value,
@@ -553,25 +584,21 @@
       };
     }
 
-    function buildBoxCondRow(rec) {
-      var wrap = document.createDocumentFragment();
-      [rec.BoxNo, rec.BoxCond].forEach(function (val) {
-        var cell = document.createElement('div');
-        cell.className = 'boxcondbox-c pro3-boxcond-record-row';
-        cell.textContent = val;
-        wrap.appendChild(cell);
-      });
+    // Box condition: 'ชำรุด' cannot be Accept
+    function handleBoxCond(condSel) {
+      var statusSel = document.querySelector('.bc-status[data-idx="' + condSel.dataset.idx + '"]');
+      var damaged = condSel.value === 'ชำรุด';
+      statusSel.querySelector('option[value="Accept"]').disabled = damaged;
+      if (damaged && statusSel.value === 'Accept') statusSel.value = '';
+    }
+    document.querySelectorAll('.bc-cond').forEach(handleBoxCond);
 
-      var actionCell = document.createElement('div');
-      actionCell.className = 'boxcondbox-c pro3-boxcond-record-row';
-      var delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.textContent = 'delete';
-      delBtn.addEventListener('click', function () {
+    // Delete one saved tb_proc2_box row; the row becomes empty again
+    document.querySelectorAll('.bc-delete').forEach(function (btn) {
+      btn.addEventListener('click', function () {
         if (!confirm('ต้องการลบรายการนี้หรือไม่')) return;
-
         var ctx = currentLotCtx();
-        delBtn.disabled = true;
+        btn.disabled = true;
         fetch(location.href, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -580,109 +607,35 @@
             ProdName: ctx.prodname,
             InvNo: ctx.invno,
             WO: ctx.wo,
-            BoxNo: rec.BoxNo
+            BoxNo: btn.dataset.boxno
           })
         })
           .then(function (r) { return r.json(); })
           .then(function (data) {
             if (data.status === 'ok') {
-              fetchAndRenderBoxCondRows(ctx.prodname, ctx.invno, ctx.wo);
+              var condSel = document.querySelector('.bc-cond[data-idx="' + btn.dataset.idx + '"]');
+              condSel.value = '';
+              document.querySelector('.bc-status[data-idx="' + btn.dataset.idx + '"]').value = '';
+              handleBoxCond(condSel);
+              btn.remove();
             } else {
               alert(data.message || 'ลบไม่สำเร็จ');
-              delBtn.disabled = false;
+              btn.disabled = false;
             }
           })
           .catch(function () {
             alert('เกิดข้อผิดพลาด');
-            delBtn.disabled = false;
+            btn.disabled = false;
           });
       });
-      actionCell.appendChild(delBtn);
-      wrap.appendChild(actionCell);
-
-      return wrap;
-    }
-
-    function renderBoxCondRows(records) {
-      document.querySelectorAll('.pro3-boxcond-record-row').forEach(function (el) { el.remove(); });
-      var anchor = document.getElementById('boxCondEntryRowAnchor');
-      records.forEach(function (rec) {
-        anchor.parentNode.insertBefore(buildBoxCondRow(rec), anchor);
-      });
-      document.getElementById('newBoxCondSubmitBtn').disabled = records.length >= lotBoxCount;
-    }
-
-    function fetchAndRenderBoxCondRows(prodname, invno, wo) {
-      fetch(location.href, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          ajax_list_boxcond: '1',
-          ProdName: prodname,
-          InvNo: invno,
-          WO: wo
-        })
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.status === 'ok') renderBoxCondRows(data.records || []);
-        });
-    }
-
-    document.getElementById('newBoxCondSubmitBtn').addEventListener('click', function () {
-      var btn = this;
-      var ctx = currentLotCtx();
-      var boxNoSel = document.getElementById('newBoxCondBoxNo');
-      var condSel = document.getElementById('newBoxCondValue');
-
-      if (!boxNoSel.value || !condSel.value) {
-        alert('โปรดระบุ Box-no และสภาพกล่องให้ครบถ้วน');
-        return;
-      }
-
-      var payload = new URLSearchParams({
-        ajax_insert_boxcond: '1',
-        ProdName: ctx.prodname,
-        InvNo: ctx.invno,
-        WO: ctx.wo,
-        Date: document.querySelector('input[name="Date"]').value,
-        Opr: document.querySelector('input[name="Opr"]').value,
-        BoxNo: boxNoSel.value,
-        BoxCond: condSel.value
-      });
-
-      btn.disabled = true;
-      fetch(location.href, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: payload
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.status === 'ok') {
-            boxNoSel.value = '';
-            condSel.value = '';
-            fetchAndRenderBoxCondRows(ctx.prodname, ctx.invno, ctx.wo);
-          } else {
-            alert(data.message || 'บันทึกไม่สำเร็จ');
-          }
-          btn.disabled = false;
-        })
-        .catch(function () {
-          alert('เกิดข้อผิดพลาด');
-          btn.disabled = false;
-        });
     });
 
-    (function () {
-      var ctx = currentLotCtx();
-      if (!ctx.prodname || !ctx.invno || !ctx.wo) return;
-      fetchAndRenderBoxCondRows(ctx.prodname, ctx.invno, ctx.wo);
-    })();
-
     document.getElementById('proc02Form').addEventListener('submit', function (e) {
-      var boxCondCount = document.querySelectorAll('.pro3-boxcond-record-row').length / 3;
-      if (boxCondCount !== lotBoxCount) {
+      var incomplete = Array.prototype.some.call(document.querySelectorAll('.bc-cond'), function (condSel) {
+        var statusSel = document.querySelector('.bc-status[data-idx="' + condSel.dataset.idx + '"]');
+        return !condSel.value || !statusSel.value;
+      });
+      if (incomplete) {
         e.preventDefault();
         alert('กรุณาตรวจเช็คสภาพกล่องให้ครบ');
       }
