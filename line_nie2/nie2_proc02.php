@@ -164,17 +164,33 @@
     $decision = decideResult($lot_amountinv, $ngTotal);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Operator must come from the session, never from the form.
+        if (empty($_SESSION['us_id'])) {
+            mysqli_close($conn);
+            echo "<script>alert('โปรด Login ก่อนบันทึกข้อมูล'); location='./nie2_proc02.php';</script>";
+            exit;
+        }
+
         $lot_prodname_raw = $_POST['ProdName'] ?? $lot_prodname_raw;
         $lot_invno_raw    = $_POST['InvNo'] ?? $lot_invno_raw;
         $lot_wo_raw       = $_POST['WO'] ?? $lot_wo_raw;
         $lot_amountinv    = (int)($_POST['AmountInv'] ?? $lot_amountinv);
         $lot_samplingsize = (int)($_POST['SamplingSize'] ?? $lot_samplingsize);
-        $date       = $_POST['Date'];
+        $date       = $_POST['Date'] ?? '';
         $time       = date('H:i:s');
         $opr        = (int)($_SESSION['us_id'] ?? 0);
         $status     = $_POST['Decision'] ?? '';
         $remark     = $_POST['Remark'] ?? '';
         $ngTotal    = calcNGtotal($conn, $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $process);
+
+        // Decision must be one of the 4 allowed values and Date a real Y-m-d date; otherwise save nothing.
+        $formError = '';
+        $dateObj   = DateTime::createFromFormat('Y-m-d', $date);
+        if (!in_array($status, ['Accept', 'Hold', 'Reject', 'SpecialAccept'], true)) {
+            $formError = 'ผลการตัดสินใจไม่ถูกต้อง';
+        } elseif (!$dateObj || $dateObj->format('Y-m-d') !== $date) {
+            $formError = 'วันที่ไม่ถูกต้อง';
+        }
 
         $dupStmt = mysqli_prepare($conn,
             "SELECT 1 FROM tb_proc2 WHERE ProdName = ? AND InvNo = ? AND WO = ? LIMIT 1");
@@ -214,7 +230,9 @@
             }
         }
 
-        if ($dupRow) {
+        if ($formError !== '') {
+            echo "<script>alert(" . json_encode($formError) . ");</script>";
+        } elseif ($dupRow) {
             echo "<script>alert('There is redundant Product name, Invoice and WO in database. \\nPlease check the data intry');</script>";
         } elseif (!$bcValid) {
             echo "<script>alert('ข้อมูลสภาพกล่องไม่ครบหรือไม่ถูกต้อง ไม่ได้บันทึกข้อมูล');</script>";
