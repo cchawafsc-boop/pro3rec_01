@@ -118,7 +118,7 @@
                 $boxQty    = (int)$boxQtys[$i];
                 $material  = $materials[$i];
                 $appCheck  = $appChecks[$i];
-                $lotIDFull = $lotID."_".$date."_".$time;
+                $lotIDFull =  $lotID . "_" . date('ymd', strtotime($date)) . "_" . str_replace(':', '', $time);
                 $status    = $statuses[$i];
                 $remark    = $remarks[$i];
                 if (!mysqli_stmt_execute($stmt)) {
