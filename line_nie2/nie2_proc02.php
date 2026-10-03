@@ -321,7 +321,7 @@
             }
 
             if ($saveOk) {
-                echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
+                echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location.replace('./nie2_index.php');</script>";
             } else {
                 echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
             }
@@ -620,7 +620,14 @@
       if (incomplete) {
         e.preventDefault();
         alert('กรุณาตรวจเช็คสภาพกล่องให้ครบ');
+        return;
       }
+      // Prevent double submit: disable the save button after the first click.
+      document.getElementById('okBtn').disabled = true;
+    });
+    // Enable it again when the page is shown again (e.g. after Back).
+    window.addEventListener('pageshow', function () {
+      document.getElementById('okBtn').disabled = false;
     });
 
     var ngRedirectLotID = "<?php echo htmlspecialchars($lot_id_raw, ENT_QUOTES); ?>";
