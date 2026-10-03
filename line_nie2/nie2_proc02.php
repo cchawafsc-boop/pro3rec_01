@@ -77,11 +77,15 @@
     } elseif (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
       // Loading Lot data from {$_GET['prodName', 'wo', 'boxNo']}
       $gStmt = mysqli_prepare($conn,
-        "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
+        "SELECT LotID, ProdName, InvNo, WO, Status FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ?
+         ORDER BY `Date` DESC, `Time` DESC LIMIT 1");
       mysqli_stmt_bind_param($gStmt, 'sss', $_GET['prodName'], $_GET['wo'], $_GET['boxNo']);
       mysqli_stmt_execute($gStmt);
       $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
-      if ($gRow) {
+      if ($gRow && $gRow['Status'] === 'Reject') {
+        // Latest receiving record is Reject: the box went back to the customer and has not been received again.
+        echo "<script>alert('กล่องนี้ถูก Reject ที่ Receiving');</script>";
+      } elseif ($gRow) {
         $lot_id_raw       = $gRow['LotID'];
         $lot_id           = htmlspecialchars($gRow['LotID']);
         $lot_prodname_raw = $gRow['ProdName'];
