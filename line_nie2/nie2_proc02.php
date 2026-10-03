@@ -13,6 +13,7 @@
     }
 
     function rejectQty($pcs){
+      // This is based on AQL level-II 0.65
       if ($pcs <= 280) {return 1;}
       if ($pcs >= 281 && $pcs <= 1200) {return 2;}
       if ($pcs >= 1201 && $pcs <=3200) {return 3;}
@@ -20,15 +21,10 @@
     }
     
     function decideResult($pcs, $ngTotal) {
-      if ($pcs <= 280) {
-        return $ngTotal === 0 ? 'Accept' : 'Reject';
-      }
-      if ($pcs >= 281 && $pcs <= 1200) {
-        return $ngTotal < 2 ? 'Accept' : 'Reject';
-      }
-      if ($pcs >= 1201 && $pcs <=3200) {
-        return $ngTotal < 3 ? 'Accept' : 'Reject';
-      }
+      // This is based on AQL level-II 0.65
+      if ($pcs <= 280)                 {return $ngTotal === 0 ? 'Accept' : 'Reject';}
+      if ($pcs >= 281 && $pcs <= 1200) {return $ngTotal < 2   ? 'Accept' : 'Reject';}
+      if ($pcs >= 1201 && $pcs <=3200) {return $ngTotal < 3   ? 'Accept' : 'Reject';}
       return 'error';
     }
 
@@ -41,6 +37,8 @@
         return 0;
     }
 
+    // 1) Loading Lot data from eiter $_GET['selected_lotid']) or {$_GET['prodName', 'wo', 'boxNo']}
+    // 2) Summarizing the quantity of the selected lot ($lot_amountinv)
     $lot_id = '';
     $lot_id_raw = '';
     $lot_prodname = $lot_invno = $lot_wo = '';
@@ -48,6 +46,7 @@
     $lot_boxcount = 0;
     $lot_amountinv = 0;
     if (!empty($_GET['selected_lotid'])) {
+      // Loading Lot data from $_GET['selected_lotid'])
       $gStmt = mysqli_prepare($conn,
         "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
       mysqli_stmt_bind_param($gStmt, 's', $_GET['selected_lotid']);
@@ -76,6 +75,7 @@
         echo "<script>alert('Not found the data');</script>";
       }
     } elseif (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
+      // Loading Lot data from {$_GET['prodName', 'wo', 'boxNo']}
       $gStmt = mysqli_prepare($conn,
         "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ? LIMIT 1");
       mysqli_stmt_bind_param($gStmt, 'sss', $_GET['prodName'], $_GET['wo'], $_GET['boxNo']);
@@ -106,6 +106,7 @@
     }
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
 
+    // This part is to calculate the number of boxes that are inspected ($incChkBox_qty) 
     $lot_boxnos = [];
     $lot_boxqty = [];
     if (!empty($lot_id_raw) && $lot_samplingsize > 0) {
@@ -218,15 +219,23 @@
         } elseif (!$bcValid) {
             echo "<script>alert('ข้อมูลสภาพกล่องไม่ครบหรือไม่ถูกต้อง ไม่ได้บันทึกข้อมูล');</script>";
         } else {
-            $allBoxCon = $_POST['Decision'] ?? '';
-            $insStmt = mysqli_prepare($conn,
-                "INSERT INTO `tb_proc2`
-                 (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`AllBoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Status`,`Remark`)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-            mysqli_stmt_bind_param($insStmt, "sssssisiiiss",
-                $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
-                $allBoxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $status, $remark);
-            if (mysqli_stmt_execute($insStmt)) {
+            // All-or-nothing: tb_proc2 + tb_proc2_sup + tb_proc2_box in one transaction.
+            $saveOk = true;
+            try {
+                mysqli_begin_transaction($conn);
+
+                $allBoxCon = $_POST['Decision'] ?? '';
+                $insStmt = mysqli_prepare($conn,
+                    "INSERT INTO `tb_proc2`
+                     (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`AllBoxCon`,`PcsFromInv`,`SamplingSize`,`NGtotal`,`Status`,`Remark`)
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+                mysqli_stmt_bind_param($insStmt, "sssssisiiiss",
+                    $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
+                    $allBoxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $status, $remark);
+                if (!mysqli_stmt_execute($insStmt)) {
+                    throw new Exception('tb_proc2 insert failed');
+                }
+
                 $supBoxNos       = $_POST['box_subLot'] ?? [];
                 $supSampledQtys  = $_POST['box_sampledqty'] ?? [];
                 $supRemark       = 'sampled box';
@@ -247,7 +256,9 @@
                     mysqli_stmt_bind_param($supStmt, "sssssisiis",
                         $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
                         $supBoxNo, $supSampledQty, $supNgQty, $supRemark);
-                    mysqli_stmt_execute($supStmt);
+                    if (!mysqli_stmt_execute($supStmt)) {
+                        throw new Exception('tb_proc2_sup insert failed');
+                    }
                 }
 
                 // tb_proc2_box: UPDATE existing rows, INSERT new ones
@@ -269,15 +280,25 @@
                         mysqli_stmt_bind_param($bcUpdStmt, 'ssssissss',
                             $bcCond, $bcStatus, $date, $time, $opr,
                             $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $bcBoxNo);
-                        mysqli_stmt_execute($bcUpdStmt);
+                        $bcOk = mysqli_stmt_execute($bcUpdStmt);
                     } else {
                         mysqli_stmt_bind_param($bcInsStmt, 'sssssisss',
                             $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
                             $bcBoxNo, $bcCond, $bcStatus);
-                        mysqli_stmt_execute($bcInsStmt);
+                        $bcOk = mysqli_stmt_execute($bcInsStmt);
+                    }
+                    if (!$bcOk) {
+                        throw new Exception('tb_proc2_box save failed');
                     }
                 }
 
+                mysqli_commit($conn);
+            } catch (Exception $e) {
+                mysqli_rollback($conn);
+                $saveOk = false;
+            }
+
+            if ($saveOk) {
                 echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location='./nie2_index.php';</script>";
             } else {
                 echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
