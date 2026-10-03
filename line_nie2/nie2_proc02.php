@@ -204,14 +204,19 @@
 
         // Validate box-condition rows (tb_proc2_box) before saving anything
         $lotBoxStmt = mysqli_prepare($conn,
-            "SELECT BoxNo FROM tb_proc1 WHERE ProdName = ? AND InvNo = ? AND WO = ?");
+            "SELECT BoxNo, BoxQty FROM tb_proc1 WHERE ProdName = ? AND InvNo = ? AND WO = ? ORDER BY BoxNo ASC");
         mysqli_stmt_bind_param($lotBoxStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
         mysqli_stmt_execute($lotBoxStmt);
         $lotBoxRes = mysqli_stmt_get_result($lotBoxStmt);
         $lotBoxSet = [];
+        $lotBoxQty = [];
         while ($lbRow = mysqli_fetch_assoc($lotBoxRes)) {
             $lotBoxSet[$lbRow['BoxNo']] = true;
+            $lotBoxQty[$lbRow['BoxNo']] = (int)$lbRow['BoxQty'];
         }
+        // AmountInv / SamplingSize come from tb_proc1, never from the form.
+        $lot_amountinv    = array_sum($lotBoxQty);
+        $lot_samplingsize = calcSamplingSize($lot_amountinv);
 
         $bcBoxNos   = $_POST['bc_boxno'] ?? [];
         $bcConds    = $_POST['bc_cond'] ?? [];
@@ -234,12 +239,49 @@
             }
         }
 
+        // Sampled boxes (tb_proc2_sup): same boxes the page picked, qty 1..BoxQty, total >= SamplingSize,
+        // every box QR-checked OK and ผ่าน / ไม่ผ่าน chosen.
+        $expSmpBoxes = [];
+        $residual = $lot_samplingsize;
+        foreach ($lotBoxQty as $lbNo => $lbQty) {
+            if ($residual <= 0) break;
+            $expSmpBoxes[] = (string)$lbNo;
+            $residual -= $lbQty;
+        }
+        $smpBoxNos  = $_POST['box_subLot'] ?? [];
+        $smpQtys    = $_POST['box_sampledqty'] ?? [];
+        $smpQrs     = $_POST['box_qrresult'] ?? [];
+        $smpChecks  = $_POST['box_appcheck'] ?? [];
+        $smpTotal   = 0;
+        $smpValid = is_array($smpBoxNos) && is_array($smpQtys) && is_array($smpQrs) && is_array($smpChecks)
+            && array_values(array_map('strval', $smpBoxNos)) === $expSmpBoxes
+            && count($smpQtys) === count($expSmpBoxes)
+            && count($smpQrs) === count($expSmpBoxes)
+            && count($smpChecks) === count($expSmpBoxes);
+        if ($smpValid) {
+            foreach (array_values($smpBoxNos) as $k => $sNo) {
+                $sQty = (string)(array_values($smpQtys)[$k] ?? '');
+                if (!ctype_digit($sQty) || (int)$sQty < 1 || (int)$sQty > $lotBoxQty[$sNo]
+                    || (array_values($smpQrs)[$k] ?? '') !== 'ข้อมูลถูกต้อง'
+                    || !in_array(array_values($smpChecks)[$k] ?? '', ['ผ่าน', 'ไม่ผ่าน'], true)) {
+                    $smpValid = false;
+                    break;
+                }
+                $smpTotal += (int)$sQty;
+            }
+            if ($smpValid && $smpTotal < $lot_samplingsize) {
+                $smpValid = false;
+            }
+        }
+
         if ($formError !== '') {
             echo "<script>alert(" . json_encode($formError) . ");</script>";
         } elseif ($dupRow) {
             echo "<script>alert('There is redundant Product name, Invoice and WO in database. \\nPlease check the data intry');</script>";
         } elseif (!$bcValid) {
             echo "<script>alert('ข้อมูลสภาพกล่องไม่ครบหรือไม่ถูกต้อง ไม่ได้บันทึกข้อมูล');</script>";
+        } elseif (!$smpValid) {
+            echo "<script>alert('ข้อมูลกล่องที่สุ่มไม่ครบหรือไม่ถูกต้อง ไม่ได้บันทึกข้อมูล');</script>";
         } else {
             // All-or-nothing: tb_proc2 + tb_proc2_sup + tb_proc2_box in one transaction.
             $saveOk = true;
@@ -253,7 +295,7 @@
                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
                 mysqli_stmt_bind_param($insStmt, "sssssisiiiss",
                     $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $date, $time, $opr,
-                    $allBoxCon, $lot_amountinv, $lot_samplingsize, $ngTotal, $status, $remark);
+                    $allBoxCon, $lot_amountinv, $smpTotal, $ngTotal, $status, $remark);
                 if (!mysqli_stmt_execute($insStmt)) {
                     throw new Exception('tb_proc2 insert failed');
                 }
@@ -620,6 +662,15 @@
       if (incomplete) {
         e.preventDefault();
         alert('กรุณาตรวจเช็คสภาพกล่องให้ครบ');
+        return;
+      }
+      var smpBad = Array.prototype.some.call(document.querySelectorAll('.pro3-proc2-qrset'), function (set) {
+        return set.querySelector('.qr-result-hidden').value !== 'ข้อมูลถูกต้อง'
+            || !set.querySelector('.app-check-select').value;
+      });
+      if (smpBad) {
+        e.preventDefault();
+        alert('กรุณายิง QR และเช็คชิ้นงานของกล่องที่สุ่มให้ครบ');
         return;
       }
       // Prevent double submit: disable the save button after the first click.
