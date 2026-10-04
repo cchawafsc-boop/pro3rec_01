@@ -439,6 +439,13 @@ form .form-pro3-proc2-g1 {
 .form-pro3-proc2-g1 .stepActive {
 	color: red;
 }
+.pro3-proc2-qrset-container {
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	margin: 6px auto;
+	padding: 5px;
+	box-sizing: border-box;
+}
 .qrset-container-title {
 	text-align: center;
 	font-weight: bold;
