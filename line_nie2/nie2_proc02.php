@@ -443,8 +443,8 @@
         </div>
         
         <!-- row6 -->
-        <div class="pro3-proc2-g1-it-bl"><span class="blinkBullet">●</span></div>
-        <div class="pro3-proc2-g1-it" style="color: red;"><label>Data from Lot Tag</label></div>
+        <div class="pro3-proc2-g1-it-bl"><span class="blinkBullet" id="lotTagBullet">●</span></div>
+        <div class="pro3-proc2-g1-it" id="lotTagLabel"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="text" id="lotTagData" autocomplete="off" placeholder="prod|wo|box|qty|mat" autofocus>
         </div>
@@ -455,7 +455,7 @@
       </div>
 
       <div id="input-boxcond">
-        <div class="grid-title">เช็คสภาพกล่องทุกกล่อง (for tb_proc2_box)</div>
+        <div class="grid-title" id="boxCondLabel"><span class="blinkBullet" id="boxCondBullet">●</span> เช็คสภาพกล่องทุกกล่อง</div>
         <div class="boxcondbox-h">Box-no</div>
         <div class="boxcondbox-h">สภาพกล่อง</div>
         <div class="boxcondbox-h">BoxCondStatus</div>
@@ -487,6 +487,8 @@
         <?php endforeach; ?>
       </div>
 
+      <div class="pro3-proc2-qrset-container">
+        <div class="qrset-container-title" id="qrSetLabel"><span class="blinkBullet" id="qrSetBullet">●</span> สุ่มเช็คคุณภาพชิ้นงานในกล่อง</div>
       <?php
         $sorted_boxnos = $lot_boxnos;
         sort($sorted_boxnos);
@@ -504,47 +506,47 @@
           $sampledQty = $diff <= 0 ? $sampleResidual : $boxQty;
           $sampleResidual = $diff;
       ?>
-      <div class="pro3-proc2-qrset">
-        <div class="pro3-proc2-qrset-it"><label>Box no</label></div>
-        <div class="pro3-proc2-qrset-it">
-          <input type="text" value="<?php echo htmlspecialchars($boxNo); ?>" disabled>
-          <input type="hidden" name="box_subLot[]" value="<?php echo htmlspecialchars($boxNo); ?>">
-        </div>
+        <div class="pro3-proc2-qrset">
+          <div class="pro3-proc2-qrset-it"><label>Box no</label></div>
+          <div class="pro3-proc2-qrset-it">
+            <input type="text" value="<?php echo htmlspecialchars($boxNo); ?>" disabled>
+            <input type="hidden" name="box_subLot[]" value="<?php echo htmlspecialchars($boxNo); ?>">
+          </div>
 
-        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">ยิง QR ที่นี่</label></div>
-        <div class="pro3-proc2-qrset-it">
-          <input type="text" class="qr-scan-input" onkeydown="handleQrScan(event, '<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">
-        </div>
+          <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">ยิง QR ที่นี่</label></div>
+          <div class="pro3-proc2-qrset-it">
+            <input type="text" class="qr-scan-input" onkeydown="handleQrScan(event, '<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>')">
+          </div>
 
-        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คการยิง QR</label></div>
-        <div class="pro3-proc2-qrset-it">
-          <input type="text" class="qr-result-input" disabled>
-          <input type="hidden" class="qr-result-hidden" name="box_qrresult[]" value="">
-        </div>
+          <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คการยิง QR</label></div>
+          <div class="pro3-proc2-qrset-it">
+            <input type="text" class="qr-result-input" disabled>
+            <input type="hidden" class="qr-result-hidden" name="box_qrresult[]" value="">
+          </div>
 
-        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">จำนวนชิ้นงานที่ถูกสุ่ม</label></div>
-        <div class="pro3-proc2-qrset-it">
-          <input type="text" name="box_sampledqty[]" value="<?php echo $sampledQty; ?>">
-        </div>
+          <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">จำนวนชิ้นงานที่ถูกสุ่ม</label></div>
+          <div class="pro3-proc2-qrset-it">
+            <input type="text" name="box_sampledqty[]" value="<?php echo $sampledQty; ?>">
+          </div>
 
-        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คชิ้นงาน</label></div>
-        <div class="pro3-proc2-qrset-it">
-          <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)" disabled>
-            <option value="" selected disabled>โปรดระบุ</option>
-            <option value="ผ่าน">ผ่าน</option>
-            <option value="ไม่ผ่าน">ไม่ผ่าน</option>
-          </select>
-          <button type="button" class="ngTypeBtn" data-boxno="<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>" style="display:none;">เลือก NG</button>
-        </div>
+          <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">เช็คชิ้นงาน</label></div>
+          <div class="pro3-proc2-qrset-it">
+            <select class="app-check-select" name="box_appcheck[]" onchange="handleAppCheck(this)" disabled>
+              <option value="" selected disabled>โปรดระบุ</option>
+              <option value="ผ่าน">ผ่าน</option>
+              <option value="ไม่ผ่าน">ไม่ผ่าน</option>
+            </select>
+            <button type="button" class="ngTypeBtn" data-boxno="<?php echo htmlspecialchars($boxNo, ENT_QUOTES); ?>" style="display:none;">เลือก NG</button>
+          </div>
 
-        <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">NG รวมของกล่อง</label></div>
-        <div class="pro3-proc2-qrset-it">
-          <input type="text" value="<?php echo $ngSum; ?>" disabled>
-        </div>
+          <div class="pro3-proc2-qrset-it"><label style="font-size:0.8em;">NG รวมของกล่อง</label></div>
+          <div class="pro3-proc2-qrset-it">
+            <input type="text" value="<?php echo $ngSum; ?>" disabled>
+          </div>
 
+        </div>
+        <?php endforeach; ?>
       </div>
-      <?php endforeach; ?>
-
 
       <div class="pro3-proc2-summary">
         <div class="pro3-proc2-summary-it"><label>NG รวม</label></div>
@@ -555,7 +557,7 @@
         <div class="pro3-proc2-summary-it"><label>จำนวน NG reject</label></div>
         <div class="pro3-proc2-summary-it"><label><?php echo rejectQty($lot_amountinv); ?></label></div>
 
-        <div class="pro3-proc2-summary-it"><label>ผลการตัดสินใจ</label></div>
+        <div class="pro3-proc2-summary-it" id="decisionLabel"><label><span class="blinkBullet" id="decisionBullet">●</span> ผลการตัดสินใจ</label></div>
         <div class="pro3-proc2-summary-it">
           <select name="Decision" id="decisionSelect" onchange="handleDecisionColor(this)">
             <option value="Accept" <?php echo $decision === 'Accept' ? 'selected' : ''; ?>>Accept</option>
@@ -633,6 +635,7 @@
     function handleAppCheck(sel) {
       const btn = sel.parentElement.querySelector('.ngTypeBtn');
       btn.style.display = sel.value === 'ไม่ผ่าน' ? 'inline-block' : 'none';
+      updateStepGuide();
     }
 
     function handleDecisionColor(sel) {
@@ -649,6 +652,34 @@
       if (damaged && statusSel.value === 'Accept') statusSel.value = '';
     }
     document.querySelectorAll('.bc-cond').forEach(handleBoxCond);
+
+    // Step guide: blinking bullet + red label show which part to fill next.
+    function setStep(name, active) {
+      var bullet = document.getElementById(name + 'Bullet');
+      var label  = document.getElementById(name + 'Label');
+      if (!bullet || !label) return;
+      bullet.classList.toggle('show', active);
+      label.classList.toggle('stepActive', active);
+    }
+    function updateStepGuide() {
+      var condSels    = document.querySelectorAll('.bc-cond');
+      var lotLoaded   = condSels.length > 0;
+      var boxCondDone = lotLoaded && Array.prototype.every.call(condSels, function (condSel) {
+        var statusSel = document.querySelector('.bc-status[data-idx="' + condSel.dataset.idx + '"]');
+        return condSel.value && statusSel.value;
+      });
+      setStep('lotTag',  !lotLoaded);
+      setStep('boxCond', lotLoaded && !boxCondDone);
+      var appCheckDone = boxCondDone && Array.prototype.every.call(document.querySelectorAll('.app-check-select'), function (sel) {
+        return sel.value;
+      });
+      setStep('qrSet',    boxCondDone && !appCheckDone);
+      setStep('decision', appCheckDone);
+    }
+    document.querySelectorAll('.bc-cond, .bc-status').forEach(function (sel) {
+      sel.addEventListener('change', updateStepGuide);
+    });
+    updateStepGuide();
 
     document.getElementById('proc02Form').addEventListener('submit', function (e) {
       var incomplete = Array.prototype.some.call(document.querySelectorAll('.bc-cond'), function (condSel) {
