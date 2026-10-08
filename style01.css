@@ -191,10 +191,10 @@ label{
 /*____________________ End: pro1 Lot card History _________________*/
 /*======================= Pro3 process page title =================*/
 .form-pro3-proc1 > h2,
-.form-pro3-proc2-g1 > h2,
-.form-pro3-proc3-g1 > h2,
-.form-pro3-proc4-g1 > h2,
-.form-pro3-proc5-g1 > h2 {
+.form-pro3-proc2 > h2,
+.form-pro3-proc3 > h2,
+.form-pro3-proc4 > h2,
+.form-pro3-proc5 > h2 {
 	margin: 6px 0;
 }
 /*========================= Pro3-Process1 =========================*/
@@ -373,11 +373,10 @@ label{
 }
 /*____________________ End: Pro3-Process1 ____________________*/
 /*======================= Pro3-Process 2 =====================*/
-.form-pro3-proc2-g1{
+.form-pro3-proc2{
 	justify-items: center;
-	/*text-align: center;*/
 }
-.form-pro3-proc2-g1 button{
+.form-pro3-proc2 button{
 	padding: 8px 5px;
 	margin: 3px 5px;
 	width: 110px;
@@ -385,15 +384,15 @@ label{
 	border-radius: 4px;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.form-pro3-proc2-g1 button#Nie2_homeBtn{
+.form-pro3-proc2 button#Nie2_homeBtn{
 	color:white;
 	background-color: blue;
 }
-.form-pro3-proc2-g1 button#okBtn{
+.form-pro3-proc2 button#okBtn{
 	color:white;
 	background-color: green;
 }
-form .form-pro3-proc2-g1 {
+.pro3-proc2-g1 {
 	display: grid;
     grid-template-columns: 10px 140px 120px 150px 120px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
@@ -428,15 +427,15 @@ form .form-pro3-proc2-g1 {
     padding: 0px;
 }
 /* proc02 step guide: JS adds .show to the bullet and .stepActive to the label of the current step */
-.form-pro3-proc2-g1 .blinkBullet {
+.form-pro3-proc2 .blinkBullet {
 	color: red;
 	visibility: hidden;
 }
-.form-pro3-proc2-g1 .blinkBullet.show {
+.form-pro3-proc2 .blinkBullet.show {
 	visibility: visible;
 	animation: blinkBullet 1s step-start infinite;
 }
-.form-pro3-proc2-g1 .stepActive {
+.form-pro3-proc2 .stepActive {
 	color: red;
 }
 .pro3-proc2-qrset-container {
@@ -536,11 +535,11 @@ form .form-pro3-proc2-g1 {
 }
 /*____________________ End: Pro3-Process 2 ____________________*/
 /*======================= Pro3-Process 3 ======================*/
-.form-pro3-proc3-g1{
+.form-pro3-proc3{
 	justify-items: center;
 	text-align: center;
 }
-.form-pro3-proc3-g1 button{
+.form-pro3-proc3 button{
 	padding: 8px 5px;
 	margin: 3px 5px;
 	width: 110px;
@@ -548,15 +547,15 @@ form .form-pro3-proc2-g1 {
 	border-radius: 4px;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.form-pro3-proc3-g1 button#Nie2_homeBtn{
+.form-pro3-proc3 button#Nie2_homeBtn{
 	color:white;
 	background-color: blue;
 }
-.form-pro3-proc3-g1 button#okBtn{
+.form-pro3-proc3 button#okBtn{
 	color:white;
 	background-color: green;
 }
-form .form-pro3-proc3-g1 {
+.pro3-proc3-g1 {
 	display: grid;
     grid-template-columns: 150px 160px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
