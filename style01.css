@@ -596,6 +596,7 @@ label{
 	margin: 10px auto;
 	padding: 5px;
 	box-sizing: border-box;
+	justify-content: center;
 }
 .qtybox-h {
 	background: lightblue;
