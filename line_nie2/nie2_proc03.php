@@ -223,11 +223,11 @@
 <body>
   <?php require('../topbar.php'); ?>
 
-  <div class="form-pro3-proc3-g1">
+  <div class="form-pro3-proc3">
     <h2>3 Racking — Ni-e Line 2</h2>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="form-pro3-proc3-g1">
+      <div class="pro3-proc3-g1">
 
         <div class="pro3-proc3-g1-it"><label>Operator</label></div>
         <div class="pro3-proc3-g1-it">
@@ -275,7 +275,7 @@
       </div>
 
       <div id="input-qty">
-        <div class="grid-title">ข้อมูลจำนวนของกล่อง</div>
+        <div class="grid-title">เช็คจำนวนกล่องและชิ้นงาน</div>
         <div class="qtybox-h">Box-no</div>
         <div class="qtybox-h" style="font-size: small">จำนวนชิ้นตาม LotTag</div>
         <div class="qtybox-h" style="font-size: small">จำนวนชิ้นที่นับจริง</div>
