@@ -378,11 +378,11 @@
 <body>
   <?php require('../topbar.php'); ?>
 
-  <div class="form-pro3-proc2-g1">
+  <div class="form-pro3-proc2">
     <h2>2 Incoming — Ni-e Line 2</h2>
       
     <form id="proc02Form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="form-pro3-proc2-g1">
+      <div class="pro3-proc2-g1">
 
         <!-- row1 -->
         <div class="pro3-proc2-g1-it-bl"></div>  
