@@ -239,25 +239,25 @@
           <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>">
         </div>
 
-        <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
-        <div class="pro3-proc2-g1-it">
+        <div class="pro3-proc3-g1-it"><label>Lot ID</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" value="<?php echo $lot_id; ?>" disabled>
         </div>
           
-        <div class="pro3-proc2-g1-it"><label>Product name</label></div>
-        <div class="pro3-proc2-g1-it">
+        <div class="pro3-proc3-g1-it"><label>Product name</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" value="<?php echo $lot_prodname; ?>" disabled>
           <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
         </div>
 
-        <div class="pro3-proc2-g1-it"><label>Invoice no</label></div>
-        <div class="pro3-proc2-g1-it">
+        <div class="pro3-proc3-g1-it"><label>Invoice no</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" value="<?php echo $lot_invno; ?>" disabled>
           <input type="hidden" name="InvNo" value="<?php echo $lot_invno; ?>">
         </div>
 
-        <div class="pro3-proc2-g1-it"><label>WO</label></div>
-        <div class="pro3-proc2-g1-it">
+        <div class="pro3-proc3-g1-it"><label>WO</label></div>
+        <div class="pro3-proc3-g1-it">
           <input type="text" value="<?php echo $lot_wo; ?>" disabled>
           <input type="hidden" name="WO" value="<?php echo $lot_wo; ?>">
         </div>
@@ -277,9 +277,9 @@
       <div id="input-qty">
         <div class="grid-title">เช็คจำนวนกล่องและชิ้นงาน</div>
         <div class="qtybox-h">Box-no</div>
-        <div class="qtybox-h" style="font-size: small">จำนวนชิ้นตาม LotTag</div>
-        <div class="qtybox-h" style="font-size: small">จำนวนชิ้นที่นับจริง</div>
-        <div class="qtybox-h" style="font-size: small">จำนวนขาด / เกิน</div>
+        <div class="qtybox-h" style="font-size: small">จำนวนชิ้น<br>ตาม LotTag</div>
+        <div class="qtybox-h" style="font-size: small">จำนวนชิ้น<br>นับจริง</div>
+        <div class="qtybox-h" style="font-size: small">จำนวน<br>ขาด / เกิน</div>
         <div class="qtybox-h">Remark</div>
         <div class="qtybox-h">Action</div>
 
