@@ -229,48 +229,66 @@
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="pro3-proc3-g1">
 
+        <!-- row1 -->
+        <div class="pro3-proc3-g1-it-bl"></div>
         <div class="pro3-proc3-g1-it"><label>Operator</label></div>
         <div class="pro3-proc3-g1-it">
           <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
         </div>
-
-        <div class="pro3-proc3-g1-it"><label style="color: red;"><strong> Data from Lot Tag</strong></label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>">
-        </div>
-
-        <div class="pro3-proc3-g1-it"><label>Lot ID</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" value="<?php echo $lot_id; ?>" disabled>
-        </div>
-          
-        <div class="pro3-proc3-g1-it"><label>Product name</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" value="<?php echo $lot_prodname; ?>" disabled>
-          <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
-        </div>
-
-        <div class="pro3-proc3-g1-it"><label>Invoice no</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" value="<?php echo $lot_invno; ?>" disabled>
-          <input type="hidden" name="InvNo" value="<?php echo $lot_invno; ?>">
-        </div>
-
-        <div class="pro3-proc3-g1-it"><label>WO</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="text" value="<?php echo $lot_wo; ?>" disabled>
-          <input type="hidden" name="WO" value="<?php echo $lot_wo; ?>">
-        </div>
-
         <div class="pro3-proc3-g1-it"><label>Date</label></div>
         <div class="pro3-proc3-g1-it">
           <input type="date" id="rackDate" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
+        <!-- row2 -->
+        <div class="pro3-proc3-g1-it-bl"></div>
+        <div class="pro3-proc3-g1-it"><label>Lot ID</label></div>
+        <div class="pro3-proc3-g1-it">
+          <input type="text" value="<?php echo $lot_id; ?>" disabled>
+        </div>
         <div class="pro3-proc3-g1-it"><label>Time</label></div>
         <div class="pro3-proc3-g1-it">
           <input type="time" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>" disabled>
         </div>
+
+        <!-- row3 -->
+        <div class="pro3-proc3-g1-it-bl"></div>
+        <div class="pro3-proc3-g1-it"><label>Product name</label></div>
+        <div class="pro3-proc3-g1-it">
+          <input type="text" value="<?php echo $lot_prodname; ?>" disabled>
+          <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
+        </div>
+        <div class="pro3-proc3-g1-it"></div>
+        <div class="pro3-proc3-g1-it"></div>
+
+        <!-- row4 -->
+        <div class="pro3-proc3-g1-it-bl"></div>
+        <div class="pro3-proc3-g1-it"><label>Invoice no</label></div>
+        <div class="pro3-proc3-g1-it">
+          <input type="text" value="<?php echo $lot_invno; ?>" disabled>
+          <input type="hidden" name="InvNo" value="<?php echo $lot_invno; ?>">
+        </div>
+        <div class="pro3-proc3-g1-it"></div>
+        <div class="pro3-proc3-g1-it"></div>
+
+        <!-- row5 -->
+        <div class="pro3-proc3-g1-it-bl"></div>
+        <div class="pro3-proc3-g1-it"><label>WO</label></div>
+        <div class="pro3-proc3-g1-it">
+          <input type="text" value="<?php echo $lot_wo; ?>" disabled>
+          <input type="hidden" name="WO" value="<?php echo $lot_wo; ?>">
+        </div>
+        <div class="pro3-proc3-g1-it"></div>
+        <div class="pro3-proc3-g1-it"></div>
+
+        <!-- row6 -->
+        <div class="pro3-proc3-g1-it-bl"><span class="blinkBullet">●</span></div>
+        <div class="pro3-proc3-g1-it"><label style="color: red;"><strong> Data from Lot Tag</strong></label></div>
+        <div class="pro3-proc3-g1-it">
+          <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>">
+        </div>
+        <div class="pro3-proc3-g1-it"></div>
+        <div class="pro3-proc3-g1-it"></div>
 
       </div>
 
@@ -301,7 +319,10 @@
         <div class="qtybox-c"><input type="text" disabled></div>
         <div class="qtybox-c"><input type="number" id="newLotTagQty" placeholder="LotTag-qty" min="0" readonly value="<?php echo htmlspecialchars($_GET['boxQty'] ?? ''); ?>"></div>
         <div class="qtybox-c"><input type="number" id="newActualQty" placeholder="Actual-qty" min="0"></div>
-        <div class="qtybox-c"><input type="number" id="newQtyShortOver" readonly></div>
+        <div class="qtybox-c">
+          <input type="number" id="newQtyShortOver" disabled>
+          <input type="hidden" id="newQtyShortOver">
+        </div>
         <div class="qtybox-c"><textarea id="newQtyRemark" rows="2"></textarea></div>
         <div class="qtybox-c"><button type="button" id="newQtyBoxSubmitBtn" hidden>กดบันทึกด้านล่าง</button></div>
       </div>
