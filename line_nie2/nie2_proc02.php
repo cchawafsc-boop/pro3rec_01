@@ -385,10 +385,10 @@
       <div class="pro3-proc2-g1">
 
         <!-- row1 -->
-        <div class="pro3-proc2-g1-it-bl"></div>  
-        <div class="pro3-proc2-g1-it"><label>Operator</label></div>
+        <div class="pro3-proc2-g1-it-bl"></div>
+        <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
         <div class="pro3-proc2-g1-it">
-          <input type="text" id="oprDisplay" name="OprDisplay" value="<?php echo htmlspecialchars($_SESSION['us_name'] ?? ''); ?>" disabled required>
+          <input type="text" value="<?php echo $lot_id; ?>" disabled>
         </div>
         <div class="pro3-proc2-g1-it"><label>Date</label></div>
         <div class="pro3-proc2-g1-it">
@@ -396,17 +396,6 @@
         </div>
 
         <!-- row2 -->
-        <div class="pro3-proc2-g1-it-bl"></div>
-        <div class="pro3-proc2-g1-it"><label>Lot ID</label></div>
-        <div class="pro3-proc2-g1-it">
-          <input type="text" value="<?php echo $lot_id; ?>" disabled>
-        </div>
-        <div class="pro3-proc2-g1-it"><label>Time</label></div>
-        <div class="pro3-proc2-g1-it">
-          <input type="time" id="hdrTime" value="<?php echo date('H:i'); ?>" disabled>
-        </div>        
-
-        <!-- row3 -->
         <div class="pro3-proc2-g1-it-bl"></div>
         <div class="pro3-proc2-g1-it"><label>Product name</label></div>
         <div class="pro3-proc2-g1-it">
@@ -416,9 +405,9 @@
         <div class="pro3-proc2-g1-it" style="font-size:0.8em;"><label>จำนวนกล่องตาม Inv</label></div>
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $lot_boxcount; ?>" disabled>
-        </div>        
+        </div>
 
-        <!-- row4 -->
+        <!-- row3 -->
         <div class="pro3-proc2-g1-it-bl"></div>
         <div class="pro3-proc2-g1-it"><label>Invoice no</label></div>
         <div class="pro3-proc2-g1-it">
@@ -429,8 +418,8 @@
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $lot_amountinv; ?>" min="0" disabled required>
         </div>
-        
-        <!-- row5 -->
+
+        <!-- row4 -->
         <div class="pro3-proc2-g1-it-bl"></div>
         <div class="pro3-proc2-g1-it"><label>WO</label></div>
         <div class="pro3-proc2-g1-it">
@@ -441,8 +430,8 @@
         <div class="pro3-proc2-g1-it">
           <input type="number" value="<?php echo $lot_samplingsize; ?>" min="0" disabled required>
         </div>
-        
-        <!-- row6 -->
+
+        <!-- row5 -->
         <div class="pro3-proc2-g1-it-bl"><span class="blinkBullet" id="lotTagBullet">●</span></div>
         <div class="pro3-proc2-g1-it" id="lotTagLabel"><label>Data from Lot Tag</label></div>
         <div class="pro3-proc2-g1-it">
