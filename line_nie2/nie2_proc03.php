@@ -283,7 +283,7 @@
 
         <!-- row6 -->
         <div class="pro3-proc3-g1-it-bl"><span class="blinkBullet">●</span></div>
-        <div class="pro3-proc3-g1-it"><label style="color: red;"><strong> Data from Lot Tag</strong></label></div>
+        <div class="pro3-proc3-g1-it"><label style="color: red;"> Data from Lot Tag </label></div>
         <div class="pro3-proc3-g1-it">
           <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>">
         </div>
