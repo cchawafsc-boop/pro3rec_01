@@ -406,7 +406,7 @@ label{
 .pro3-proc2-g1-it{
 	display: flex;                       /* Using flexbox for vertical alignment within each cell */
     align-items: center;
-    padding: 5px;
+    padding: 2px;
     border-radius: 4px;
 }
 .pro3-proc2-g1-it input[type="text"]{
@@ -569,7 +569,7 @@ label{
 .pro3-proc3-g1-it{
 	display: flex;                       /* Using flexbox for vertical alignment within each cell */
     align-items: center;
-    padding: 5px;
+    padding: 2px;
     border-radius: 4px;
 }
 .pro3-proc3-g1-it input[type="text"]{
