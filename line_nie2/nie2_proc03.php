@@ -231,27 +231,17 @@
 
         <!-- row1 -->
         <div class="pro3-proc3-g1-it-bl"></div>
-        <div class="pro3-proc3-g1-it"><label>Operator</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
-        </div>
-        <div class="pro3-proc3-g1-it"><label>Date</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="date" id="rackDate" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
-        </div>
-
-        <!-- row2 -->
-        <div class="pro3-proc3-g1-it-bl"></div>
         <div class="pro3-proc3-g1-it"><label>Lot ID</label></div>
         <div class="pro3-proc3-g1-it">
           <input type="text" value="<?php echo $lot_id; ?>" disabled>
         </div>
-        <div class="pro3-proc3-g1-it"><label>Time</label></div>
+        <div class="pro3-proc3-g1-it"><label>Date</label></div>
         <div class="pro3-proc3-g1-it">
-          <input type="time" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>" disabled>
+          <input type="date" id="rackDate" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
+          <input type="hidden" id="rackTime" value="<?php echo date('H:i'); ?>">
         </div>
 
-        <!-- row3 -->
+        <!-- row2 -->
         <div class="pro3-proc3-g1-it-bl"></div>
         <div class="pro3-proc3-g1-it"><label>Product name</label></div>
         <div class="pro3-proc3-g1-it">
@@ -261,7 +251,7 @@
         <div class="pro3-proc3-g1-it"></div>
         <div class="pro3-proc3-g1-it"></div>
 
-        <!-- row4 -->
+        <!-- row3 -->
         <div class="pro3-proc3-g1-it-bl"></div>
         <div class="pro3-proc3-g1-it"><label>Invoice no</label></div>
         <div class="pro3-proc3-g1-it">
@@ -271,7 +261,7 @@
         <div class="pro3-proc3-g1-it"></div>
         <div class="pro3-proc3-g1-it"></div>
 
-        <!-- row5 -->
+        <!-- row4 -->
         <div class="pro3-proc3-g1-it-bl"></div>
         <div class="pro3-proc3-g1-it"><label>WO</label></div>
         <div class="pro3-proc3-g1-it">
@@ -281,7 +271,7 @@
         <div class="pro3-proc3-g1-it"></div>
         <div class="pro3-proc3-g1-it"></div>
 
-        <!-- row6 -->
+        <!-- row5 -->
         <div class="pro3-proc3-g1-it-bl"><span class="blinkBullet">●</span></div>
         <div class="pro3-proc3-g1-it"><label style="color: red;"> Data from Lot Tag </label></div>
         <div class="pro3-proc3-g1-it">
