@@ -557,7 +557,7 @@ label{
 }
 .pro3-proc3-g1 {
 	display: grid;
-    grid-template-columns: 10px 140px 120px 150px 120px;  /* Defines column width */
+    grid-template-columns: 10px 140px 150px 60px 120px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
     border: 1px solid #ccc;
     padding: 3px;
@@ -573,7 +573,7 @@ label{
     border-radius: 4px;
 }
 .pro3-proc3-g1-it input[type="text"]{
-	width: 100px;
+	width: 140px;
 	box-sizing: border-box;
 }
 .pro3-proc3-g1-it input[type="number"],
@@ -602,7 +602,7 @@ label{
 
 #input-qty {
 	display: grid;
-	grid-template-columns: 80px 100px 100px 90px 200px 70px;
+	grid-template-columns: 80px 80px 80px 90px 200px 70px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
