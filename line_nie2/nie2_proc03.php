@@ -455,10 +455,10 @@
         el.disabled = !isScanned;
       });
 
-      // ขาด / เกิน = ตาม LotTag - นับจริง
+      // ขาด / เกิน = นับจริง - ตาม LotTag  (minus = short, plus = over)
       actualQty.addEventListener('input', function () {
         shortOver.value = (lotTagQty.value === '' || actualQty.value === '')
-          ? '' : Number(lotTagQty.value) - Number(actualQty.value);
+          ? '' : Number(actualQty.value) - Number(lotTagQty.value);
       });
 
       [boxNo, date, time, lotTagQty, actualQty, shortOver, status, remark].forEach(makeQtyBoxCell);
