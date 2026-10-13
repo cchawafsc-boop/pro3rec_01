@@ -135,15 +135,16 @@
             $rPlateNo  = $nz($rack['PlateNo'] ?? '');
             $rRackNo   = $nz($rack['RackNo'] ?? '');
             $rQty      = $nzi($rack['Qty'] ?? '');
+            $rNgQty    = $nzi($rack['NGqty'] ?? '');
             $rStatus   = $nz($rack['Status'] ?? '');
             $rRemark   = $nz($rack['Remark'] ?? '');
 
             $rIns = mysqli_prepare($conn,
-                "INSERT INTO tb_proc3 (ProdName, InvNo, WO, Date, Time, Opr, BoxNo, LotPlate, PlateNo, RackNo, Qty, Status, Remark)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-            mysqli_stmt_bind_param($rIns, 'sssssissssiss',
+                "INSERT INTO tb_proc3 (ProdName, InvNo, WO, Date, Time, Opr, BoxNo, LotPlate, PlateNo, RackNo, Qty, NGqty, Status, Remark)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($rIns, 'sssssissssiiss',
                 $sProdName, $sInvNo, $sWo, $rDate, $rTime, $sOpr,
-                $rBoxNo, $rLotPlate, $rPlateNo, $rRackNo, $rQty, $rStatus, $rRemark);
+                $rBoxNo, $rLotPlate, $rPlateNo, $rRackNo, $rQty, $rNgQty, $rStatus, $rRemark);
             mysqli_stmt_execute($rIns);
 
             mysqli_commit($conn);
@@ -152,6 +153,29 @@
             mysqli_rollback($conn);
             echo json_encode(['status' => 'fail', 'message' => $e->getMessage()]);
         }
+        mysqli_close($conn);
+        exit;
+    }
+
+    // AJAX: NG qty of one racking piece = SUM(tb_ng.NGqty) for Box + Plate + Rack, Process '3. Racking'.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_get_ngqty'])) {
+        header('Content-Type: application/json');
+
+        $gProdName = $_POST['ProdName'] ?? '';
+        $gInvNo    = $_POST['InvNo'] ?? '';
+        $gWo       = $_POST['WO'] ?? '';
+        $gBoxNo    = $_POST['BoxNo'] ?? '';
+        $gPlateNo  = $_POST['PlateNo'] ?? '';
+        $gRackNo   = $_POST['RackNo'] ?? '';
+
+        $ngStmt = mysqli_prepare($conn,
+            "SELECT COALESCE(SUM(NGqty), 0) AS ngSum FROM tb_ng
+             WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ? AND PlateNo = ? AND RackNo = ?
+               AND Process = '3. Racking'");
+        mysqli_stmt_bind_param($ngStmt, 'ssssss', $gProdName, $gInvNo, $gWo, $gBoxNo, $gPlateNo, $gRackNo);
+        $ngOk  = mysqli_stmt_execute($ngStmt);
+        $ngRow = $ngOk ? mysqli_fetch_assoc(mysqli_stmt_get_result($ngStmt)) : null;
+        echo json_encode(['status' => $ngOk ? 'ok' : 'fail', 'ngSum' => (int)($ngRow['ngSum'] ?? 0)]);
         mysqli_close($conn);
         exit;
     }
@@ -186,7 +210,7 @@
     $rackRows = [];
     if (!empty($lot_id_raw)) {
         $rstmt = mysqli_prepare($conn,
-            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.Date, TIME_FORMAT(p3.Time, '%H:%i') AS Time, p3.LotPlate, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Status, p3.Remark
+            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.Date, TIME_FORMAT(p3.Time, '%H:%i') AS Time, p3.LotPlate, p3.PlateNo, p3.RackNo, p3.Qty, p3.NGqty, p3.Opr, p3.Status, p3.Remark
              FROM tb_proc3 p3
              INNER JOIN tb_proc1 p1 ON p1.ProdName = p3.ProdName AND p1.WO = p3.WO AND p1.BoxNo = p3.BoxNo
              WHERE p1.LotID = ?");
@@ -238,8 +262,6 @@
         <div class="pro3-proc3-g1-it">
           <input type="text" value="<?php echo $lot_id; ?>" disabled>
         </div>
-        <div class="pro3-proc3-g1-it"></div>
-        <div class="pro3-proc3-g1-it"></div>
 
         <!-- row2 -->
         <div class="pro3-proc3-g1-it-bl"></div>
@@ -248,8 +270,6 @@
           <input type="text" value="<?php echo $lot_prodname; ?>" disabled>
           <input type="hidden" name="ProdName" value="<?php echo $lot_prodname; ?>">
         </div>
-        <div class="pro3-proc3-g1-it"></div>
-        <div class="pro3-proc3-g1-it"></div>
 
         <!-- row3 -->
         <div class="pro3-proc3-g1-it-bl"></div>
@@ -258,8 +278,6 @@
           <input type="text" value="<?php echo $lot_invno; ?>" disabled>
           <input type="hidden" name="InvNo" value="<?php echo $lot_invno; ?>">
         </div>
-        <div class="pro3-proc3-g1-it"></div>
-        <div class="pro3-proc3-g1-it"></div>
 
         <!-- row4 -->
         <div class="pro3-proc3-g1-it-bl"></div>
@@ -268,8 +286,6 @@
           <input type="text" value="<?php echo $lot_wo; ?>" disabled>
           <input type="hidden" name="WO" value="<?php echo $lot_wo; ?>">
         </div>
-        <div class="pro3-proc3-g1-it"></div>
-        <div class="pro3-proc3-g1-it"></div>
 
         <!-- row5 -->
         <div class="pro3-proc3-g1-it-bl"><span class="blinkBullet" id="lotTagBullet">●</span></div>
@@ -277,8 +293,6 @@
         <div class="pro3-proc3-g1-it">
           <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat">
         </div>
-        <div class="pro3-proc3-g1-it"></div>
-        <div class="pro3-proc3-g1-it"></div>
 
       </div>
 
@@ -305,6 +319,8 @@
         <div class="rack-h">Plate<br>no</div>
         <div class="rack-h">Rack<br>no</div>
         <div class="rack-h">Rack<br>Qty</div>
+        <div class="rack-h">NG<br>qty</div>
+        <div class="rack-h">define<br>NG</div>
         <div class="rack-h">Operator</div>
         <div class="rack-h">Status</div>
         <div class="rack-h">Remark</div>
@@ -318,6 +334,8 @@
         <div class="rack-c"><?php echo htmlspecialchars($rrow['PlateNo']); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['RackNo']); ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Qty']; ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['NGqty']; ?></div>
+        <div class="rack-c"></div>
         <div class="rack-c"><?php echo (int)$rrow['Opr']; ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['Status']); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['Remark']); ?></div>
@@ -339,6 +357,8 @@
         <div class="rack-c"><input type="text" id="newPlateNo" autocomplete="off" placeholder="Plate-no"></div>
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off" placeholder="Rack-no"></div>
         <div class="rack-c"><input type="number" id="newRackQty" placeholder="Qty" min="0"></div>
+        <div class="rack-c"><input type="number" id="newRackNgQty" value="0" readonly></div>
+        <div class="rack-c"><button type="button" id="defineNgBtn">define NG</button></div>
         <div class="rack-c"><input type="number" id="newRackOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
         <div class="rack-c">
           <select id="newRackStatus">
@@ -512,6 +532,8 @@
             if (isScanned) scannedRow = row;
           });
 
+          restoreDraftQtyBox(scannedRow);
+
           // Lot Tag step done: drop the header bullet, label back to black
           document.getElementById('lotTagBullet').style.display = 'none';
           document.getElementById('lotTagLabel').style.color = 'black';
@@ -527,12 +549,114 @@
       });
       document.getElementById('newRackBoxNo').value = LOT.boxNo;
       document.getElementById('newLotPlate').value  = LOT.lotId.substring(0, 2);
+      restoreDraftRack();
+      refreshNgQty();
+    }
+
+    // NG qty of the new-data row: tb_ng sum for scanned box + Plate-no + Rack-no (0 until both are filled).
+    function refreshNgQty() {
+      var ngInput = document.getElementById('newRackNgQty');
+      var plateNo = document.getElementById('newPlateNo').value.trim();
+      var rackNo  = document.getElementById('newRackNo').value.trim();
+      if (!LOT.lotId || plateNo === '' || rackNo === '') {
+        ngInput.value = 0;
+        return;
+      }
+
+      var payload = new URLSearchParams({
+        ajax_get_ngqty: '1',
+        ProdName: LOT.prodName,
+        InvNo:    LOT.invNo,
+        WO:       LOT.wo,
+        BoxNo:    LOT.boxNo,
+        PlateNo:  plateNo,
+        RackNo:   rackNo
+      });
+
+      fetch(location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) { ngInput.value = data.ngSum || 0; })
+        .catch(function () { ngInput.value = 0; });
+    }
+
+    document.getElementById('newPlateNo').addEventListener('change', refreshNgQty);
+    document.getElementById('newRackNo').addEventListener('change', refreshNgQty);
+
+    // Draft of the unsaved inputs, kept while the user is on nie2_ng_input_proc03.php
+    // ("define NG") and refilled once when coming back to the same box.
+    var DRAFT_KEY = 'proc03Draft|' + [LOT.prodName, LOT.invNo, LOT.wo, LOT.boxNo].join('|');
+    var DRAFT_QTYBOX_FIELDS = ['date', 'time', 'actualQty', 'shortOver', 'status', 'remark'];
+    var DRAFT_RACK_IDS = ['newRackDate', 'newRackTime', 'newLotPlate', 'newPlateNo',
+                          'newRackNo', 'newRackQty', 'newRackStatus', 'newRackRemark'];
+    var draft = null;
+    try { draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY)); sessionStorage.removeItem(DRAFT_KEY); } catch (err) {}
+
+    function saveDraft() {
+      var scannedRow = qtyBoxRows.filter(function (r) { return r.isScanned; })[0];
+      var d = { qtybox: {}, rack: {} };
+      if (scannedRow) {
+        DRAFT_QTYBOX_FIELDS.forEach(function (f) { d.qtybox[f] = scannedRow[f].value; });
+      }
+      DRAFT_RACK_IDS.forEach(function (id) { d.rack[id] = document.getElementById(id).value; });
+      try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch (err) {}
+    }
+
+    function restoreDraftQtyBox(scannedRow) {
+      if (!draft || !draft.qtybox) return;
+      DRAFT_QTYBOX_FIELDS.forEach(function (f) {
+        if (draft.qtybox[f] !== undefined) scannedRow[f].value = draft.qtybox[f];
+      });
+    }
+
+    function restoreDraftRack() {
+      if (!draft || !draft.rack) return;
+      DRAFT_RACK_IDS.forEach(function (id) {
+        if (draft.rack[id] !== undefined) document.getElementById(id).value = draft.rack[id];
+      });
     }
 
     if (LOT.lotId) {
       loadQtyBox();
       prepareRackNewRow();
     }
+
+    // define NG: open nie2_ng_input_proc03.php for the scanned box + Plate-no + Rack-no
+    // (same POST entry as proc02 -> ng_input_proc02).
+    // Its "กลับหน้าก่อน" comes back to this URL (Referer), so the Lot reloads and NG qty is refreshed.
+    document.getElementById('defineNgBtn').addEventListener('click', function () {
+      if (!LOT.lotId) {
+        alert(NOT_FOUND_MSG);
+        return;
+      }
+      if (!document.getElementById('newPlateNo').reportValidity()) return;
+      if (!document.getElementById('newRackNo').reportValidity()) return;
+      saveDraft();
+
+      var form = document.createElement('form');
+      form.method = 'post';
+      form.action = 'nie2_ng_input_proc03.php';
+
+      function addField(name, value) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = name;
+        inp.value = value;
+        form.appendChild(inp);
+      }
+
+      addField('lot_id_raw', LOT.lotId);
+      addField('boxNo', LOT.boxNo);
+      addField('plateNo', document.getElementById('newPlateNo').value.trim());
+      addField('rackNo', document.getElementById('newRackNo').value.trim());
+      addField('selected_process', '3. Racking');
+
+      document.body.appendChild(form);
+      form.submit();
+    });
 
     document.getElementById('submitDataBtn').addEventListener('click', function () {
       var btn = this;
@@ -565,6 +689,7 @@
         PlateNo:  document.getElementById('newPlateNo').value,
         RackNo:   document.getElementById('newRackNo').value,
         Qty:      document.getElementById('newRackQty').value,
+        NGqty:    document.getElementById('newRackNgQty').value,
         Status:   document.getElementById('newRackStatus').value,
         Remark:   document.getElementById('newRackRemark').value
       };
