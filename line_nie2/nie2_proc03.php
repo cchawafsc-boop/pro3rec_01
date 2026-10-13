@@ -3,37 +3,6 @@
     require('../connect.php');
     require('../init_session.php');
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax_insert_rack']) && !isset($_POST['ajax_delete_rack']) && !isset($_POST['ajax_insert_qtybox']) && !isset($_POST['ajax_delete_qtybox'])) {
-        $prodName = $_POST['ProdName'];
-        $invNo    = $_POST['InvNo'];
-        $wo       = $_POST['WO'];
-        $date     = $_POST['Date'];
-        $time     = $_POST['Time'];
-        $opr      = (int)$_POST['Opr'];
-        $boxNo    = $_POST['BoxNo'];
-        $plateNo  = (int)$_POST['PlateNo'];
-        $rackNo   = (int)$_POST['RackNo'];
-        $qty      = (int)$_POST['Qty'];
-
-        $stmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc3` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`PlateNo`,`RackNo`,`Qty`) VALUES (?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($stmt, "sssssisiii",
-            $prodName, $invNo, $wo, $date, $time, $opr, $boxNo, $plateNo, $rackNo, $qty);
-        $req = mysqli_stmt_execute($stmt);
-
-        if ($req) {
-            $qs = http_build_query([
-                'ProdName' => $prodName,
-                'InvNo'    => $invNo,
-                'WO'       => $wo,
-            ]);
-            echo "<script>alert('บันทึกข้อมูลสำเร็จ'); window.location.href='./nie2_proc03.php?" . $qs . "';</script>";
-            exit;
-        } else {
-            echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
-        }
-    }
-
     // AJAX: delete one racking record from tb_proc3
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete_rack'])) {
         header('Content-Type: application/json');
@@ -56,86 +25,133 @@
         exit;
     }
 
-    // AJAX: insert a new racking record into tb_proc3
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_rack'])) {
+    // AJAX: load the boxes of a Lot for input-qtybox.
+    // Lot already in tb_proc3_box -> mode 'existing' (saved values).
+    // Lot not in tb_proc3_box yet -> mode 'new' (box list from tb_proc2_box).
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_get_qtybox'])) {
         header('Content-Type: application/json');
 
-        $iProdName = $_POST['ProdName'] ?? '';
-        $iInvNo    = $_POST['InvNo'] ?? '';
-        $iWo       = $_POST['WO'] ?? '';
-        $iDate     = $_POST['Date'] ?? '';
-        $iTime     = $_POST['Time'] ?? '';
-        $iOpr      = (int)($_POST['Opr'] ?? 0);
-        $iBoxNo    = $_POST['BoxNo'] ?? '';
-        $iLotPlate = $_POST['LotPlate'] ?? '';
-        $iPlateNo  = (int)($_POST['PlateNo'] ?? 0);
-        $iRackNo   = $_POST['RackNo'] ?? '';
-        $iQty      = (int)($_POST['Qty'] ?? 0);
-        $iStatus   = $_POST['Status'] ?? 'Accept';
-        $iRemark   = $_POST['Remark'] ?? '';
+        $qProdName = $_POST['ProdName'] ?? '';
+        $qInvNo    = $_POST['InvNo'] ?? '';
+        $qWo       = $_POST['WO'] ?? '';
+        $qRows     = [];
+        $qMode     = 'existing';
 
-        $istmt = mysqli_prepare($conn,
-            "INSERT INTO `tb_proc3` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotPlate`,`PlateNo`,`RackNo`,`Qty`,`Status`,`Remark`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        mysqli_stmt_bind_param($istmt, 'sssssissisiss',
-            $iProdName, $iInvNo, $iWo, $iDate, $iTime, $iOpr, $iBoxNo, $iLotPlate, $iPlateNo, $iRackNo, $iQty, $iStatus, $iRemark);
-        $iok = mysqli_stmt_execute($istmt);
-        echo json_encode(['status' => $iok ? 'ok' : 'fail', 'message' => $iok ? '' : mysqli_error($conn)]);
-        mysqli_close($conn);
-        exit;
-    }
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+        try {
+            $qstmt = mysqli_prepare($conn,
+                "SELECT BoxNo, Date, TIME_FORMAT(Time, '%H:%i') AS Time, LotTagQty, ActualQty, ShortOver, Status, Remark
+                 FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=?
+                 ORDER BY CAST(BoxNo AS UNSIGNED), BoxNo");
+            mysqli_stmt_bind_param($qstmt, 'sss', $qProdName, $qInvNo, $qWo);
+            mysqli_stmt_execute($qstmt);
+            $qRows = mysqli_fetch_all(mysqli_stmt_get_result($qstmt), MYSQLI_ASSOC);
 
-    // AJAX: insert a new box-qty record into tb_proc3_box
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_insert_qtybox'])) {
-        header('Content-Type: application/json');
-
-        $qProdName   = $_POST['ProdName'] ?? '';
-        $qInvNo      = $_POST['InvNo'] ?? '';
-        $qWo         = $_POST['WO'] ?? '';
-        $qDate       = $_POST['Date'] ?? '';
-        $qTime       = $_POST['Time'] ?? '';
-        $qOpr        = (int)($_POST['Opr'] ?? 0);
-        $qBoxNo      = $_POST['BoxNo'] ?? '';
-        $qLotTagQty  = (int)($_POST['LotTagQty'] ?? 0);
-        $qActualQty  = (int)($_POST['ActualQty'] ?? 0);
-        $qShortOver  = (int)($_POST['ShortOver'] ?? 0);
-        $qRemark     = $_POST['Remark'] ?? '';
-
-        $qDupStmt = mysqli_prepare($conn,
-            "SELECT 1 FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
-        mysqli_stmt_bind_param($qDupStmt, 'ssss', $qProdName, $qInvNo, $qWo, $qBoxNo);
-        mysqli_stmt_execute($qDupStmt);
-        $qDupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($qDupStmt));
-
-        if ($qDupRow) {
-            echo json_encode(['status' => 'dup', 'message' => 'มีข้อมูลซ้ำซ้อนในฐานข้อมูล กรุณาตรวจสอบ']);
-        } else {
-            $qStmt = mysqli_prepare($conn,
-                "INSERT INTO `tb_proc3_box` (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`LotTagQty`,`ActualQty`,`ShortOver`,`Remark`)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-            mysqli_stmt_bind_param($qStmt, 'sssssisiiis',
-                $qProdName, $qInvNo, $qWo, $qDate, $qTime, $qOpr, $qBoxNo, $qLotTagQty, $qActualQty, $qShortOver, $qRemark);
-            $qok = mysqli_stmt_execute($qStmt);
-            echo json_encode(['status' => $qok ? 'ok' : 'fail', 'message' => $qok ? '' : mysqli_error($conn)]);
+            if (count($qRows) === 0) {
+                $qMode = 'new';
+                $qstmt = mysqli_prepare($conn,
+                    "SELECT BoxNo FROM tb_proc2_box WHERE ProdName=? AND InvNo=? AND WO=?
+                     GROUP BY BoxNo ORDER BY CAST(BoxNo AS UNSIGNED), BoxNo");
+                mysqli_stmt_bind_param($qstmt, 'sss', $qProdName, $qInvNo, $qWo);
+                mysqli_stmt_execute($qstmt);
+                $qRows = mysqli_fetch_all(mysqli_stmt_get_result($qstmt), MYSQLI_ASSOC);
+            }
+        } catch (Throwable $e) {
+            $qRows = [];
         }
+
+        echo json_encode(count($qRows) > 0
+            ? ['status' => 'ok', 'mode' => $qMode, 'rows' => $qRows]
+            : ['status' => 'fail']);
         mysqli_close($conn);
         exit;
     }
 
-    // AJAX: delete one box-qty record from tb_proc3_box
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete_qtybox'])) {
+    // AJAX: submitDataBtn.
+    // input-qtybox rows -> tb_proc3_box (insert if the box is not there yet, else update), 1 row = 1 box.
+    // input-racking new-data row -> insert into tb_proc3.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_submit'])) {
         header('Content-Type: application/json');
 
-        $xProdName = $_POST['ProdName'] ?? '';
-        $xInvNo    = $_POST['InvNo'] ?? '';
-        $xWo       = $_POST['WO'] ?? '';
-        $xBoxNo    = $_POST['BoxNo'] ?? '';
+        $sProdName = $_POST['ProdName'] ?? '';
+        $sInvNo    = $_POST['InvNo'] ?? '';
+        $sWo       = $_POST['WO'] ?? '';
+        $sScanBox  = $_POST['ScanBoxNo'] ?? '';
+        $sOpr      = (int)($_SESSION['us_id'] ?? 0);
+        $boxes     = json_decode($_POST['boxes'] ?? '[]', true) ?: [];
+        $rack      = json_decode($_POST['rack'] ?? '{}', true) ?: [];
 
-        $xstmt = mysqli_prepare($conn,
-            "DELETE FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
-        mysqli_stmt_bind_param($xstmt, 'ssss', $xProdName, $xInvNo, $xWo, $xBoxNo);
-        $xok = mysqli_stmt_execute($xstmt);
-        echo json_encode(['status' => $xok ? 'ok' : 'fail', 'message' => $xok ? '' : mysqli_error($conn)]);
+        // blank input -> NULL
+        $nz  = function ($v) { return ($v === '' || $v === null) ? null : (string)$v; };
+        $nzi = function ($v) { return ($v === '' || $v === null) ? null : (int)$v; };
+
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+        try {
+            mysqli_begin_transaction($conn);
+
+            $chk = mysqli_prepare($conn,
+                "SELECT 1 FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
+            $ins = mysqli_prepare($conn,
+                "INSERT INTO tb_proc3_box (ProdName, InvNo, WO, Date, Time, Opr, BoxNo, LotTagQty, ActualQty, ShortOver, Status, Remark)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+            $upd = mysqli_prepare($conn,
+                "UPDATE tb_proc3_box SET Date=?, Time=?, Opr=COALESCE(?, Opr), LotTagQty=?, ActualQty=?, ShortOver=?, Status=?, Remark=?
+                 WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? LIMIT 1");
+
+            foreach ($boxes as $b) {
+                $bNo     = (string)($b['BoxNo'] ?? '');
+                $bDate   = $nz($b['Date'] ?? '');
+                $bTime   = $nz($b['Time'] ?? '');
+                $bLotQty = $nzi($b['LotTagQty'] ?? '');
+                $bActQty = $nzi($b['ActualQty'] ?? '');
+                $bShort  = $nzi($b['ShortOver'] ?? '');
+                $bStatus = $nz($b['Status'] ?? '');
+                $bRemark = $nz($b['Remark'] ?? '');
+                $bOpr    = ($bNo === $sScanBox) ? $sOpr : null;   // only the scanned box records its operator
+
+                mysqli_stmt_bind_param($chk, 'ssss', $sProdName, $sInvNo, $sWo, $bNo);
+                mysqli_stmt_execute($chk);
+                mysqli_stmt_store_result($chk);
+                $exists = mysqli_stmt_num_rows($chk) > 0;
+                mysqli_stmt_free_result($chk);
+
+                if ($exists) {
+                    mysqli_stmt_bind_param($upd, 'ssiiiissssss',
+                        $bDate, $bTime, $bOpr, $bLotQty, $bActQty, $bShort, $bStatus, $bRemark,
+                        $sProdName, $sInvNo, $sWo, $bNo);
+                    mysqli_stmt_execute($upd);
+                } else {
+                    mysqli_stmt_bind_param($ins, 'sssssisiiiss',
+                        $sProdName, $sInvNo, $sWo, $bDate, $bTime, $bOpr,
+                        $bNo, $bLotQty, $bActQty, $bShort, $bStatus, $bRemark);
+                    mysqli_stmt_execute($ins);
+                }
+            }
+
+            $rBoxNo    = (string)($rack['BoxNo'] ?? '');
+            $rDate     = $nz($rack['Date'] ?? '');
+            $rTime     = $nz($rack['Time'] ?? '');
+            $rLotPlate = $nz($rack['LotPlate'] ?? '');
+            $rPlateNo  = $nz($rack['PlateNo'] ?? '');
+            $rRackNo   = $nz($rack['RackNo'] ?? '');
+            $rQty      = $nzi($rack['Qty'] ?? '');
+            $rStatus   = $nz($rack['Status'] ?? '');
+            $rRemark   = $nz($rack['Remark'] ?? '');
+
+            $rIns = mysqli_prepare($conn,
+                "INSERT INTO tb_proc3 (ProdName, InvNo, WO, Date, Time, Opr, BoxNo, LotPlate, PlateNo, RackNo, Qty, Status, Remark)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($rIns, 'sssssissssiss',
+                $sProdName, $sInvNo, $sWo, $rDate, $rTime, $sOpr,
+                $rBoxNo, $rLotPlate, $rPlateNo, $rRackNo, $rQty, $rStatus, $rRemark);
+            mysqli_stmt_execute($rIns);
+
+            mysqli_commit($conn);
+            echo json_encode(['status' => 'ok']);
+        } catch (Throwable $e) {
+            mysqli_rollback($conn);
+            echo json_encode(['status' => 'fail', 'message' => $e->getMessage()]);
+        }
         mysqli_close($conn);
         exit;
     }
@@ -170,7 +186,7 @@
     $rackRows = [];
     if (!empty($lot_id_raw)) {
         $rstmt = mysqli_prepare($conn,
-            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.LotPlate, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Status, p3.Remark
+            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.Date, TIME_FORMAT(p3.Time, '%H:%i') AS Time, p3.LotPlate, p3.PlateNo, p3.RackNo, p3.Qty, p3.Opr, p3.Status, p3.Remark
              FROM tb_proc3 p3
              INNER JOIN tb_proc1 p1 ON p1.ProdName = p3.ProdName AND p1.WO = p3.WO AND p1.BoxNo = p3.BoxNo
              WHERE p1.LotID = ?");
@@ -179,19 +195,6 @@
         $rres = mysqli_stmt_get_result($rstmt);
         while ($rrow = mysqli_fetch_assoc($rres)) {
             $rackRows[] = $rrow;
-        }
-    }
-
-    // Existing box-qty records for this lot.
-    $qtyBoxRows = [];
-    if (!empty($lot_prodname_raw)) {
-        $qbStmt = mysqli_prepare($conn,
-            "SELECT BoxNo, LotTagQty, ActualQty, ShortOver, Remark FROM tb_proc3_box WHERE ProdName=? AND InvNo=? AND WO=?");
-        mysqli_stmt_bind_param($qbStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
-        mysqli_stmt_execute($qbStmt);
-        $qbRes = mysqli_stmt_get_result($qbStmt);
-        while ($qbRow = mysqli_fetch_assoc($qbRes)) {
-            $qtyBoxRows[] = $qbRow;
         }
     }
 
@@ -235,11 +238,8 @@
         <div class="pro3-proc3-g1-it">
           <input type="text" value="<?php echo $lot_id; ?>" disabled>
         </div>
-        <div class="pro3-proc3-g1-it"><label>Date</label></div>
-        <div class="pro3-proc3-g1-it">
-          <input type="date" id="rackDate" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
-          <input type="hidden" id="rackTime" value="<?php echo date('H:i'); ?>">
-        </div>
+        <div class="pro3-proc3-g1-it"></div>
+        <div class="pro3-proc3-g1-it"></div>
 
         <!-- row2 -->
         <div class="pro3-proc3-g1-it-bl"></div>
@@ -272,8 +272,8 @@
         <div class="pro3-proc3-g1-it"></div>
 
         <!-- row5 -->
-        <div class="pro3-proc3-g1-it-bl"><span class="blinkBullet">●</span></div>
-        <div class="pro3-proc3-g1-it"><label style="color: red;"> Data from Lot Tag </label></div>
+        <div class="pro3-proc3-g1-it-bl"><span class="blinkBullet" id="lotTagBullet">●</span></div>
+        <div class="pro3-proc3-g1-it"><label id="lotTagLabel" style="color: red;"> Data from Lot Tag </label></div>
         <div class="pro3-proc3-g1-it">
           <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>">
         </div>
@@ -282,48 +282,29 @@
 
       </div>
 
-      <div id="input-qty">
+      <div id="input-qtybox">
         <div class="grid-title">เช็คจำนวนกล่องและชิ้นงาน</div>
+        <div></div>
         <div class="qtybox-h">Box-no</div>
+        <div class="qtybox-h" style="font-size: small">วัน</div>
+        <div class="qtybox-h" style="font-size: small">เวลา</div>
         <div class="qtybox-h" style="font-size: small">จำนวนชิ้น<br>ตาม LotTag</div>
         <div class="qtybox-h" style="font-size: small">จำนวนชิ้น<br>นับจริง</div>
-        <div class="qtybox-h" style="font-size: small">จำนวน<br>ขาด / เกิน</div>
+        <div class="qtybox-h" style="font-size: small">จำนวนชิ้น<br>ขาด / เกิน</div>
+        <div class="qtybox-h" style="font-size: small">Status</div>
         <div class="qtybox-h">Remark</div>
-        <div class="qtybox-h">Action</div>
-
-        <?php foreach ($qtyBoxRows as $qbRow): ?>
-        <div class="qtybox-c"><?php echo htmlspecialchars($qbRow['BoxNo']); ?></div>
-        <div class="qtybox-c"><?php echo (int)$qbRow['LotTagQty']; ?></div>
-        <div class="qtybox-c"><?php echo (int)$qbRow['ActualQty']; ?></div>
-        <div class="qtybox-c"><?php echo (int)$qbRow['ShortOver']; ?></div>
-        <div class="qtybox-c"><?php echo htmlspecialchars($qbRow['Remark']); ?></div>
-        <div class="qtybox-c">
-          <button type="button" class="qtyBoxDeleteBtn"
-            data-prodname="<?php echo htmlspecialchars($lot_prodname_raw, ENT_QUOTES); ?>"
-            data-invno="<?php echo htmlspecialchars($lot_invno_raw, ENT_QUOTES); ?>"
-            data-wo="<?php echo htmlspecialchars($lot_wo_raw, ENT_QUOTES); ?>"
-            data-boxno="<?php echo htmlspecialchars($qbRow['BoxNo'], ENT_QUOTES); ?>">delete</button>
-        </div>
-        <?php endforeach; ?>
-
-        <div class="qtybox-c"><input type="text" disabled></div>
-        <div class="qtybox-c"><input type="number" id="newLotTagQty" placeholder="LotTag-qty" min="0" readonly value="<?php echo htmlspecialchars($_GET['boxQty'] ?? ''); ?>"></div>
-        <div class="qtybox-c"><input type="number" id="newActualQty" placeholder="Actual-qty" min="0"></div>
-        <div class="qtybox-c">
-          <input type="number" id="newQtyShortOver" disabled>
-          <input type="hidden" id="newQtyShortOver">
-        </div>
-        <div class="qtybox-c"><textarea id="newQtyRemark" rows="2"></textarea></div>
-        <div class="qtybox-c"><button type="button" id="newQtyBoxSubmitBtn" hidden>กดบันทึกด้านล่าง</button></div>
+        <!-- box rows are created by script after a Lot Tag scan -->
       </div>
 
       <div id="input-racking">
         <div class="grid-title">ข้อมูลการ racking</div>
-        <div class="rack-h">Box-no</div>
-        <div class="rack-h">Lot-plate</div>
-        <div class="rack-h">Plate-no</div>
-        <div class="rack-h">Rack-no</div>
-        <div class="rack-h">Rack-Qty</div>
+        <div class="rack-h">Box<br>no</div>
+        <div class="rack-h" style="font-size: small">วัน</div>
+        <div class="rack-h" style="font-size: small">เวลา</div>
+        <div class="rack-h">Lot<br>plate</div>
+        <div class="rack-h">Plate<br>no</div>
+        <div class="rack-h">Rack<br>no</div>
+        <div class="rack-h">Rack<br>Qty</div>
         <div class="rack-h">Operator</div>
         <div class="rack-h">Status</div>
         <div class="rack-h">Remark</div>
@@ -331,6 +312,8 @@
 
         <?php foreach ($rackRows as $rrow): ?>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['BoxNo']); ?></div>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['Date'] ?? ''); ?></div>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['Time'] ?? ''); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['LotPlate']); ?></div>
         <div class="rack-c"><?php echo (int)$rrow['PlateNo']; ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['RackNo']); ?></div>
@@ -349,7 +332,9 @@
         </div>
         <?php endforeach; ?>
 
-        <div class="rack-c"><input type="text" disabled></div>
+        <div class="rack-c"><input type="text" id="newRackBoxNo" disabled></div>
+        <div class="rack-c"><input type="date" id="newRackDate" value="<?php echo date('Y-m-d'); ?>"></div>
+        <div class="rack-c"><input type="time" id="newRackTime" value="<?php echo date('H:i'); ?>"></div>
         <div class="rack-c"><input type="text" id="newLotPlate" autocomplete="off" placeholder="Lot-plate"></div>
         <div class="rack-c"><input type="text" id="newPlateNo" autocomplete="off" placeholder="Plate-no"></div>
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off" placeholder="Rack-no"></div>
@@ -365,11 +350,11 @@
           </select>
         </div>
         <div class="rack-c"><textarea id="newRackRemark" rows="2"></textarea></div>
-        <div class="rack-c"><button type="button" id="newRackSubmitBtn">บันทึก</button></div>
+        <div class="rack-c"><button type="button" id="submitDataBtn">บันทึก</button></div>
       </div>
 
       <div class="racking-summary">
-        <div class="racking-summary-it">Racked Box-no: <?php echo $rackedBoxCount; ?></div>
+        <div class="racking-summary-it">Box-no ที่ใส่แร็กแล้ว: <?php echo $rackedBoxCount; ?></div>
         <div class="racking-summary-it">Lot Box-no: <?php echo $lotBoxCount; ?></div>
         <div class="racking-summary-it racking-summary-status"><?php echo htmlspecialchars($rackSummaryText); ?></div>
       </div>
@@ -384,12 +369,6 @@
 
   <script src="js/supportfunction.js"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      <?php if (isset($_GET['boxNo'])): ?>
-      document.getElementById('newLotPlate').focus();
-      <?php endif; ?>
-    });
-
     document.getElementById('newBoxNo').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
       e.preventDefault();
@@ -410,37 +389,90 @@
       window.location.href = url.toString();
     });
 
-    function updateQtyShortOver() {
-      var lotTagQty = parseInt(document.getElementById('newLotTagQty').value, 10);
-      var actualQty = parseInt(document.getElementById('newActualQty').value, 10);
-      var shortOverField = document.getElementById('newQtyShortOver');
-      if (isNaN(lotTagQty) || isNaN(actualQty)) {
-        shortOverField.value = '';
-        return;
-      }
-      shortOverField.value = actualQty - lotTagQty;
-    }
-    document.getElementById('newLotTagQty').addEventListener('input', updateQtyShortOver);
-    document.getElementById('newActualQty').addEventListener('input', updateQtyShortOver);
+    // Lot resolved by PHP from the Lot Tag scan (lotId is empty when nothing is scanned yet).
+    var LOT = <?php echo json_encode([
+      'prodName' => $lot_prodname_raw,
+      'invNo'    => $lot_invno_raw,
+      'wo'       => $lot_wo_raw,
+      'lotId'    => $lot_id_raw,
+      'boxNo'    => $_GET['boxNo'] ?? '',
+      'boxQty'   => $_GET['boxQty'] ?? '',
+      'today'    => date('Y-m-d'),
+      'now'      => date('H:i')
+    ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
-    document.getElementById('newQtyBoxSubmitBtn').addEventListener('click', function () {
-      var btn = this;
-      var payload = new URLSearchParams({
-        ajax_insert_qtybox: '1',
-        ProdName:   document.querySelector('input[name="ProdName"]').value,
-        InvNo:      document.querySelector('input[name="InvNo"]').value,
-        WO:         document.querySelector('input[name="WO"]').value,
-        Date:       document.getElementById('rackDate').value,
-        Time:       document.getElementById('rackTime').value,
-        Opr:        document.getElementById('newRackOpr').value,
-        BoxNo:      document.getElementById('newBoxNo').value,
-        LotTagQty:  document.getElementById('newLotTagQty').value,
-        ActualQty:  document.getElementById('newActualQty').value,
-        ShortOver:  document.getElementById('newQtyShortOver').value,
-        Remark:     document.getElementById('newQtyRemark').value
+    var STATUS_LIST  = ['Accept', 'Hold', 'Reject', 'SpecialAccept'];
+    var NOT_FOUND_MSG = 'ไม่พบข้อมูล โปรดตรวจสอบ Lot Tag อีกครั้ง';
+    var RACK_REQUIRED_IDS = ['newRackBoxNo', 'newRackDate', 'newRackTime', 'newLotPlate', 'newPlateNo',
+                             'newRackNo', 'newRackQty', 'newRackOpr', 'newRackStatus'];
+    var qtyBoxGrid = document.getElementById('input-qtybox');
+    var qtyBoxRows = [];
+
+    function makeQtyBoxCell(el) {
+      var div = document.createElement('div');
+      div.className = 'qtybox-c';
+      if (el) div.appendChild(el);
+      qtyBoxGrid.appendChild(div);
+      return div;
+    }
+
+    function makeInput(type, value) {
+      var inp = document.createElement('input');
+      inp.type = type;
+      inp.value = (value === null || value === undefined) ? '' : value;
+      return inp;
+    }
+
+    // One row per box. Only the scanned box's row can be input / edited.
+    function addQtyBoxRow(box, isScanned) {
+      var bulletCell = makeQtyBoxCell(null);
+      if (isScanned) bulletCell.innerHTML = '<span class="blinkBullet">●</span>';
+
+      var boxNo     = makeInput('text', box.BoxNo);
+      var date      = makeInput('date', box.Date);
+      var time      = makeInput('time', box.Time);
+      var lotTagQty = makeInput('number', box.LotTagQty);
+      var actualQty = makeInput('number', box.ActualQty);
+      var shortOver = makeInput('number', box.ShortOver);
+      var status    = document.createElement('select');
+      var remark    = document.createElement('textarea');
+
+      boxNo.disabled     = true;
+      lotTagQty.readOnly = true;
+      actualQty.min      = '0';
+      shortOver.readOnly = true;
+      remark.rows        = 2;
+      remark.value       = box.Remark || '';
+
+      status.innerHTML = '<option value="">โปรดระบุ</option>' + STATUS_LIST.map(function (s) {
+        return '<option value="' + s + '">' + s + '</option>';
+      }).join('');
+      status.value = box.Status || '';
+
+      [date, time, lotTagQty, actualQty, shortOver, status, remark].forEach(function (el) {
+        el.disabled = !isScanned;
       });
 
-      btn.disabled = true;
+      // ขาด / เกิน = ตาม LotTag - นับจริง
+      actualQty.addEventListener('input', function () {
+        shortOver.value = (lotTagQty.value === '' || actualQty.value === '')
+          ? '' : Number(lotTagQty.value) - Number(actualQty.value);
+      });
+
+      [boxNo, date, time, lotTagQty, actualQty, shortOver, status, remark].forEach(makeQtyBoxCell);
+
+      return { isScanned: isScanned, boxNo: boxNo, date: date, time: time, lotTagQty: lotTagQty,
+               actualQty: actualQty, shortOver: shortOver, status: status, remark: remark };
+    }
+
+    function loadQtyBox() {
+      var payload = new URLSearchParams({
+        ajax_get_qtybox: '1',
+        ProdName: LOT.prodName,
+        InvNo:    LOT.invNo,
+        WO:       LOT.wo
+      });
+
       fetch(location.href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -448,63 +480,95 @@
       })
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          if (data.status === 'ok') {
-            location.reload();
-          } else {
-            alert(data.message || 'บันทึกไม่สำเร็จ');
-            btn.disabled = false;
+          var rows = data.rows || [];
+          var hasScanned = rows.some(function (b) { return b.BoxNo === LOT.boxNo; });
+          if (data.status !== 'ok' || !hasScanned) {
+            alert(NOT_FOUND_MSG);
+            return;
           }
+
+          var scannedRow = null;
+          rows.forEach(function (b) {
+            var isScanned = (b.BoxNo === LOT.boxNo);
+            if (data.mode === 'new') {
+              // 1st time for this Lot: only the scanned box gets today / now / Lot Tag qty
+              b = {
+                BoxNo:     b.BoxNo,
+                Date:      isScanned ? LOT.today : '',
+                Time:      isScanned ? LOT.now : '',
+                LotTagQty: isScanned ? LOT.boxQty : ''
+              };
+            }
+            var row = addQtyBoxRow(b, isScanned);
+            qtyBoxRows.push(row);
+            if (isScanned) scannedRow = row;
+          });
+
+          // Lot Tag step done: drop the header bullet, label back to black
+          document.getElementById('lotTagBullet').style.display = 'none';
+          document.getElementById('lotTagLabel').style.color = 'black';
+
+          scannedRow.actualQty.focus();
         })
-        .catch(function () {
-          alert('เกิดข้อผิดพลาด');
-          btn.disabled = false;
-        });
-    });
+        .catch(function () { alert(NOT_FOUND_MSG); });
+    }
 
-    var lotIdFirstPart = <?php echo json_encode(explode('_', $lot_id_raw)[0]); ?>;
+    function prepareRackNewRow() {
+      RACK_REQUIRED_IDS.forEach(function (id) {
+        document.getElementById(id).required = true;
+      });
+      document.getElementById('newRackBoxNo').value = LOT.boxNo;
+      document.getElementById('newLotPlate').value  = LOT.lotId.substring(0, 2);
+    }
 
-    document.getElementById('newLotPlate').addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
+    if (LOT.lotId) {
+      loadQtyBox();
+      prepareRackNewRow();
+    }
 
-      if (this.value !== lotIdFirstPart) {
-        alert('Lot-plate does not match the Lot ID. Please re-check');
+    document.getElementById('submitDataBtn').addEventListener('click', function () {
+      var btn = this;
+      if (!LOT.lotId || qtyBoxRows.length === 0) {
+        alert(NOT_FOUND_MSG);
         return;
       }
-      document.getElementById('newPlateNo').focus();
-    });
+      for (var i = 0; i < RACK_REQUIRED_IDS.length; i++) {
+        if (!document.getElementById(RACK_REQUIRED_IDS[i]).reportValidity()) return;
+      }
 
-    document.getElementById('newPlateNo').addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-      document.getElementById('newRackNo').focus();
-    });
+      var boxes = qtyBoxRows.map(function (r) {
+        return {
+          BoxNo:     r.boxNo.value,
+          Date:      r.date.value,
+          Time:      r.time.value,
+          LotTagQty: r.lotTagQty.value,
+          ActualQty: r.actualQty.value,
+          ShortOver: r.shortOver.value,
+          Status:    r.status.value,
+          Remark:    r.remark.value
+        };
+      });
 
-    document.getElementById('newRackNo').addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-      document.getElementById('newRackQty').focus();
-    });
-
-    document.getElementById('newRackSubmitBtn').addEventListener('click', function () {
-      document.getElementById('newQtyBoxSubmitBtn').click();
-
-      var btn = this;
-      var payload = new URLSearchParams({
-        ajax_insert_rack: '1',
-        ProdName: document.querySelector('input[name="ProdName"]').value,
-        InvNo:    document.querySelector('input[name="InvNo"]').value,
-        WO:       document.querySelector('input[name="WO"]').value,
-        Date:     document.getElementById('rackDate').value,
-        Time:     document.getElementById('rackTime').value,
-        Opr:      document.getElementById('newRackOpr').value,
-        BoxNo:    document.getElementById('newBoxNo').value,
+      var rack = {
+        BoxNo:    document.getElementById('newRackBoxNo').value,
+        Date:     document.getElementById('newRackDate').value,
+        Time:     document.getElementById('newRackTime').value,
         LotPlate: document.getElementById('newLotPlate').value,
         PlateNo:  document.getElementById('newPlateNo').value,
         RackNo:   document.getElementById('newRackNo').value,
         Qty:      document.getElementById('newRackQty').value,
         Status:   document.getElementById('newRackStatus').value,
         Remark:   document.getElementById('newRackRemark').value
+      };
+
+      var payload = new URLSearchParams({
+        ajax_submit: '1',
+        ProdName:  LOT.prodName,
+        InvNo:     LOT.invNo,
+        WO:        LOT.wo,
+        ScanBoxNo: LOT.boxNo,
+        boxes:     JSON.stringify(boxes),
+        rack:      JSON.stringify(rack)
       });
 
       btn.disabled = true;
@@ -516,6 +580,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data.status === 'ok') {
+            alert('บันทึกสำเร็จ');
             location.reload();
           } else {
             alert(data.message || 'บันทึกไม่สำเร็จ');
@@ -526,40 +591,6 @@
           alert('เกิดข้อผิดพลาด');
           btn.disabled = false;
         });
-    });
-
-    document.querySelectorAll('.qtyBoxDeleteBtn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!confirm('ต้องการลบรายการนี้หรือไม่')) return;
-
-        var payload = new URLSearchParams({
-          ajax_delete_qtybox: '1',
-          ProdName: btn.dataset.prodname,
-          InvNo:    btn.dataset.invno,
-          WO:       btn.dataset.wo,
-          BoxNo:    btn.dataset.boxno
-        });
-
-        btn.disabled = true;
-        fetch(location.href, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: payload
-        })
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            if (data.status === 'ok') {
-              location.reload();
-            } else {
-              alert(data.message || 'ลบไม่สำเร็จ');
-              btn.disabled = false;
-            }
-          })
-          .catch(function () {
-            alert('เกิดข้อผิดพลาด');
-            btn.disabled = false;
-          });
-      });
     });
 
     document.querySelectorAll('.rackDeleteBtn').forEach(function (btn) {
