@@ -11,13 +11,13 @@
         $dInvNo    = $_POST['InvNo'] ?? '';
         $dWo       = $_POST['WO'] ?? '';
         $dBoxNo    = $_POST['BoxNo'] ?? '';
-        $dPlateNo  = (int)($_POST['PlateNo'] ?? 0);
+        $dPlateNo  = $_POST['PlateNo'] ?? '';
         $dRackNo   = $_POST['RackNo'] ?? '';
 
         $dstmt = mysqli_prepare($conn,
             "DELETE FROM tb_proc3
              WHERE ProdName=? AND InvNo=? AND WO=? AND BoxNo=? AND PlateNo=? AND RackNo=? LIMIT 1");
-        mysqli_stmt_bind_param($dstmt, 'ssssis',
+        mysqli_stmt_bind_param($dstmt, 'ssssss',
             $dProdName, $dInvNo, $dWo, $dBoxNo, $dPlateNo, $dRackNo);
         $dok = mysqli_stmt_execute($dstmt);
         echo json_encode(['status' => $dok ? 'ok' : 'fail', 'message' => $dok ? '' : mysqli_error($conn)]);
@@ -275,7 +275,7 @@
         <div class="pro3-proc3-g1-it-bl"><span class="blinkBullet" id="lotTagBullet">●</span></div>
         <div class="pro3-proc3-g1-it"><label id="lotTagLabel" style="color: red;"> Data from Lot Tag </label></div>
         <div class="pro3-proc3-g1-it">
-          <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat" value="<?php echo htmlspecialchars($_GET['boxNo'] ?? ''); ?>">
+          <input type="text" id="newBoxNo" autocomplete="off" placeholder="prod|wo|box|qty|mat">
         </div>
         <div class="pro3-proc3-g1-it"></div>
         <div class="pro3-proc3-g1-it"></div>
@@ -315,7 +315,7 @@
         <div class="rack-c"><?php echo htmlspecialchars($rrow['Date'] ?? ''); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['Time'] ?? ''); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['LotPlate']); ?></div>
-        <div class="rack-c"><?php echo (int)$rrow['PlateNo']; ?></div>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['PlateNo']); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['RackNo']); ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Qty']; ?></div>
         <div class="rack-c"><?php echo (int)$rrow['Opr']; ?></div>
@@ -327,7 +327,7 @@
             data-invno="<?php echo htmlspecialchars($rrow['InvNo'], ENT_QUOTES); ?>"
             data-wo="<?php echo htmlspecialchars($rrow['WO'], ENT_QUOTES); ?>"
             data-boxno="<?php echo htmlspecialchars($rrow['BoxNo'], ENT_QUOTES); ?>"
-            data-plateno="<?php echo (int)$rrow['PlateNo']; ?>"
+            data-plateno="<?php echo htmlspecialchars($rrow['PlateNo'], ENT_QUOTES); ?>"
             data-rackno="<?php echo htmlspecialchars($rrow['RackNo'], ENT_QUOTES); ?>">delete</button>
         </div>
         <?php endforeach; ?>
@@ -380,6 +380,8 @@
         this.focus();
         return;
       }
+
+      this.value = '';
 
       var url = new URL(window.location.href);
       url.searchParams.set('prodName', lot.prodName);
