@@ -498,6 +498,12 @@
                 Time:      isScanned ? LOT.now : '',
                 LotTagQty: isScanned ? LOT.boxQty : ''
               };
+            } else if (isScanned) {
+              // Lot already saved: fill only what the scanned box has not saved yet (saved values are kept)
+              if (!b.Date) b.Date = LOT.today;
+              if (!b.Time) b.Time = LOT.now;
+              // boxQty parsed from the Lot Tag by parseLotTagInput() on Enter, passed through the URL
+              if (b.LotTagQty === null || b.LotTagQty === '') b.LotTagQty = LOT.boxQty;
             }
             var row = addQtyBoxRow(b, isScanned);
             qtyBoxRows.push(row);
