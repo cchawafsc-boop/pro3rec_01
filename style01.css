@@ -600,9 +600,9 @@ label{
 	font-weight: bold;
 }
 
-#input-qty {
+#input-qtybox {
 	display: grid;
-	grid-template-columns: 80px 80px 80px 90px 200px 70px;
+	grid-template-columns: 10px 70px 125px 90px 75px 75px 75px 115px 150px;  /* the 1st column is for the blink bullet*/
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
@@ -627,7 +627,10 @@ label{
 	min-width: 0;
 }
 .qtybox-c input[type="text"],
-.qtybox-c input[type="number"] {
+.qtybox-c input[type="number"],
+.qtybox-c input[type="date"],
+.qtybox-c input[type="time"],
+.qtybox-c select {
 	width: 100%;
 	box-sizing: border-box;
 	min-width: 0;
@@ -652,7 +655,7 @@ label{
 
 #input-racking {
 	display: grid;
-	grid-template-columns: 80px 80px 70px 70px 40px 70px 70px 1fr 80px;
+	grid-template-columns: 70px 125px 90px 70px 70px 70px 60px 70px 115px 1fr 80px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
@@ -676,7 +679,9 @@ label{
 	min-width: 0;
 }
 .rack-c input[type="text"],
-.rack-c input[type="number"] {
+.rack-c input[type="number"],
+.rack-c input[type="date"],
+.rack-c input[type="time"] {
 	width: 100%;
 	box-sizing: border-box;
 	min-width: 0;
@@ -698,10 +703,6 @@ label{
 	width: 100%;
 	height: 1.8em;
 	box-sizing: border-box;
-}
-.rack-c button#newRackSubmitBtn{
-	color: white;
-	background-color: #4CAF50;
 }
 .racking-summary {
 	display: flex;
