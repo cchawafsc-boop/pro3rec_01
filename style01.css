@@ -557,7 +557,7 @@ label{
 }
 .pro3-proc3-g1 {
 	display: grid;
-    grid-template-columns: 10px 140px 150px 60px 120px;  /* Defines column width */
+    grid-template-columns: 10px 140px 150px;  /* bullet | label | input */
     gap: 0px;                            /* Sets a gap between grid items */
     border: 1px solid #ccc;
     padding: 3px;
