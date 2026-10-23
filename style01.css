@@ -655,7 +655,7 @@ label{
 
 #input-racking {
 	display: grid;
-	grid-template-columns: 50px 85px 60px 60px 60px 60px 75px 85px 80px 70px 115px 1fr 80px;
+	grid-template-columns: 50px 85px 60px 55px 55px 60px 80px 90px 80px 70px 115px 1fr 80px;
 	gap: 5px;
 	border: 1px solid #ccc;
 	border-radius: 8px;
