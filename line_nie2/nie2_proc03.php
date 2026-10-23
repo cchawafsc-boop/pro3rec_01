@@ -347,7 +347,7 @@
         <div class="rack-c"></div>
         <div class="rack-c"><?php echo (int)$rrow['Opr']; ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['Status']); ?></div>
-        <div class="rack-c"><?php echo htmlspecialchars($rrow['Remark']); ?></div>
+        <div class="rack-c"><?php echo htmlspecialchars($rrow['Remark'] ?? ''); ?></div>
         <div class="rack-c">
           <button type="button" class="rackDeleteBtn"
             data-prodname="<?php echo htmlspecialchars($rrow['ProdName'], ENT_QUOTES); ?>"
