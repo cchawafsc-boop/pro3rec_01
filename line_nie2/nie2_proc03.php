@@ -318,8 +318,8 @@
         <div class="rack-h">Lot<br>plate</div>
         <div class="rack-h">Plate<br>no</div>
         <div class="rack-h">Rack<br>no</div>
-        <div class="rack-h">จำนวนงาน G<br>ที่ใส่แร็ก</div>
-        <div class="rack-h">จำนวนงาน NG<br>ที่<a style="color: red";>ไม่</a>ใส่แร็ก</div>
+        <div class="rack-h" style="font-size:small;" >จำนวนงาน G<br>ที่ใส่แร็ก</div>
+        <div class="rack-h" style="font-size:small;">จำนวนงาน NG<br>ที่<a style="color: red";>ไม่</a>ใส่แร็ก</div>
         <div class="rack-h">define<br>NG</div>
         <div class="rack-h">Operator</div>
         <div class="rack-h">Status</div>
