@@ -134,17 +134,20 @@
             $rLotPlate = $nz($rack['LotPlate'] ?? '');
             $rPlateNo  = $nz($rack['PlateNo'] ?? '');
             $rRackNo   = $nz($rack['RackNo'] ?? '');
-            $rQty      = $nzi($rack['Qty'] ?? '');
+            $rCcQty    = $nzi($rack['CC_Qty'] ?? '');
+            $rObQty    = $nzi($rack['OB_Qty'] ?? '');
+            $rGQty     = $nzi($rack['G_Qty'] ?? '');
+            $rDmQty    = $nzi($rack['DM_Qty'] ?? '');
             $rNgQty    = $nzi($rack['NGqty'] ?? '');
             $rStatus   = $nz($rack['Status'] ?? '');
             $rRemark   = $nz($rack['Remark'] ?? '');
 
             $rIns = mysqli_prepare($conn,
-                "INSERT INTO tb_proc3 (ProdName, InvNo, WO, Date, Time, Opr, BoxNo, LotPlate, PlateNo, RackNo, Qty, NGqty, Status, Remark)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-            mysqli_stmt_bind_param($rIns, 'sssssissssiiss',
+                "INSERT INTO tb_proc3 (ProdName, InvNo, WO, Date, Time, Opr, BoxNo, LotPlate, PlateNo, RackNo, CC_Qty, OB_Qty, G_Qty, DM_Qty, NGqty, Status, Remark)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            mysqli_stmt_bind_param($rIns, 'sssssissssiiiiiss',
                 $sProdName, $sInvNo, $sWo, $rDate, $rTime, $sOpr,
-                $rBoxNo, $rLotPlate, $rPlateNo, $rRackNo, $rQty, $rNgQty, $rStatus, $rRemark);
+                $rBoxNo, $rLotPlate, $rPlateNo, $rRackNo, $rCcQty, $rObQty, $rGQty, $rDmQty, $rNgQty, $rStatus, $rRemark);
             mysqli_stmt_execute($rIns);
 
             mysqli_commit($conn);
@@ -210,7 +213,7 @@
     $rackRows = [];
     if (!empty($lot_id_raw)) {
         $rstmt = mysqli_prepare($conn,
-            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.Date, TIME_FORMAT(p3.Time, '%H:%i') AS Time, p3.LotPlate, p3.PlateNo, p3.RackNo, p3.Qty, p3.NGqty, p3.Opr, p3.Status, p3.Remark
+            "SELECT p3.ProdName, p3.InvNo, p3.WO, p3.BoxNo, p3.Date, TIME_FORMAT(p3.Time, '%H:%i') AS Time, p3.LotPlate, p3.PlateNo, p3.RackNo, p3.CC_Qty, p3.OB_Qty, p3.G_Qty, p3.DM_Qty, p3.NGqty, p3.Opr, p3.Status, p3.Remark
              FROM tb_proc3 p3
              INNER JOIN tb_proc1 p1 ON p1.ProdName = p3.ProdName AND p1.WO = p3.WO AND p1.BoxNo = p3.BoxNo
              WHERE p1.LotID = ?");
@@ -318,10 +321,11 @@
         <div class="rack-h">Lot<br>plate</div>
         <div class="rack-h">Plate<br>no</div>
         <div class="rack-h">Rack<br>no</div>
-        <div class="rack-h" style="font-size:small;" >ชิ้นงาน CofC<br>ที่ใส่แร็ก</div>
-        <div class="rack-h" style="font-size:small;" >ชิ้นงาน OB<br>ที่ใส่แร็ก</div>
-        <div class="rack-h" style="font-size:small;" >ชิ้นงาน G<br>ที่ใส่แร็ก</div>
-        <div class="rack-h" style="font-size:small;">จำนวนงาน NG<br>ที่<a style="color: red";>ไม่</a>ใส่แร็ก</div>
+        <div class="rack-h" style="font-size:small;"><a title="CofC">ชิ้นงาน CC<br>ที่ใส่แร็ก</a></div>
+        <div class="rack-h" style="font-size:small;">ชิ้นงาน OB<br>ที่ใส่แร็ก</div>
+        <div class="rack-h" style="font-size:small;">ชิ้นงาน G<br>ที่ใส่แร็ก</div>
+        <div class="rack-h" style="font-size:small;">ชิ้นงานดัมมี่<br>ที่ใส่แร็ก</div>
+        <div class="rack-h" style="font-size:small;">ชิ้นงาน NG<br>ที่<a style="color: red";>ไม่</a>ใส่แร็ก</div>
         <div class="rack-h">define<br>NG</div>
         <div class="rack-h">Operator</div>
         <div class="rack-h">Status</div>
@@ -335,7 +339,10 @@
         <div class="rack-c"><?php echo htmlspecialchars($rrow['LotPlate']); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['PlateNo']); ?></div>
         <div class="rack-c"><?php echo htmlspecialchars($rrow['RackNo']); ?></div>
-        <div class="rack-c"><?php echo (int)$rrow['Qty']; ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['CC_Qty']; ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['OB_Qty']; ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['G_Qty']; ?></div>
+        <div class="rack-c"><?php echo (int)$rrow['DM_Qty']; ?></div>
         <div class="rack-c"><?php echo (int)$rrow['NGqty']; ?></div>
         <div class="rack-c"></div>
         <div class="rack-c"><?php echo (int)$rrow['Opr']; ?></div>
@@ -358,7 +365,10 @@
         <div class="rack-c"><input type="text" id="newLotPlate" autocomplete="off" placeholder="Lot-plate"></div>
         <div class="rack-c"><input type="text" id="newPlateNo" autocomplete="off" placeholder="Plate-no"></div>
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off" placeholder="Rack-no"></div>
-        <div class="rack-c"><input type="number" id="newRackQty" placeholder="Qty" min="0"></div>
+        <div class="rack-c"><input type="number" id="newRackCcQty" placeholder="CC" min="0"></div>
+        <div class="rack-c"><input type="number" id="newRackObQty" placeholder="OB" min="0"></div>
+        <div class="rack-c"><input type="number" id="newRackGQty" placeholder="G" min="0"></div>
+        <div class="rack-c"><input type="number" id="newRackDmQty" placeholder="DM" min="0"></div>
         <div class="rack-c"><input type="number" id="newRackNgQty" value="0" readonly></div>
         <div class="rack-c"><button type="button" id="defineNgBtn">ระบุ NG</button></div>
         <div class="rack-c"><input type="number" id="newRackOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
@@ -428,7 +438,8 @@
     var STATUS_LIST  = ['Accept', 'Hold', 'Reject', 'SpecialAccept'];
     var NOT_FOUND_MSG = 'ไม่พบข้อมูล โปรดตรวจสอบ Lot Tag อีกครั้ง';
     var RACK_REQUIRED_IDS = ['newRackBoxNo', 'newRackDate', 'newRackTime', 'newLotPlate', 'newPlateNo',
-                             'newRackNo', 'newRackQty', 'newRackOpr', 'newRackStatus'];
+                             'newRackNo', 'newRackCcQty', 'newRackObQty', 'newRackGQty', 'newRackDmQty',
+                             'newRackOpr', 'newRackStatus'];
     var qtyBoxGrid = document.getElementById('input-qtybox');
     var qtyBoxRows = [];
 
@@ -593,7 +604,8 @@
     var DRAFT_KEY = 'proc03Draft|' + [LOT.prodName, LOT.invNo, LOT.wo, LOT.boxNo].join('|');
     var DRAFT_QTYBOX_FIELDS = ['date', 'time', 'actualQty', 'shortOver', 'status', 'remark'];
     var DRAFT_RACK_IDS = ['newRackDate', 'newRackTime', 'newLotPlate', 'newPlateNo',
-                          'newRackNo', 'newRackQty', 'newRackStatus', 'newRackRemark'];
+                          'newRackNo', 'newRackCcQty', 'newRackObQty', 'newRackGQty', 'newRackDmQty',
+                          'newRackStatus', 'newRackRemark'];
     var draft = null;
     try { draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY)); sessionStorage.removeItem(DRAFT_KEY); } catch (err) {}
 
@@ -690,7 +702,10 @@
         LotPlate: document.getElementById('newLotPlate').value,
         PlateNo:  document.getElementById('newPlateNo').value,
         RackNo:   document.getElementById('newRackNo').value,
-        Qty:      document.getElementById('newRackQty').value,
+        CC_Qty:   document.getElementById('newRackCcQty').value,
+        OB_Qty:   document.getElementById('newRackObQty').value,
+        G_Qty:    document.getElementById('newRackGQty').value,
+        DM_Qty:   document.getElementById('newRackDmQty').value,
         NGqty:    document.getElementById('newRackNgQty').value,
         Status:   document.getElementById('newRackStatus').value,
         Remark:   document.getElementById('newRackRemark').value
