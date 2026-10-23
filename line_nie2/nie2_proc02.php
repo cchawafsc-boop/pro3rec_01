@@ -445,7 +445,7 @@
 
       <div id="input-boxcond">
         <div class="grid-title" id="boxCondLabel"><span class="blinkBullet" id="boxCondBullet">●</span> เช็คสภาพกล่องทุกกล่อง</div>
-        <div class="grid-title">ยังมี bug กรณีมีกล่อง Hold ใน Process1 กล่องนี้ยังถูก key ใน process 2 ได้</div>
+        <div>ยังมี bug กรณีมีกล่อง Hold ใน Process1 กล่องนี้ยังถูก key ใน process 2 ได้</div>
         <div class="boxcondbox-h">Box-no</div>
         <div class="boxcondbox-h">สภาพกล่อง</div>
         <div class="boxcondbox-h">BoxCondStatus</div>
