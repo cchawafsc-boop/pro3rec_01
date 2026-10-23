@@ -358,7 +358,7 @@
         <div class="rack-c"><input type="text" id="newRackNo" autocomplete="off" placeholder="Rack-no"></div>
         <div class="rack-c"><input type="number" id="newRackQty" placeholder="Qty" min="0"></div>
         <div class="rack-c"><input type="number" id="newRackNgQty" value="0" readonly></div>
-        <div class="rack-c"><button type="button" id="defineNgBtn">define NG</button></div>
+        <div class="rack-c"><button type="button" id="defineNgBtn">ระบุ NG</button></div>
         <div class="rack-c"><input type="number" id="newRackOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
         <div class="rack-c">
           <select id="newRackStatus">
