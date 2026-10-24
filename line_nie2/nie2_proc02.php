@@ -37,7 +37,7 @@
         return 0;
     }
 
-    // 1) Loading Lot data from eiter $_GET['selected_lotid']) or {$_GET['prodName', 'wo', 'boxNo']}
+    // 1) Loading Lot data from {$_GET['prodName', 'wo', 'boxNo']}
     // 2) Summarizing the quantity of the selected lot ($lot_amountinv)
     $lot_id = '';
     $lot_id_raw = '';
@@ -45,36 +45,7 @@
     $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
     $lot_boxcount = 0;
     $lot_amountinv = 0;
-    if (!empty($_GET['selected_lotid'])) {
-      // Loading Lot data from $_GET['selected_lotid'])
-      $gStmt = mysqli_prepare($conn,
-        "SELECT LotID, ProdName, InvNo, WO FROM tb_proc1 WHERE LotID = ? LIMIT 1");
-      mysqli_stmt_bind_param($gStmt, 's', $_GET['selected_lotid']);
-      mysqli_stmt_execute($gStmt);
-      $gRow = mysqli_fetch_assoc(mysqli_stmt_get_result($gStmt));
-      if ($gRow) {
-        $lot_id_raw       = $gRow['LotID'];
-        $lot_id           = htmlspecialchars($gRow['LotID']);
-        $lot_prodname_raw = $gRow['ProdName'];
-        $lot_invno_raw    = $gRow['InvNo'];
-        $lot_wo_raw       = $gRow['WO'];
-        $lot_prodname     = htmlspecialchars($gRow['ProdName']);
-        $lot_invno        = htmlspecialchars($gRow['InvNo']);
-        $lot_wo           = htmlspecialchars($gRow['WO']);
-
-        $cstmt = mysqli_prepare($conn,
-          "SELECT COUNT(*) AS boxCount, COALESCE(SUM(BoxQty),0) AS totalQty FROM tb_proc1 WHERE LotID = ?");
-        mysqli_stmt_bind_param($cstmt, 's', $lot_id_raw);
-        mysqli_stmt_execute($cstmt);
-        $crow = mysqli_fetch_assoc(mysqli_stmt_get_result($cstmt));
-        if ($crow) {
-          $lot_boxcount  = (int)$crow['boxCount'];
-          $lot_amountinv = (int)$crow['totalQty'];
-        }
-      } else {
-        echo "<script>alert('Not found the data');</script>";
-      }
-    } elseif (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
+    if (!empty($_GET['prodName']) && !empty($_GET['wo']) && !empty($_GET['boxNo'])) {
       // Loading Lot data from {$_GET['prodName', 'wo', 'boxNo']}
       $gStmt = mysqli_prepare($conn,
         "SELECT LotID, ProdName, InvNo, WO, Status FROM tb_proc1 WHERE ProdName = ? AND WO = ? AND BoxNo = ?
@@ -106,6 +77,26 @@
         }
       } else {
         echo "<script>alert('Not found the data');</script>";
+      }
+    }
+
+    // Lot still has a Hold box at Receiving (tb_proc1) -> cannot enter Incoming until decided.
+    if (!empty($lot_id_raw)) {
+      $hStmt = mysqli_prepare($conn,
+        "SELECT BoxNo FROM tb_proc1 WHERE LotID = ? AND Status = 'Hold' ORDER BY BoxNo ASC");
+      mysqli_stmt_bind_param($hStmt, 's', $lot_id_raw);
+      mysqli_stmt_execute($hStmt);
+      $holdBoxes = array_column(mysqli_fetch_all(mysqli_stmt_get_result($hStmt), MYSQLI_ASSOC), 'BoxNo');
+      if ($holdBoxes) {
+        $holdMsg = "Lot นี้มีกล่องที่ยัง Hold ที่ 1. Receiving: Box " . implode(', ', $holdBoxes)
+                 . "\nโปรดไปที่ปุ่ม 'ตัดสินใจ Hold' เลือก Process '1. Receiving'"
+                 . "\nแล้วเปลี่ยนเป็น Accept / Reject / SpecialAccept ก่อน";
+        echo "<script>alert(" . json_encode($holdMsg) . ");</script>";
+        $lot_id = $lot_id_raw = '';
+        $lot_prodname = $lot_invno = $lot_wo = '';
+        $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
+        $lot_boxcount = 0;
+        $lot_amountinv = 0;
       }
     }
     $lot_samplingsize = calcSamplingSize($lot_amountinv);
@@ -200,6 +191,13 @@
         mysqli_stmt_execute($dupStmt);
         $dupRow = mysqli_fetch_assoc(mysqli_stmt_get_result($dupStmt));
 
+        // Any box of this lot still Hold at Receiving (tb_proc1) -> save nothing.
+        $holdStmt = mysqli_prepare($conn,
+            "SELECT 1 FROM tb_proc1 WHERE ProdName = ? AND InvNo = ? AND WO = ? AND Status = 'Hold' LIMIT 1");
+        mysqli_stmt_bind_param($holdStmt, 'sss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+        mysqli_stmt_execute($holdStmt);
+        $holdRow = mysqli_fetch_assoc(mysqli_stmt_get_result($holdStmt));
+
         // Validate box-condition rows (tb_proc2_box) before saving anything
         $lotBoxStmt = mysqli_prepare($conn,
             "SELECT BoxNo, BoxQty FROM tb_proc1 WHERE ProdName = ? AND InvNo = ? AND WO = ? ORDER BY BoxNo ASC");
@@ -276,6 +274,8 @@
             echo "<script>alert(" . json_encode($formError) . ");</script>";
         } elseif ($dupRow) {
             echo "<script>alert('There is redundant Product name, Invoice and WO in database. \\nPlease check the data intry');</script>";
+        } elseif ($holdRow) {
+            echo "<script>alert('Lot นี้มีกล่องที่ยัง Hold ที่ 1. Receiving ไม่ได้บันทึกข้อมูล\\nโปรดตัดสินใจ Hold เป็น Accept / Reject / SpecialAccept ก่อน');</script>";
         } elseif (!$bcValid) {
             echo "<script>alert('ข้อมูลสภาพกล่องไม่ครบหรือไม่ถูกต้อง ไม่ได้บันทึกข้อมูล');</script>";
         } elseif (!$smpValid) {
@@ -445,7 +445,6 @@
 
       <div id="input-boxcond">
         <div class="grid-title" id="boxCondLabel"><span class="blinkBullet" id="boxCondBullet">●</span> เช็คสภาพกล่องทุกกล่อง</div>
-        <div class="grid-title" style="font-size:small; font-weight:normal;">ยังมี bug กรณีมีกล่อง Hold ใน Process1 กล่องนี้ยังถูก key ใน process 2 ได้</div>
         <div class="boxcondbox-h">Box-no</div>
         <div class="boxcondbox-h">สภาพกล่อง</div>
         <div class="boxcondbox-h">BoxCondStatus</div>
