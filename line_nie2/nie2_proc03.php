@@ -3,6 +3,28 @@
     require('../connect.php');
     require('../init_session.php');
 
+    // proc2 result that blocks Racking: lot Status (tb_proc2) or box BoxCondStatus (tb_proc2_box) = Hold / Reject.
+    // Returns ['lot' => 'Hold' | 'Reject' | '', 'boxes' => [BoxNo => 'Hold' | 'Reject']].
+    function proc2Blocks($conn, $prodName, $invNo, $wo) {
+        $lStmt = mysqli_prepare($conn,
+            "SELECT Status FROM tb_proc2 WHERE ProdName = ? AND InvNo = ? AND WO = ? LIMIT 1");
+        mysqli_stmt_bind_param($lStmt, 'sss', $prodName, $invNo, $wo);
+        mysqli_stmt_execute($lStmt);
+        $lRow = mysqli_fetch_assoc(mysqli_stmt_get_result($lStmt));
+        $lotStatus = in_array($lRow['Status'] ?? '', ['Hold', 'Reject'], true) ? $lRow['Status'] : '';
+
+        $bStmt = mysqli_prepare($conn,
+            "SELECT BoxNo, BoxCondStatus FROM tb_proc2_box
+             WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxCondStatus IN ('Hold', 'Reject')");
+        mysqli_stmt_bind_param($bStmt, 'sss', $prodName, $invNo, $wo);
+        mysqli_stmt_execute($bStmt);
+        $boxes = [];
+        foreach (mysqli_fetch_all(mysqli_stmt_get_result($bStmt), MYSQLI_ASSOC) as $bRow) {
+            $boxes[(string)$bRow['BoxNo']] = $bRow['BoxCondStatus'];
+        }
+        return ['lot' => $lotStatus, 'boxes' => $boxes];
+    }
+
     // AJAX: delete one racking record from tb_proc3
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_delete_rack'])) {
         header('Content-Type: application/json');
@@ -36,6 +58,7 @@
         $qWo       = $_POST['WO'] ?? '';
         $qRows     = [];
         $qMode     = 'existing';
+        $qBlocked  = [];
 
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         try {
@@ -56,12 +79,13 @@
                 mysqli_stmt_execute($qstmt);
                 $qRows = mysqli_fetch_all(mysqli_stmt_get_result($qstmt), MYSQLI_ASSOC);
             }
+            $qBlocked = proc2Blocks($conn, $qProdName, $qInvNo, $qWo)['boxes'];
         } catch (Throwable $e) {
             $qRows = [];
         }
 
         echo json_encode(count($qRows) > 0
-            ? ['status' => 'ok', 'mode' => $qMode, 'rows' => $qRows]
+            ? ['status' => 'ok', 'mode' => $qMode, 'rows' => $qRows, 'blocked' => (object)$qBlocked]
             : ['status' => 'fail']);
         mysqli_close($conn);
         exit;
@@ -87,6 +111,16 @@
 
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         try {
+            // proc2 Hold / Reject: lot or racked box -> save nothing.
+            $sBlock   = proc2Blocks($conn, $sProdName, $sInvNo, $sWo);
+            $sRackBox = (string)($rack['BoxNo'] ?? '');
+            if ($sBlock['lot'] !== '') {
+                throw new Exception('Lot นี้เป็น ' . $sBlock['lot'] . ' ที่ 2. Incoming ไม่ได้บันทึกข้อมูล');
+            }
+            if (isset($sBlock['boxes'][$sRackBox])) {
+                throw new Exception('กล่อง ' . $sRackBox . ' เป็น ' . $sBlock['boxes'][$sRackBox] . ' ที่ 2. Incoming ไม่ได้บันทึกข้อมูล');
+            }
+
             mysqli_begin_transaction($conn);
 
             $chk = mysqli_prepare($conn,
@@ -100,6 +134,7 @@
 
             foreach ($boxes as $b) {
                 $bNo     = (string)($b['BoxNo'] ?? '');
+                if (isset($sBlock['boxes'][$bNo])) continue;   // Hold / Reject at 2. Incoming -> never saved
                 $bDate   = $nz($b['Date'] ?? '');
                 $bTime   = $nz($b['Time'] ?? '');
                 $bLotQty = $nzi($b['LotTagQty'] ?? '');
@@ -209,6 +244,29 @@
         }
     }
 
+    // proc2 result: lot Hold / Reject, or the scanned box Hold / Reject -> cannot rack.
+    if (!empty($lot_id_raw)) {
+        $pBlock  = proc2Blocks($conn, $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw);
+        $pBoxNo  = (string)$_GET['boxNo'];
+        $pStatus = '';
+        if ($pBlock['lot'] !== '') {
+            [$pWhat, $pStatus, $pChoice] = ['Lot นี้', $pBlock['lot'], '2. Incoming - Lot (tb_proc2)'];
+        } elseif (isset($pBlock['boxes'][$pBoxNo])) {
+            [$pWhat, $pStatus, $pChoice] = ['กล่อง ' . $pBoxNo, $pBlock['boxes'][$pBoxNo], '2. Incoming - Box condition (tb_proc2_box)'];
+        }
+        if ($pStatus !== '') {
+            $pMsg = $pWhat . ' เป็น ' . $pStatus . ' ที่ 2. Incoming ยัง Racking ไม่ได้';
+            if ($pStatus === 'Hold') {
+                $pMsg .= "\nโปรดไปที่ปุ่ม 'ตัดสินใจ Hold' เลือก Process '" . $pChoice . "'"
+                       . "\nแล้วเปลี่ยนเป็น Accept / Reject / SpecialAccept ก่อน";
+            }
+            echo "<script>alert(" . json_encode($pMsg) . ");</script>";
+            $lot_id = $lot_id_raw = '';
+            $lot_prodname = $lot_invno = $lot_wo = '';
+            $lot_prodname_raw = $lot_invno_raw = $lot_wo_raw = '';
+        }
+    }
+
     // Existing racking records for every box under this Lot ID.
     $rackRows = [];
     if (!empty($lot_id_raw)) {
@@ -225,23 +283,8 @@
         }
     }
 
-    // Racking summary: unique Box-no racked vs total Box-no under this Lot ID.
+    // Racking summary: unique Box-no racked under this Lot ID.
     $rackedBoxCount = count(array_unique(array_column($rackRows, 'BoxNo')));
-    $lotBoxCount = 0;
-    if (!empty($lot_id_raw)) {
-        $bStmt = mysqli_prepare($conn, "SELECT COUNT(*) AS boxCount FROM tb_proc1 WHERE LotID = ?");
-        mysqli_stmt_bind_param($bStmt, 's', $lot_id_raw);
-        mysqli_stmt_execute($bStmt);
-        $bRow = mysqli_fetch_assoc(mysqli_stmt_get_result($bStmt));
-        $lotBoxCount = (int)($bRow['boxCount'] ?? 0);
-    }
-    if ($rackedBoxCount < $lotBoxCount) {
-        $rackSummaryText = 'Not complete';
-    } elseif ($rackedBoxCount === $lotBoxCount) {
-        $rackSummaryText = 'Completed';
-    } else {
-        $rackSummaryText = 'ERROR';
-    }
 ?>
 
 <!doctype html>
@@ -387,8 +430,6 @@
 
       <div class="racking-summary">
         <div class="racking-summary-it">Box-no ที่ใส่แร็กแล้ว: <?php echo $rackedBoxCount; ?></div>
-        <div class="racking-summary-it">Lot Box-no: <?php echo $lotBoxCount; ?></div>
-        <div class="racking-summary-it racking-summary-status"><?php echo htmlspecialchars($rackSummaryText); ?></div>
       </div>
 
       <p>
@@ -459,7 +500,8 @@
     }
 
     // One row per box. Only the scanned box's row can be input / edited.
-    function addQtyBoxRow(box, isScanned) {
+    // lockStatus = 'Hold' / 'Reject' at 2. Incoming: row shown, locked, red label in Status, never saved.
+    function addQtyBoxRow(box, isScanned, lockStatus) {
       var bulletCell = makeQtyBoxCell(null);
       if (isScanned) bulletCell.innerHTML = '<span class="blinkBullet">●</span>';
 
@@ -494,9 +536,15 @@
           ? '' : Number(actualQty.value) - Number(lotTagQty.value);
       });
 
-      [boxNo, date, time, lotTagQty, actualQty, shortOver, status, remark].forEach(makeQtyBoxCell);
+      var statusCellEl = status;
+      if (lockStatus) {
+        statusCellEl = document.createElement('span');
+        statusCellEl.style.color = 'red';
+        statusCellEl.textContent = lockStatus + ' ที่ 2. Incoming';
+      }
+      [boxNo, date, time, lotTagQty, actualQty, shortOver, statusCellEl, remark].forEach(makeQtyBoxCell);
 
-      return { isScanned: isScanned, boxNo: boxNo, date: date, time: time, lotTagQty: lotTagQty,
+      return { isScanned: isScanned, locked: !!lockStatus, boxNo: boxNo, date: date, time: time, lotTagQty: lotTagQty,
                actualQty: actualQty, shortOver: shortOver, status: status, remark: remark };
     }
 
@@ -516,6 +564,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           var rows = data.rows || [];
+          var blocked = data.blocked || {};
           var hasScanned = rows.some(function (b) { return b.BoxNo === LOT.boxNo; });
           if (data.status !== 'ok' || !hasScanned) {
             alert(NOT_FOUND_MSG);
@@ -540,7 +589,7 @@
               // boxQty parsed from the Lot Tag by parseLotTagInput() on Enter, passed through the URL
               if (b.LotTagQty === null || b.LotTagQty === '') b.LotTagQty = LOT.boxQty;
             }
-            var row = addQtyBoxRow(b, isScanned);
+            var row = addQtyBoxRow(b, isScanned, blocked[b.BoxNo] || '');
             qtyBoxRows.push(row);
             if (isScanned) scannedRow = row;
           });
@@ -682,7 +731,7 @@
         if (!document.getElementById(RACK_REQUIRED_IDS[i]).reportValidity()) return;
       }
 
-      var boxes = qtyBoxRows.map(function (r) {
+      var boxes = qtyBoxRows.filter(function (r) { return !r.locked; }).map(function (r) {
         return {
           BoxNo:     r.boxNo.value,
           Date:      r.date.value,
