@@ -302,7 +302,7 @@
                 $supSampledQtys  = $_POST['box_sampledqty'] ?? [];
                 $supRemark       = 'sampled box';
                 $supNgSumStmt = mysqli_prepare($conn,
-                    "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ?");
+                    "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ? AND Process = ?");
                 $supStmt = mysqli_prepare($conn,
                     "INSERT INTO `tb_proc2_sup`
                      (`ProdName`,`InvNo`,`WO`,`Date`,`Time`,`Opr`,`BoxNo`,`SamplingSize`,`NGqty`,`Remark`)
@@ -310,7 +310,7 @@
                 foreach ($supBoxNos as $supIdx => $supBoxNo) {
                     $supSampledQty = (int)($supSampledQtys[$supIdx] ?? 0);
 
-                    mysqli_stmt_bind_param($supNgSumStmt, 'ssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $supBoxNo);
+                    mysqli_stmt_bind_param($supNgSumStmt, 'sssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $supBoxNo, $process);
                     mysqli_stmt_execute($supNgSumStmt);
                     $supNgSumRow = mysqli_fetch_assoc(mysqli_stmt_get_result($supNgSumStmt));
                     $supNgQty = $supNgSumRow ? (int)$supNgSumRow['ngSum'] : 0;
@@ -482,10 +482,10 @@
         $sorted_boxnos = $lot_boxnos;
         sort($sorted_boxnos);
         $ngSumStmt = mysqli_prepare($conn,
-            "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ?");
+            "SELECT COALESCE(SUM(NGqty),0) AS ngSum FROM tb_ng WHERE ProdName = ? AND InvNo = ? AND WO = ? AND BoxNo = ? AND Process = ?");
         $sampleResidual = $lot_samplingsize;
         foreach ($sorted_boxnos as $boxNo):
-          mysqli_stmt_bind_param($ngSumStmt, 'ssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $boxNo);
+          mysqli_stmt_bind_param($ngSumStmt, 'sssss', $lot_prodname_raw, $lot_invno_raw, $lot_wo_raw, $boxNo, $process);
           mysqli_stmt_execute($ngSumStmt);
           $ngSumRow = mysqli_fetch_assoc(mysqli_stmt_get_result($ngSumStmt));
           $ngSum = $ngSumRow ? (int)$ngSumRow['ngSum'] : 0;
