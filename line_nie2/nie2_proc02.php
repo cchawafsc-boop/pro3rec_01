@@ -358,13 +358,12 @@
             } catch (Exception $e) {
                 mysqli_rollback($conn);
                 $saveOk = false;
-                $saveErr = $e->getMessage();   // TEMP debug - remove after fixing
             }
 
             if ($saveOk) {
                 echo "<script>alert('บันทึกข้อมูลสำเร็จ'); location.replace('./nie2_index.php');</script>";
             } else {
-                echo "<script>alert(" . json_encode('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่' . "\n" . ($saveErr ?? '')) . ");</script>";
+                echo "<script>alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');</script>";
             }
         }
     }
