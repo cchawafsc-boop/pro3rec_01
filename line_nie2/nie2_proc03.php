@@ -48,7 +48,7 @@
     }
 
     // AJAX: load the boxes of a Lot for input-qtybox.
-    // Lot already in tb_proc3_box -> mode 'existing' (saved values).
+    // Lot already in tb_proc3_box -> mode 'existing' (saved values + empty rows for boxes not saved yet).
     // Lot not in tb_proc3_box yet -> mode 'new' (box list from tb_proc2_box).
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_get_qtybox'])) {
         header('Content-Type: application/json');
@@ -70,14 +70,28 @@
             mysqli_stmt_execute($qstmt);
             $qRows = mysqli_fetch_all(mysqli_stmt_get_result($qstmt), MYSQLI_ASSOC);
 
+            $p2stmt = mysqli_prepare($conn,
+                "SELECT BoxNo FROM tb_proc2_box WHERE ProdName=? AND InvNo=? AND WO=?
+                 GROUP BY BoxNo ORDER BY CAST(BoxNo AS UNSIGNED), BoxNo");
+            mysqli_stmt_bind_param($p2stmt, 'sss', $qProdName, $qInvNo, $qWo);
+            mysqli_stmt_execute($p2stmt);
+            $p2Rows = mysqli_fetch_all(mysqli_stmt_get_result($p2stmt), MYSQLI_ASSOC);
+
             if (count($qRows) === 0) {
                 $qMode = 'new';
-                $qstmt = mysqli_prepare($conn,
-                    "SELECT BoxNo FROM tb_proc2_box WHERE ProdName=? AND InvNo=? AND WO=?
-                     GROUP BY BoxNo ORDER BY CAST(BoxNo AS UNSIGNED), BoxNo");
-                mysqli_stmt_bind_param($qstmt, 'sss', $qProdName, $qInvNo, $qWo);
-                mysqli_stmt_execute($qstmt);
-                $qRows = mysqli_fetch_all(mysqli_stmt_get_result($qstmt), MYSQLI_ASSOC);
+                $qRows = $p2Rows;
+            } else {
+                // Box not in tb_proc3_box yet (e.g. it was Hold at 2. Incoming on the earlier save) -> empty row.
+                $qSaved = array_column($qRows, 'BoxNo');
+                foreach ($p2Rows as $p2Row) {
+                    if (!in_array($p2Row['BoxNo'], $qSaved, true)) {
+                        $qRows[] = ['BoxNo' => $p2Row['BoxNo'], 'Date' => null, 'Time' => null, 'LotTagQty' => null,
+                                    'ActualQty' => null, 'ShortOver' => null, 'Status' => null, 'Remark' => null];
+                    }
+                }
+                usort($qRows, function ($a, $b) {
+                    return [(int)$a['BoxNo'], $a['BoxNo']] <=> [(int)$b['BoxNo'], $b['BoxNo']];
+                });
             }
             $qBlocked = proc2Blocks($conn, $qProdName, $qInvNo, $qWo)['boxes'];
         } catch (Throwable $e) {
