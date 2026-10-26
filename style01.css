@@ -703,6 +703,10 @@ label{
 	width: 100%;
 	height: 1.8em;
 	box-sizing: border-box;
+	color: red;
+}
+.rack-c button#submitDataBtn {
+	color:black;
 	background-color: lightgreen;
 }
 .racking-summary {
