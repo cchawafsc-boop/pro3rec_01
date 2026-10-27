@@ -727,11 +727,11 @@ label{
 }
 /*_________________________ End: Pro3-Process 3 _________________________*/
 /*============================ Pro3-Process 4 ===========================*/
-.form-pro3-proc4-g1{
+.pro3-proc4{
 	justify-items: center;
 	text-align: center;
 }
-.form-pro3-proc4-g1 button{
+.pro3-proc4 button{
 	padding: 8px 5px;
 	margin: 3px 5px;
 	width: 110px;
@@ -739,15 +739,15 @@ label{
 	border-radius: 4px;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.form-pro3-proc4-g1 button#Nie2_homeBtn{
+.pro3-proc4 button#Nie2_homeBtn{
 	color:white;
 	background-color: blue;
 }
-.form-pro3-proc4-g1 button#okBtn{
+.pro3-proc4 button#okBtn{
 	color:white;
 	background-color: green;
 }
-form .form-pro3-proc4-g1 {
+form .pro3-proc4 {
 	display: grid;
     grid-template-columns: 150px 160px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
