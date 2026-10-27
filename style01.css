@@ -838,6 +838,10 @@ label{
 	height: 1.8em;
 	box-sizing: border-box;
 }
+.pro3-proc4-g2-c .defineTankBtn {
+	border: 3px solid yellow;
+	animation: blinkBorder 1s step-start infinite;
+}
 #input-plating .blinkBorder {
 	border: 3px solid red;
 	animation: blinkBorder 1s step-start infinite;
