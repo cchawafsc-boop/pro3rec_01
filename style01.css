@@ -838,7 +838,7 @@ label{
 	height: 1.8em;
 	box-sizing: border-box;
 }
-#entryRowAnchor input.blinkBorder {
+#input-plating .blinkBorder {
 	border: 3px solid red;
 	animation: blinkBorder 1s step-start infinite;
 }
