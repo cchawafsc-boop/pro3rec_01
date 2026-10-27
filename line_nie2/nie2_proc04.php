@@ -154,11 +154,11 @@
 <body>
   <?php require('../topbar.php'); ?>
 
-  <div class="form-pro3-proc4-g1">
+  <div class="pro3-proc4">
     <h2>4 Plating — Ni-e Line 2</h2>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="form-pro3-proc4-g1">
+      <div class="pro3-proc4">
 
         <div class="pro3-proc4-g1-it"><label>Operator</label></div>
         <div class="pro3-proc4-g1-it">
@@ -229,7 +229,7 @@
           </select>
         </div>
         <div class="pro3-proc4-g2-c"><textarea id="newPltRemark" rows="2"></textarea></div>
-        <div class="pro3-proc4-g2-c"><button type="button" id="newPltSubmitBtn" disabled>บันทึกเข้าระบบ</button></div>
+        <div class="pro3-proc4-g2-c"><button type="button" id="newPltSubmitBtn" disabled>บันทึก</button></div>
       </div>
 
       <div class="pro3-proc4-summary">
