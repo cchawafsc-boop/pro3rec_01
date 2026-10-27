@@ -258,14 +258,7 @@
         <div class="pro3-proc4-g2-c"><input type="text" id="newRackNo" placeholder="Rack-no" required></div>
         <div class="pro3-proc4-g2-c"><input type="text" id="newCondChk" placeholder="Cond-chk" title="สแกน qr-code เงื่อนไขการชุบที่นี่" required></div>
         <div class="pro3-proc4-g2-c"><input type="number" id="newPltQty" placeholder="Qty" required></div>
-        <div class="pro3-proc4-g2-c">
-          <select id="newPltTankNo">
-            <op value="" selected disabled>โปรดระบุ</op>
-            <op value="1">1</op>
-            <op value="2">2</op>
-            <op value="3">3</op>
-          </select>
-        </div>
+        <div class="pro3-proc4-g2-c"><input type="text" value="ระบุภายหลัง" disabled></div>
         <div class="pro3-proc4-g2-c"><input type="number" id="newPltOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
         <div class="pro3-proc4-g2-c">
           <select id="newPltStatus">
@@ -295,7 +288,7 @@
   <?php mysqli_close($conn); ?>
 
   <script>
-    var entryIds = ['newLotPlate', 'newPlateNo', 'newRackNo', 'newCondChk', 'newPltQty', 'newPltTankNo', 'newPltStatus', 'newPltRemark'];
+    var entryIds = ['newLotPlate', 'newPlateNo', 'newRackNo', 'newCondChk', 'newPltQty', 'newPltStatus', 'newPltRemark'];
     function refreshAnchorBlink() {
       var empty = entryIds.every(function (id) { return !document.getElementById(id).value.trim(); });
       document.querySelector('#entryRowAnchor input').classList.toggle('blinkBorder', empty);
@@ -509,7 +502,6 @@
       var rackNo   = document.getElementById('newRackNo').value.trim();
       var condChk  = document.getElementById('newCondChk').value.trim();
       var qty      = document.getElementById('newPltQty').value;
-      var tankNo   = document.getElementById('newPltTankNo').value;
       var opr      = document.getElementById('newPltOpr').value;
       var status   = document.getElementById('newPltStatus').value;
       var remark   = document.getElementById('newPltRemark').value;
@@ -527,7 +519,7 @@
         RackNo:    rackNo,
         CondCheck: condChk,
         Qty:       qty,
-        PltTankNo: tankNo,
+        PltTankNo: '',
         Status:    status,
         Remark:    remark
       });
@@ -553,7 +545,7 @@
 
           addRecordRow({
             LotPlate: lotPlate, PlateNo: plateNo, RackNo: rackNo, CondCheck: condChk, Qty: qty,
-            PltTankNo: tankNo, Opr: opr, Status: status, Remark: remark
+            PltTankNo: '', Opr: opr, Status: status, Remark: remark
           }, ctx);
           updateSummary();
 
@@ -563,7 +555,6 @@
           document.getElementById('newCondChk').value = '';
           btn.disabled = true;
           document.getElementById('newPltQty').value = '';
-          document.getElementById('newPltTankNo').value = '';
           document.getElementById('newPltStatus').value = '';
           document.getElementById('newPltRemark').value = '';
           blinkOnly(null);
