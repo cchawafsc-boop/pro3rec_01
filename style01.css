@@ -747,7 +747,9 @@ label{
 	color:white;
 	background-color: green;
 }
-form .pro3-proc4 {
+.pro3-proc4-g1{
+	justify-items: center;
+	text-align: center;
 	display: grid;
     grid-template-columns: 150px 160px;  /* Defines column width */
     gap: 0px;                            /* Sets a gap between grid items */
@@ -758,6 +760,7 @@ form .pro3-proc4 {
 	justify-content: center;             /* Center the grid horizontally */
 	justify-items: stretch;              /* Let items fill column width instead of centering */
 }
+
 .pro3-proc4-g1-it{
 	display: flex;                       /* Using flexbox for vertical alignment within each cell */
     align-items: center;
