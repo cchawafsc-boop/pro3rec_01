@@ -158,7 +158,7 @@
     <h2>4 Plating — Ni-e Line 2</h2>
 
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-      <div class="pro3-proc4">
+      <div class="pro3-proc4-g1">
 
         <div class="pro3-proc4-g1-it"><label>Operator</label></div>
         <div class="pro3-proc4-g1-it">
