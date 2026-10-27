@@ -160,51 +160,42 @@
     <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
       <div class="pro3-proc4-g1">
 
-        <div class="pro3-proc4-g1-it"><label>Operator</label></div>
-        <div class="pro3-proc4-g1-it">
-          <input type="number" name="Opr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled required>
-        </div>
-
+        <div class="pro3-proc4-g1-it-bl"></div>
         <div class="pro3-proc4-g1-it"><label>Lot ID</label></div>
         <div class="pro3-proc4-g1-it">
           <input type="text" id="lotIdDisplay" value="<?php echo $lot_id ?? ''; ?>" disabled>
         </div>
 
+        <div class="pro3-proc4-g1-it-bl"></div>
         <div class="pro3-proc4-g1-it"><label>Product name</label></div>
         <div class="pro3-proc4-g1-it">
           <input type="text" id="lotProdnameDisplay" value="<?php echo $lot_prodname ?? ''; ?>" disabled>
           <input type="hidden" id="lotProdnameHidden" name="ProdName" value="<?php echo $lot_prodname ?? ''; ?>">
         </div>
 
+        <div class="pro3-proc4-g1-it-bl"></div>
         <div class="pro3-proc4-g1-it"><label>Invoice no</label></div>
         <div class="pro3-proc4-g1-it">
           <input type="text" id="lotInvnoDisplay" value="<?php echo $lot_invno ?? ''; ?>" disabled>
           <input type="hidden" id="lotInvnoHidden" name="InvNo" value="<?php echo $lot_invno ?? ''; ?>">
         </div>
 
+        <div class="pro3-proc4-g1-it-bl"></div>
         <div class="pro3-proc4-g1-it"><label>WO</label></div>
         <div class="pro3-proc4-g1-it">
           <input type="text" id="lotWoDisplay" value="<?php echo $lot_wo ?? ''; ?>" disabled>
           <input type="hidden" id="lotWoHidden" name="WO" value="<?php echo $lot_wo ?? ''; ?>">
         </div>
 
-        <div class="pro3-proc4-g1-it"><label>Date</label></div>
-        <div class="pro3-proc4-g1-it">
-          <input type="date" id="rackDate" name="Date" value="<?php echo date('Y-m-d'); ?>" required>
-        </div>
-
-        <div class="pro3-proc4-g1-it"><label>Time</label></div>
-        <div class="pro3-proc4-g1-it">
-          <input type="time" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>" disabled>
-        </div>
-
       </div>
+      <input type="hidden" id="rackDate" name="Date" value="<?php echo date('Y-m-d'); ?>">
+      <input type="hidden" id="rackTime" name="Time" value="<?php echo date('H:i'); ?>">
 
       <div id="input-plating" class="pro3-proc4-g2">
         <div class="pro3-proc4-g2-h">Lot-plate</div>
         <div class="pro3-proc4-g2-h">Plate-no</div>        
         <div class="pro3-proc4-g2-h">Rack-no</div>
-        <div class="pro3-proc4-g2-h">Cond-check</div>
+        <div class="pro3-proc4-g2-h" title="เช็คเงื่อนไขการชุบ">Condition-check</div>
         <div class="pro3-proc4-g2-h">Qty</div>
         <div class="pro3-proc4-g2-h">NieTank-no</div>
         <div class="pro3-proc4-g2-h">Operator</div>
@@ -215,7 +206,7 @@
         <div class="pro3-proc4-g2-c" id="entryRowAnchor"><input type="text" id="newLotPlate" placeholder="Lot-plate" required></div>
         <div class="pro3-proc4-g2-c"><input type="text" id="newPlateNo" placeholder="Plate-no" required></div>
         <div class="pro3-proc4-g2-c"><input type="text" id="newRackNo" placeholder="Rack-no" required></div>
-        <div class="pro3-proc4-g2-c"><input type="text" id="newCondChk" placeholder="Cond-chk" required></div>
+        <div class="pro3-proc4-g2-c"><input type="text" id="newCondChk" placeholder="Cond-chk" title="สแกน qr-code เงื่อนไขการชุบที่นี่" required></div>
         <div class="pro3-proc4-g2-c"><input type="number" id="newPltQty" placeholder="Qty" required></div>
         <div class="pro3-proc4-g2-c"><input type="number" id="newPltTankNo" placeholder="NieTank-no"></div>
         <div class="pro3-proc4-g2-c"><input type="number" id="newPltOpr" value="<?php echo htmlspecialchars($_SESSION['us_id'] ?? ''); ?>" disabled></div>
@@ -247,6 +238,14 @@
   <?php mysqli_close($conn); ?>
 
   <script>
+    var entryIds = ['newLotPlate', 'newPlateNo', 'newRackNo', 'newCondChk', 'newPltQty', 'newPltTankNo', 'newPltStatus', 'newPltRemark'];
+    function refreshAnchorBlink() {
+      var empty = entryIds.every(function (id) { return !document.getElementById(id).value.trim(); });
+      document.querySelector('#entryRowAnchor input').classList.toggle('blinkBorder', empty);
+    }
+    document.getElementById('newLotPlate').addEventListener('blur', refreshAnchorBlink);
+    refreshAnchorBlink();
+
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('newLotPlate').focus();
     });
@@ -454,6 +453,7 @@
           document.getElementById('newPltTankNo').value = '';
           document.getElementById('newPltStatus').value = '';
           document.getElementById('newPltRemark').value = '';
+          refreshAnchorBlink();
           document.getElementById('newLotPlate').focus();
         })
         .catch(function () {
